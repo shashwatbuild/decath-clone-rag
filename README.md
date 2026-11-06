@@ -1,4 +1,4 @@
-# Decath clone + RAG shopping assistant
+# Decathlon clone + RAG shopping assistant
 
 A mobile-first sports store modelled on the decathlon.in app, with 32 real products (4 per category) and a chat assistant that answers from the product data.
 
