@@ -18,7 +18,7 @@ and get grounded, clean answers with product cards you can tap.
 
 <br/>
 
-<img src="docs/demo/chat-demo.gif" width="270" alt="Demo: ask for running shoes, compare the top 2, add to cart" />
+<img src="docs/demo/chat-flow.gif" width="270" alt="Demo: ask for running shoes, compare the top 2, add to cart" />
 <img src="docs/screenshots/chat-compare.png" width="270" alt="Side-by-side comparison table in chat" />
 <img src="docs/screenshots/chat-cart.png" width="270" alt="Added to cart from the chat" />
 
