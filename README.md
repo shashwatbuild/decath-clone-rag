@@ -65,14 +65,6 @@ and get grounded, clean answers with product cards you can tap.
 |:---:|:---:|
 | <img src="docs/screenshots/chat-mat.png" width="240" /> | <img src="docs/screenshots/notifications.png" width="240" /> |
 
-### 🎬 Demo video
-
-A 1-minute walkthrough of the whole app: store → category → product page → assistant → compare → add to cart.
-
-[![Demo video cover](docs/demo/cover.png)](docs/demo/decathlon-clone-demo.mp4)
-
-**[▶ Download / play the demo (MP4, 1080p, 64 s)](docs/demo/decathlon-clone-demo.mp4)**
-
 ---
 
 ## 🛍️ The store app
