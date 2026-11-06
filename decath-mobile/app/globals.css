@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand: #3643ba;
+  --color-brand-soft: #e3e6f7;
+  --color-ink: #101010;
+  --color-line: #e1e0df;
+  --color-muted: #616161;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+/* --app-h = height of the app's screen. Full viewport on a real phone; the phone screen inside the frame. */
+:root {
+  --app-h: 100dvh;
+}
+
+html {
+  background: #ececec;
+}
+
+body {
+  color: #101010;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Phone-width shell, centered when the frame is off */
+.app-shell {
+  max-width: 440px;
+  margin: 0 auto;
+  min-height: var(--app-h);
+  background: #fff;
+  position: relative;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Phone frame (laptop / desktop) ---------- */
+
+@media (max-width: 639px) {
+  /* Real phones: no device chrome, the app is the screen */
+  .stage,
+  .phone,
+  .phone-screen,
+  .phone-viewport,
+  .phone-scroll {
+    display: contents;
+  }
+  .phone-btn,
+  .status-bar,
+  .home-indicator {
+    display: none;
+  }
+}
+
+@media (min-width: 640px) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .stage {
+    height: 100dvh;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(1200px 600px at 20% 10%, #e6e8f8 0%, transparent 60%),
+      radial-gradient(900px 500px at 85% 90%, #dfe9f3 0%, transparent 55%),
+      #eef0f4;
+  }
+
+  .phone {
+    --bezel: 12px;
+    --status-h: 50px;
+    --phone-h: min(868px, calc(100dvh - 40px));
+    position: relative;
+    width: 414px;
+    height: var(--phone-h);
+    padding: var(--bezel);
+    border-radius: 62px;
+    background: #121214;
+    box-shadow:
+      0 0 0 2px #45454a,
+      0 0 0 5px #1b1b1d,
+      0 40px 90px rgba(20, 24, 60, 0.35),
+      0 12px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  /* side buttons */
+  .phone-btn {
+    position: absolute;
+    width: 4px;
+    background: #2a2a2d;
+    border-radius: 2px;
+  }
+  .phone-btn-action { left: -7px; top: 120px; height: 30px; }
+  .phone-btn-vol-up { left: -7px; top: 175px; height: 56px; }
+  .phone-btn-vol-down { left: -7px; top: 243px; height: 56px; }
+  .phone-btn-power { right: -7px; top: 200px; height: 90px; }
+
+  .phone-screen {
+    position: relative;
+    height: 100%;
+    border-radius: 50px;
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-bar {
+    position: relative;
+    height: var(--status-h);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 30px 0 40px;
+    background: #fff;
+    color: #101010;
+    z-index: 2;
+  }
+  .status-time {
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.2px;
+    min-width: 48px;
+  }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dynamic-island {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 122px;
+    height: 35px;
+    border-radius: 20px;
+    background: #000;
+  }
+
+  /* The phone's screen area. transform makes it the containing block for position:fixed children,
+     so bottom bars, sheets, the chat button and toasts stay pinned inside the phone. It does NOT
+     scroll itself (a scrolling containing block would drag "fixed" bars along with the content). */
+  .phone-viewport {
+    --app-h: calc(var(--phone-h) - 2 * var(--bezel) - var(--status-h));
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    transform: translateZ(0);
+  }
+  .phone-scroll {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .phone-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 136px;
+    height: 5px;
+    border-radius: 3px;
+    background: #101010;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .app-shell {
+    max-width: none;
+    box-shadow: none;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.snap-x-mandatory {
+  scroll-snap-type: x mandatory;
+}
+.snap-start {
+  scroll-snap-align: start;
+}
+
+/* Keep bottom action bars clear of the home indicator inside the frame */
+@media (min-width: 640px) {
+  .bottom-bar {
+    padding-bottom: 20px !important;
+    height: auto !important;
+    min-height: 76px;
+  }
+}
