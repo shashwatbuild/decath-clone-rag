@@ -25,7 +25,7 @@ function ChatInner() {
   const [busy, setBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const pending = useRef<ChatMessage | null>(null);
-  const [source, setSource] = useState<"claude" | "gemini" | "offline" | null>(null);
+  const [source, setSource] = useState<"claude" | "gemini" | "offline" | "rag" | null>(null);
   const { addToCart, showToast } = useStore();
 
   useEffect(() => {
@@ -243,7 +243,7 @@ function ProductStrip({ ps, onAsk }: { ps: ProductLite[]; onAsk?: (s: string) =>
 function CompareTable({ c }: { c: NonNullable<ChatMessage["compare"]> }) {
   return (
     <div className="mt-2.5 border border-line rounded-xl overflow-hidden bg-white max-w-[100%]">
-      <div className="grid" style={{ gridTemplateColumns: `90px repeat(${c.products.length}, minmax(0,1fr))` }}>
+      <div className="grid" style={{ gridTemplateColumns: `84px repeat(${c.products.length}, minmax(0,1fr))` }}>
         <div />
         {c.products.map((p) => (
           <Link key={p.id} href={`/p/${p.id}`} className="p-2 border-l border-line">
@@ -255,7 +255,7 @@ function CompareTable({ c }: { c: NonNullable<ChatMessage["compare"]> }) {
         {c.rows.map((r) => (
           <div key={r.label} className="contents">
             <div className="text-[12px] font-semibold p-2 border-t border-line bg-[#FAFAFA]">{r.label}</div>
-            {r.values.map((v, i) => <div key={i} className="text-[12px] p-2 border-t border-l border-line break-words">{v}</div>)}
+            {r.values.map((v, i) => <div key={i} className="text-[12px] p-2 border-t border-l border-line break-words hyphens-auto">{v}</div>)}
           </div>
         ))}
       </div>

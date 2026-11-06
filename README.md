@@ -18,9 +18,11 @@ and get grounded, clean answers with product cards you can tap.
 
 <br/>
 
-<img src="docs/screenshots/home.png" width="260" alt="Home screen" />
-<img src="docs/screenshots/chat-mat.png" width="260" alt="Assistant recommending yoga mats" />
-<img src="docs/screenshots/chat-compare.png" width="260" alt="Assistant comparing two running shoes" />
+<img src="docs/demo/chat-demo.gif" width="270" alt="Demo: ask for running shoes, compare the top 2, add to cart" />
+<img src="docs/screenshots/chat-compare.png" width="270" alt="Side-by-side comparison table in chat" />
+<img src="docs/screenshots/chat-cart.png" width="270" alt="Added to cart from the chat" />
+
+**🎬 [Watch the 1-minute demo video (MP4, 1080p)](docs/demo/decathlon-clone-demo.mp4)**
 
 </div>
 
@@ -45,11 +47,31 @@ and get grounded, clean answers with product cards you can tap.
 |:---:|:---:|:---:|:---:|
 | <img src="docs/screenshots/home.png" width="200" /> | <img src="docs/screenshots/listing.png" width="200" /> | <img src="docs/screenshots/product.png" width="200" /> | <img src="docs/screenshots/search.png" width="200" /> |
 
-### AI shopping assistant
+### AI shopping assistant: ask → compare → add to cart
 
-| "lightest trekking backpack" | "Compare Kipride Max vs Kipcore Premium" | "thick yoga mat for knees" | Notifications → chat deep link |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/chat-list.png" width="200" /> | <img src="docs/screenshots/chat-compare.png" width="200" /> | <img src="docs/screenshots/chat-mat.png" width="200" /> | <img src="docs/screenshots/notifications.png" width="200" /> |
+| 1. "Running shoes for a marathon" | 2. "Compare the top 2" | 3. The full comparison table |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/chat-list.png" width="240" /> | <img src="docs/screenshots/chat-compare-verdict.png" width="240" /> | <img src="docs/screenshots/chat-compare.png" width="240" /> |
+| Every matching product, ranked, with a pick | A clear verdict and the key differences | Price, rating, weight, material, specs, warranty |
+
+| 4. "Add to cart" asks for your size | 5. Added from the chat | 6. It's in the real cart |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/chat-size.png" width="240" /> | <img src="docs/screenshots/chat-cart.png" width="240" /> | <img src="docs/screenshots/cart.png" width="240" /> |
+| One-tap size chips | Toast + "View my cart" | Same cart as the store, coupons included |
+
+### More
+
+| "Thick yoga mat for knees" | Notifications → chat deep link |
+|:---:|:---:|
+| <img src="docs/screenshots/chat-mat.png" width="240" /> | <img src="docs/screenshots/notifications.png" width="240" /> |
+
+### 🎬 Demo video
+
+A 1-minute walkthrough of the whole app: store → category → product page → assistant → compare → add to cart.
+
+[![Demo video cover](docs/demo/cover.png)](docs/demo/decathlon-clone-demo.mp4)
+
+**[▶ Download / play the demo (MP4, 1080p, 64 s)](docs/demo/decathlon-clone-demo.mp4)**
 
 ---
 
@@ -191,7 +213,7 @@ decath-clone-rag/
 ├── scripts/
 │   ├── build_catalog.py           # product pages → products.json
 │   └── chat-eval/                 # assistant regression conversations
-└── docs/screenshots/
+└── docs/            # screenshots/ and demo/ (video + GIF)
 ```
 
 ## 📦 Product data

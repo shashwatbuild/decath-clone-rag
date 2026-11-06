@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       const send = (o: object) => controller.enqueue(enc.encode(JSON.stringify(o) + "\n"));
-      send({ type: "meta", products: routed.products, compare: routed.compare, suggestions: routed.suggestions, action: routed.action, source: provider ?? "offline" });
+      send({ type: "meta", products: routed.products, compare: routed.compare, suggestions: routed.suggestions, action: routed.action, source: provider ?? "rag" });
 
       if (!provider) {
         send({ type: "text", delta: routed.text });

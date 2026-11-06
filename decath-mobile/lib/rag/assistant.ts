@@ -235,7 +235,7 @@ function sizeIn(lower: string, sizes: string[]): string | null {
 
 const name = (p: Product) => p.shortName;
 const ratingText = (p: Product) => (p.reviewCount ? `★ ${p.rating} (${p.reviewCount.toLocaleString("en-IN")})` : "New, no reviews yet");
-const spec = (p: Product, n: string) => p.specifications.find((s) => s.name.toLowerCase() === n.toLowerCase())?.value;
+const spec = (p: Product, n: string) => p.specifications.find((s) => s.name.toLowerCase() === n.toLowerCase())?.value.replace(/,(?=[A-Za-z])/g, ", ");
 /** One product row: "1. **Name**" then an indented details line (rendered as a muted second line). */
 const line = (p: Product, extra?: string, i?: number) =>
   `${i !== undefined ? `${i + 1}.` : "-"} **${name(p)}**\n   ${inr(p.price)}${p.mrp > p.price ? ` ~~${inr(p.mrp)}~~` : ""} · ${ratingText(p)}${extra ? ` · ${extra}` : ""}`;
@@ -555,7 +555,9 @@ function compare(pool: Product[], tokens: string[], lower: string, cats: string[
   }
   if (ps.length < 2)
     return { text: "Which two products should I compare? Name them (e.g. \"Kipride Max vs Kipcore Premium\"), paste links, or say \"compare 2 yoga mats for beginners\".", suggestions: ["Compare Kipride Max vs Kipcore Premium", "Compare 2 yoga mats for beginners", "Compare BR 100 vs BR Lite 900"] };
-  ps = ps.slice(0, 3);
+  // "compare the top 2", "compare these three": respect the number asked for (2 or 3 columns fit on a phone)
+  const asked = lower.match(/\b(2|3|two|three)\b/)?.[1];
+  ps = ps.slice(0, asked === "2" || asked === "two" ? 2 : 3);
 
   const specNames = [...new Set(ps.flatMap((p) => p.specifications.map((s) => s.name)))]
     .filter((n) => ps.filter((p) => spec(p, n)).length >= 2 && new Set(ps.map((p) => spec(p, n) ?? "—")).size > 1)
