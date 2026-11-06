@@ -14,7 +14,11 @@ const fmtTime = (t: number) =>
 
 function ChatInner() {
   const router = useRouter();
-  const focusId = useSearchParams().get("product");
+  const params = useSearchParams();
+  const focusId = params.get("product");
+  /** /chat?q=... asks that question straight away (deep links from banners, notifications, the README) */
+  const initialQ = params.get("q");
+  const askedInitial = useRef(false);
   const focus = focusId ? getProduct(focusId) : undefined;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -38,6 +42,13 @@ function ChatInner() {
   }, [focusId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, busy]);
+
+  useEffect(() => {
+    if (initialQ && !askedInitial.current && messages.length === 1) {
+      askedInitial.current = true;
+      send(initialQ);
+    }
+  }, [messages, initialQ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function send(text: string) {
     const msg = text.trim();
@@ -156,7 +167,7 @@ function ChatInner() {
             className="flex-1 min-w-0 border border-[#ccc] rounded-full px-5 py-3.5 text-[16px] outline-none focus:border-brand" />
           <button type="submit" disabled={!input.trim() || busy} aria-label="Send" className="text-brand disabled:text-[#aaa]"><IconSend className="w-8 h-8" /></button>
         </div>
-        <p className="text-center text-[13px] text-[#888] mt-3">{source === "claude" ? "Powered by Claude + product RAG" : source === "gemini" ? "Powered by Gemini + product RAG" : source === "offline" ? "Quick answers from the catalogue · AI is busy or off right now" : "Powered by product RAG"}</p>
+        <p className="text-center text-[13px] text-[#888] mt-3">{source === "claude" ? "Powered by Claude + product RAG" : source === "gemini" ? "Powered by Gemini + product RAG" : source === "offline" ? "Catalogue answers · AI is busy right now" : "Powered by product RAG"}</p>
       </form>
     </main>
   );

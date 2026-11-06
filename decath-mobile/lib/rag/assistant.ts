@@ -450,15 +450,15 @@ function listing(o: { msg: string; lower: string; tokens: string[]; cats: string
 
   const shown = pool.slice(0, 5);
   const extraInfo = (p: Product) =>
-    sort === "light" || sort === "heavy" ? (p.weightKg ? `${p.weightKg} kg` : undefined)
-    : sort === "thick" ? (thickness(p) ? `${thickness(p)} mm thick` : undefined)
+    sort === "light" || sort === "heavy" ? (p.weightKg ? `${p.weightKg} kg` : undefined)
+    : sort === "thick" ? (thickness(p) ? `${thickness(p)} mm thick` : undefined)
     : sort === "discount" ? `${discountPct(p)}% off` : undefined;
   const top = pool[0];
   let why: string;
   switch (sort) {
     case "price_asc": why = `**My pick: ${name(top)}**, the most affordable at ${inr(top.price)}.`; break;
     case "price_desc": why = `**My pick: ${name(top)}**, the top-of-the-range option at ${inr(top.price)}.`; break;
-    case "light": why = `**My pick: ${name(top)}**, the lightest${top.weightKg ? ` at about ${top.weightKg} kg` : ""}.`; break;
+    case "light": why = `**My pick: ${name(top)}**, the lightest${top.weightKg ? ` at about ${top.weightKg} kg` : ""}.`; break;
     case "thick": why = `**My pick: ${name(top)}**, the thickest at ${thickness(top)} mm, so the most cushioning for knees and joints.`; break;
     case "heavy": why = `**My pick: ${name(top)}**, the sturdiest at about ${top.weightKg} kg.`; break;
     case "discount": why = `**Best deal: ${name(top)}**, ${discountPct(top)}% off (${inr(top.price)}, was ${inr(top.mrp)}).`; break;
@@ -493,7 +493,7 @@ function summary(p: Product): Reply {
   const facts = [
     ...["Level of practice", "Fit", "Main material", "Waterproof"].filter((n) => spec(p, n)).map((n) => `- **${n}:** ${spec(p, n)}`),
     ...(p.sizes.length > 1 ? [`- **Sizes:** ${p.sizes.join(" · ")}`] : []),
-    ...(p.weightKg ? [`- **Weight:** about ${p.weightKg} kg`] : []),
+    ...(p.weightKg ? [`- **Weight:** about ${p.weightKg} kg`] : []),
     `- **Warranty:** ${p.warrantyYears ?? 1} years · 30-day returns`,
   ].join("\n");
   return {
@@ -563,7 +563,7 @@ function compare(pool: Product[], tokens: string[], lower: string, cats: string[
   const rows = [
     { label: "Price", values: ps.map((p) => inr(p.price)) },
     { label: "Rating", values: ps.map(ratingText) },
-    ...(ps.some((p) => p.weightKg) ? [{ label: "Weight", values: ps.map((p) => (p.weightKg ? `${p.weightKg} kg` : "—")) }] : []),
+    ...(ps.some((p) => p.weightKg) ? [{ label: "Weight", values: ps.map((p) => (p.weightKg ? `${p.weightKg} kg` : "—")) }] : []),
     { label: "Material", values: ps.map((p) => p.materialAndCare[0]?.value ?? spec(p, "Main material") ?? "—") },
     ...specNames.map((n) => ({ label: n, values: ps.map((p) => spec(p, n) ?? "—") })),
     { label: "Warranty", values: ps.map((p) => `${p.warrantyYears ?? 1} yr`) },

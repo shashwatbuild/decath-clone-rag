@@ -5,7 +5,7 @@ const NOTES = [
   { title: "Save ₹100 on your first order", body: "Use code NC100 on orders above ₹1,499.", href: "/c/all", when: "Today" },
   { title: "Price drop on footballs ⚽", body: "Training balls now from ₹599.", href: "/c/footballs", when: "Today" },
   { title: "New arrivals in running", body: "Kiprun Kipride Max is here: max cushioning for long runs.", href: "/p/8960547", when: "Yesterday" },
-  { title: "Not sure what to buy?", body: "Ask our chat assistant to compare products for you.", href: "/chat", when: "2 days ago" },
+  { title: "Not sure what to buy?", body: "Ask our chat assistant to compare products for you.", href: "/chat?q=" + encodeURIComponent("Compare 2 yoga mats for beginners"), when: "2 days ago" },
 ];
 
 export default function NotificationsPage() {

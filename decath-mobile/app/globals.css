@@ -103,6 +103,9 @@ body {
     height: 100%;
     border-radius: 50px;
     overflow: hidden;
+    /* clip transformed children to the rounded screen too (overflow+radius alone leaks a corner in Chrome) */
+    clip-path: inset(0 round 50px);
+    isolation: isolate;
     background: #fff;
     display: flex;
     flex-direction: column;
