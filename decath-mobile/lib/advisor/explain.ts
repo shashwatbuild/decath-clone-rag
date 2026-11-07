@@ -225,14 +225,6 @@ export function needsRows(r: Result, brief: Brief): Row[] {
   }
   if (profile.showWeight) rows.push({ label: "Weight", cells: sel.map((e) => ({ text: e.p.weightKg ? `${e.p.weightKg} kg` : NOT_SPECIFIED, tone: e.p.weightKg ? undefined : "muted" })) });
   rows.push({
-    label: "Trade-offs",
-    cells: sel.map((e) => {
-      const others = sel.filter((o) => o !== e);
-      const t = others.flatMap((o) => tradeOffs(e, o, brief));
-      return { text: t.length ? [...new Set(t)].join("; ") : "None against these options", tone: t.length ? undefined : "muted" };
-    }),
-  });
-  rows.push({
     label: "Not specified",
     cells: sel.map((e) => {
       const miss = profile.criteria.filter((c) => !c.informational && c.classify && c.classify(e.p) === null).map((c) => c.label);
@@ -344,9 +336,7 @@ export function changeEffect(a: Brief, ra: Result, b: Brief, rb: Result, keyOf: 
       const vs = prevTop && prevTop.p.id !== vb.top.p.id ? prevTop : vb.kind === "pick" ? vb.alt : null;
       const delta = vs && vs.p.price !== vb.top.p.price ? ` ${they(vb.top.p)} ${verb(vb.top.p, "costs", "cost")} ${inr(Math.abs(vb.top.p.price - vs.p.price))} ${vb.top.p.price > vs.p.price ? "more" : "less"} than the ${nm(vs.p)}.` : "";
       const why = newlyOut.length ? outNote.replace(/\.$/, "") : cause.text;
-      const cheapest = b.priority === "price" ? rb.alternatives.find((e) => e.p.price < vb.top.p.price) : undefined;
-      const cheapNote = cheapest ? ` The ${nm(cheapest.p)} (${inr(cheapest.p.price)}) also ${verb(cheapest.p, "meets", "meet")} your must-haves and ${verb(cheapest.p, "costs", "cost")} less; ${plural(cheapest.p) ? "they aren't" : "it isn't"} in your comparison yet.` : "";
-      return `${why}, so the ${nm(vb.top.p)} now ${verb(vb.top.p, "ranks", "rank")} first.${delta}${cheapNote}${inNote}`.trim();
+      return `${why}, so the ${nm(vb.top.p)} now ${verb(vb.top.p, "ranks", "rank")} first.${delta}${inNote}`.trim();
     }
     if (vb.kind === "tie") return `${outNote ? outNote + " " : ""}${cause.text}: ${vb.group.map((e) => `the ${nm(e.p)}`).join(" and ")} now fit equally, so there's no clear winner.${inNote}`;
   }

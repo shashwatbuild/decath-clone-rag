@@ -102,7 +102,7 @@ function ChatInner() {
         const done = finish(next, idx);
         setSession(done);
         const help = done.helping ? helpSummary(done.brief) + "\n\n" : "";
-        reply({ text: `${intro ? intro.replace(/ One quick question:$/, "") + "\n\n" : ""}${help}Here's your **activity brief** and my recommendation 👇 Tap any value in the brief to change it, try **What changes if…?**, or **build your activity kit** below.` });
+        reply({ text: `${intro ? intro.replace(/ One quick question:$/, "") + "\n\n" : ""}${help}Here's my pick for you 👇` });
       }
     };
     const startFlow = (st: Extract<Start, { kind: "start" }>) => {
@@ -136,21 +136,21 @@ function ChatInner() {
     // Activity kit, from chat
     if (s?.ready && /\b(build|start|make|open)\b.*\bkit\b|^my kit$/.test(lower)) {
       setSession({ ...openKit(s), anchor: idx });
-      reply({ text: "Here's your **activity kit** 👇 What do you already have for this activity? Mark each item, and I'll only suggest what you still need." });
+      reply({ text: "Let's build your kit 👇 Mark what you already have." });
       return true;
     }
     const kitChange = s?.ready ? parseKit(msg, s) : null;
     if (s && kitChange) {
       const next = commitKit(s, kitChange.items, kitChange.budget);
       setSession({ ...next, anchor: idx });
-      reply({ text: next === s ? "Your kit already says that 👇" : `**Updated your kit.** ${next.change?.lines.join(" · ")} 👇` });
+      reply({ text: next === s ? "Your kit already says that 👇" : "Updated your kit 👇" });
       return true;
     }
 
     if (s?.ready && /^undo\b/.test(lower)) {
       if (!s.undo.length) { reply({ text: "There's nothing to undo yet." }); return true; }
       setSession({ ...undo(s), anchor: idx });
-      reply({ text: "Undone ↩ Your earlier brief and recommendation are back 👇" });
+      reply({ text: "Undone ↩" });
       return true;
     }
 
@@ -172,7 +172,7 @@ function ChatInner() {
       if (patch) {
         const next = commit(s, patch, "stated");
         setSession({ ...next, anchor: idx });
-        reply({ text: next === s ? "Your brief already says that, so nothing changed 👇" : `**Updated your brief.** ${next.change?.effect ?? ""} 👇` });
+        reply({ text: next === s ? "Your brief already says that 👇" : "Updated 👇" });
         return true;
       }
     }
@@ -305,12 +305,14 @@ function ChatInner() {
         <button onClick={() => router.back()} className="ml-auto" aria-label="Close chat"><IconClose className="w-7 h-7" /></button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
         {messages.map((m, i) => (
           <div key={i}>
-            <Bubble m={m} onSuggest={(t) => send(t)} isLast={i === messages.length - 1} />
-            {m.cards && session && (i === messages.length - 1 || session.ready) && (
-              <div className="pl-11">
+            <Bubble m={m} onSuggest={(t) => send(t)} isLast={i === messages.length - 1}
+              showTime={i === messages.length - 1 || messages[i + 1].role !== m.role} />
+            {/* answered type cards collapse: the shopper's reply already shows the choice */}
+            {m.cards && session && i === messages.length - 1 && (
+              <div className="pl-10">
                 <TypeCards brief={session.brief} id={m.cards} active={i === messages.length - 1 && !busy} onAnswer={(t) => send(t)} />
               </div>
             )}
@@ -326,6 +328,7 @@ function ChatInner() {
                 onOpenKit={() => setSession((s) => (s ? openKit(s) : s))}
                 onKit={kitEdit}
                 onAddKit={addKitToCart}
+                onView={(view) => setSession((s) => (s ? { ...s, view } : s))}
               />
             )}
           </div>
@@ -356,37 +359,37 @@ function ChatInner() {
 
 function Avatar() {
   return (
-    <span className="w-9 h-9 rounded-full bg-brand grid place-items-center shrink-0 mb-6">
-      <DecathlonMark className="w-[22px] h-[18px] text-white" />
+    <span className="w-8 h-8 rounded-full bg-brand grid place-items-center shrink-0 mb-5">
+      <DecathlonMark className="w-[20px] h-[16px] text-white" />
     </span>
   );
 }
 
-function Bubble({ m, onSuggest, isLast }: { m: ChatMessage; onSuggest: (s: string) => void; isLast: boolean }) {
+function Bubble({ m, onSuggest, isLast, showTime }: { m: ChatMessage; onSuggest: (s: string) => void; isLast: boolean; showTime: boolean }) {
   if (m.role === "user")
     return (
       <div className="flex flex-col items-end">
-        <div className="bg-[#F3F3F4] rounded-3xl px-5 py-3.5 max-w-[82%] text-[16px] whitespace-pre-wrap break-words">{m.text}</div>
-        <span className="text-[13px] text-[#666] mt-1.5 mr-1">{fmtTime(m.time)}</span>
+        <div className="bg-brand text-white rounded-[20px] rounded-br-md px-4 py-3 max-w-[80%] text-[15px] leading-[1.45] whitespace-pre-wrap break-words">{m.text}</div>
+        {showTime && <span className="text-[12px] text-[#8a8a8e] mt-1 mr-1">{fmtTime(m.time)}</span>}
       </div>
     );
   return (
     <div className="flex items-end gap-2">
-      <Avatar />
+      {showTime ? <Avatar /> : <span className="w-8 shrink-0" />}
       <div className="min-w-0 flex-1">
-        <div className="bg-[#EEEFF3] rounded-[22px] rounded-bl-md px-4 py-3.5 max-w-[94%] w-fit">
+        <div className="bg-[#F2F3F7] rounded-[20px] rounded-bl-md px-4 py-3 max-w-[94%] w-fit">
           <RichText text={m.text} />
         </div>
         {m.compare && <CompareTable c={m.compare} />}
         {m.products && m.products.length > 0 && !m.compare && <ProductStrip ps={m.products} onAsk={isLast ? onSuggest : undefined} />}
-        {isLast && m.suggestions && (
-          <div className="flex flex-wrap gap-2 mt-3">
+        {isLast && m.suggestions && m.suggestions.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2.5">
             {m.suggestions.map((s) => (
-              <button key={s} onClick={() => onSuggest(s)} className="border border-brand text-brand rounded-full px-3.5 py-1.5 text-[14px] text-left">{s}</button>
+              <button key={s} onClick={() => onSuggest(s)} className="bg-white border border-brand/60 text-brand rounded-full px-3.5 min-h-[36px] text-[14px] text-left">{s}</button>
             ))}
           </div>
         )}
-        <span className="block text-[13px] text-[#666] mt-1.5 ml-1">{fmtTime(m.time)}</span>
+        {showTime && <span className="block text-[12px] text-[#8a8a8e] mt-1 ml-1">{fmtTime(m.time)}</span>}
       </div>
     </div>
   );

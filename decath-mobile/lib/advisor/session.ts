@@ -15,6 +15,8 @@ import { kitChangeText, kitDefs, newKit, type Kit, type KitItem } from "./kit";
 
 export type Snapshot = { brief: Brief; selected: string[]; kit: Kit | null };
 export type Change = { lines: string[]; effect: string; undone?: boolean; n: number };
+/** Which tab of the recommendation area is showing (UI state, not part of Undo) */
+export type View = "pick" | "compare" | "adjust" | "kit";
 export type Session = {
   brief: Brief;
   selected: string[];
@@ -37,6 +39,7 @@ export type Session = {
   chosen: string | null;
   /** activity kit; null until "Build my activity kit" */
   kit: Kit | null;
+  view?: View;
 };
 export type SavedPrefs = Partial<Record<ProfileId, Pick<Brief, "values" | "must" | "priority">>>;
 
@@ -169,7 +172,7 @@ export function openKit(s: Session): Session {
   if (s.kit) return s;
   const r = evaluateBrief(s.brief, s.selected);
   const top = r.verdict.kind === "pick" || r.verdict.kind === "only" ? r.verdict.top.p.id : null;
-  return { ...s, kit: newKit(s.brief, s.chosen ?? top) };
+  return { ...s, kit: newKit(s.brief, s.chosen ?? top), view: "kit" };
 }
 
 /** Change kit items or the kit budget (one Undo step, with a summary). */
@@ -194,7 +197,7 @@ function kitEffect(s: Session, kit: Kit): string {
   const buying = defs.filter((d) => { const i = kit.items[d.id]; return i && (i.state === "need" || (i.state === "unsure" && i.include)); });
   const owned = defs.filter((d) => kit.items[d.id]?.state === "own");
   if (owned.length && owned.length + defs.filter((d) => kit.items[d.id]?.state === "skip").length === defs.length) return "You have the items selected for this kit. No new purchases needed.";
-  return `Kit updated: ${buying.length} item${buying.length === 1 ? "" : "s"} to buy, ${owned.length} already covered.`;
+  return `${kitChangeText(s.brief, s.kit!, kit).join(" · ")}. ${buying.length} to buy, ${owned.length} owned.`;
 }
 
 function selectionEffect(r: ReturnType<typeof evaluateBrief>): string {

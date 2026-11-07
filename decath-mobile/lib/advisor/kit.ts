@@ -128,7 +128,7 @@ export function kitChangeText(brief: Brief, before: Kit, after: Kit): string[] {
   for (const d of kitDefs(brief)) {
     const a = before.items[d.id], b = after.items[d.id];
     if (!a || !b) continue;
-    if (a.state !== b.state) out.push(`${d.label}: ${b.state ? STATE_TEXT[b.state] : "undecided"}${b.state === "own" ? " (removed from purchases and totals)" : b.state === "skip" ? " (excluded)" : ""}`);
+    if (a.state !== b.state) out.push(`${d.label}: ${b.state ? STATE_TEXT[b.state] : "undecided"}`);
     if (a.pick !== b.pick) out.push(b.pick ? `${d.label}: ${getProduct(b.pick)?.shortName} selected` : `${d.label}: selection removed`);
     if (a.size !== b.size && b.size) out.push(`${d.label}: size ${b.size}`);
     if (a.include !== b.include && b.state === "unsure") out.push(`${d.label}: ${b.include ? "included" : "left out"}`);
