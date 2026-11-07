@@ -261,7 +261,7 @@ type BriefLine = { key: string; label: string; hint?: string; value: string; kin
 export function briefLines(brief: Brief): BriefLine[] {
   const profile = profileOf(brief);
   const lines: BriefLine[] = [
-    { key: "profile", label: "Activity", value: `${profile.activity} · ${profile.noun.replace(/^yoga |^trekking /, "")}`, kind: null },
+    { key: "profile", label: "Activity", value: profile.noun.charAt(0).toUpperCase() + profile.noun.slice(1), kind: null },
   ];
   const hint = (k: string, c?: { role: string; label: string }) =>
     brief.sources[k] === "implied" ? "Set from trip duration" : brief.sources[k] === "saved" ? "Saved preference" : c?.role === "use" ? c.label : undefined;

@@ -60,43 +60,42 @@ and get grounded answers, an editable activity brief, honest trade-offs and "wha
 | <img src="docs/screenshots/chat-size.png" width="240" /> | <img src="docs/screenshots/chat-cart.png" width="240" /> | <img src="docs/screenshots/cart.png" width="240" /> |
 | One-tap size chips | Toast + "View my cart" | Same cart as the store, coupons included |
 
-### Personalised shopping advisor: pant type → brief → trade-offs → what changes if…? → kit
+### Personalised shopping advisor: pant type → pick → compare → what changes if…? → kit
 
-*"I'm starting yoga and want pants under ₹1,000"*: the assistant keeps what you said (yoga, beginner, ₹1,000), starts with the **type of pants** you want, asks at most two more questions, then shows one live recommendation area that updates as you change your mind.
+*"I'm starting yoga and want pants under ₹1,000"*: the assistant keeps what you said (yoga, beginner, ₹1,000), starts with the **type of pants** you want, then shows one tidy card: your brief as chips, one change note with Undo, and four tabs (**Pick · Compare · Adjust · Kit**).
 
-| 1. Pick your type of yoga pants | 2. One or two quick questions | 3. Editable activity brief |
+| 1. Pick your type of yoga pants | 2. Up to two quick questions | 3. One clear pick |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/advisor-types.png" width="240" /> | <img src="docs/screenshots/advisor-question.png" width="240" /> | <img src="docs/screenshots/advisor-brief.png" width="240" /> |
-| Visual cards from the catalogue; choose several, "Help me choose" or "No preference" | Fit / practice, each skippable; nothing asked twice | Only what you told us; must-have vs preference on every value |
+| <img src="docs/screenshots/advisor-types.png" width="240" /> | <img src="docs/screenshots/advisor-question.png" width="240" /> | <img src="docs/screenshots/advisor-recommendation.png" width="240" /> |
+| Cards from the catalogue; choose several, "Help me choose" or "No preference" | Each skippable; nothing asked twice | Brief chips (filled = must-have) and a one-line reason |
 
-| 4. Recommendation with trade-offs | 5. Compared "For your needs" | 6. View product evidence |
+| 4. Details fold away | 5. Product evidence | 6. Your brief, in full |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/advisor-recommendation.png" width="240" /> | <img src="docs/screenshots/advisor-compare.png" width="240" /> | <img src="docs/screenshots/advisor-evidence.png" width="240" /> |
-| "Matches your preferred flared style … ₹200 more than the capri" | Labels like *Matches your preferred flared style*, *Lowest price among these options* | Each claim links to the catalogue field behind it |
+| <img src="docs/screenshots/advisor-why.png" width="240" /> | <img src="docs/screenshots/advisor-evidence.png" width="240" /> | <img src="docs/screenshots/advisor-brief.png" width="240" /> |
+| Why it fits · what you give up · still to check | Every claim maps to a catalogue field | Only what you told it; tap a row to edit |
 
-| 7. What changes if…? "Lowest price" | 8. The effect is explained | 9. Undo restores the earlier pick |
+| 7. Compare "For your needs" | 8. "All specifications" | 9. What changes if…? "Lowest price" |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/advisor-whatif.png" width="240" /> | <img src="docs/screenshots/advisor-change.png" width="240" /> | <img src="docs/screenshots/advisor-undo.png" width="240" /> |
-| Budget, pant type, fit, waist, fabric, pockets, practice, priority | Capri ranks first; cheaper leggings flagged outside the comparison | Brief, ranking, comparison (and kit) roll back |
+| <img src="docs/screenshots/advisor-compare.png" width="240" /> | <img src="docs/screenshots/advisor-specs.png" width="240" /> | <img src="docs/screenshots/advisor-whatif.png" width="240" /> |
+| ✓ / ✗ against your brief, "Not specified" when missing | Every field side by side | One note explains the effect, with Undo |
 
-| 10. Build my activity kit | 11. Owned mat and skipped strap excluded | 12. Separate kit budget |
+| 10. The pick updates | 11. Undo restores it | 12. Refine my preferences |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/advisor-change.png" width="240" /> | <img src="docs/screenshots/advisor-undo.png" width="240" /> | <img src="docs/screenshots/advisor-refine.png" width="240" /> |
+| Capri ranks first: "₹200 less than the trackpants" | Brief, ranking, comparison and kit roll back | Feel, waistband, use, colour, length |
+
+| 13. Build my activity kit | 14. Owned mat, skipped strap | 15. Separate kit budget |
 |:---:|:---:|:---:|
 | <img src="docs/screenshots/advisor-kit-start.png" width="240" /> | <img src="docs/screenshots/advisor-kit.png" width="240" /> | <img src="docs/screenshots/advisor-kit-over.png" width="240" /> |
-| Already own / Need this / Not sure / Skip; nothing assumed | Your chosen pants carry over without duplicates; size before cart | Over budget? Cheaper eligible swaps, remove optional items, or raise it yourself |
+| Already own / Need this / Not sure / Skip; nothing assumed | Your pants carry over without duplicates; size before cart | Over budget? Cheaper swaps, or raise it yourself |
 
-| Refine my preferences | Flared as a must-have | No match? Explicit choices | Edit in a bottom sheet |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/advisor-refine.png" width="200" /> | <img src="docs/screenshots/advisor-must.png" width="200" /> | <img src="docs/screenshots/advisor-conflict.png" width="200" /> | <img src="docs/screenshots/advisor-sheet.png" width="200" /> |
-| Feel, waistband, use, colour, length | The capri is marked as not meeting it | Never silently raises the budget | Preference ↔ must-have |
-
-| All specifications | Another sport, its own criteria | Backpack "What changes if…?" |
-|:---:|:---:|:---:|
-| <img src="docs/screenshots/advisor-specs.png" width="200" /> | <img src="docs/screenshots/advisor-backpack.png" width="200" /> | <img src="docs/screenshots/advisor-backpack-whatif.png" width="200" /> |
-| Every catalogue field; "Not specified" when missing | "4 day trek" → 60 L+ capacity (editable) | Trip duration, capacity, lightest, budget |
+| Must-have in a bottom sheet | Flared required: capri marked | No match? Explicit choices | Another sport, own criteria | Backpack controls |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/advisor-sheet.png" width="160" /> | <img src="docs/screenshots/advisor-must.png" width="160" /> | <img src="docs/screenshots/advisor-conflict.png" width="160" /> | <img src="docs/screenshots/advisor-backpack.png" width="160" /> | <img src="docs/screenshots/advisor-backpack-whatif.png" width="160" /> |
 
 ### More
 
-| "Thick yoga mat for knees" | Notifications → chat deep link |
+| "Thick yoga mat for knees" (guided flow) | Notifications → chat deep link |
 |:---:|:---:|
 | <img src="docs/screenshots/chat-mat.png" width="240" /> | <img src="docs/screenshots/notifications.png" width="240" /> |
 

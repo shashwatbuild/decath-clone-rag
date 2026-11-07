@@ -97,7 +97,7 @@ function BriefSummary({ brief, onEdit, saved, onSave }: { brief: Brief; onEdit: 
             <li key={l.key}>
               <button onClick={() => onEdit(l.key)} aria-label={`${l.label}: ${l.value}. Edit`}
                 className={`rounded-full text-[13px] px-3 min-h-[32px] border ${l.kind === "must" ? "bg-brand border-brand text-white" : "bg-[#F5F5F7] border-[#F5F5F7] text-[#222]"}`}>
-                {l.key === "budget" ? l.value.replace("Up to ", "≤ ") : l.key === "profile" ? PROFILES[brief.profile].noun.replace(/^./, (c) => c.toUpperCase()) : l.value}
+                {l.key === "budget" ? l.value.replace("Up to ", "≤ ") : l.value}
               </button>
             </li>
           ))}
