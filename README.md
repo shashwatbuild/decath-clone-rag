@@ -5,8 +5,8 @@
 **A pixel-faithful mobile sports store, with an AI shopping assistant that actually knows the catalogue.**
 
 Browse 32 real products, filter and sort, compare gear, add to cart, and ask the assistant things like
-*"lightest trekking backpack"*, *"compare Kipride Max vs Kipcore Premium"* or *"thick yoga mat for knees"*,
-and get grounded, clean answers with product cards you can tap.
+*"lightest trekking backpack"*, *"compare Kipride Max vs Kipcore Premium"* or *"I'm starting yoga and want pants under ₹1,000"*,
+and get grounded answers, an editable activity brief, honest trade-offs and "what changes if…?" controls.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19-149eca?logo=react)
@@ -19,8 +19,8 @@ and get grounded, clean answers with product cards you can tap.
 <br/>
 
 <img src="docs/demo/chat-flow.gif" width="270" alt="Demo: ask for running shoes, compare the top 2, add to cart" />
-<img src="docs/screenshots/chat-compare.png" width="270" alt="Side-by-side comparison table in chat" />
-<img src="docs/screenshots/chat-cart.png" width="270" alt="Added to cart from the chat" />
+<img src="docs/screenshots/advisor-recommendation.png" width="270" alt="Personalised recommendation with why it fits, what you give up and what to check" />
+<img src="docs/screenshots/advisor-whatif.png" width="270" alt="What changes if…? controls with the effect of the change and Undo" />
 
 **🎬 [Watch the 1-minute demo video (MP4, 1080p)](docs/demo/decathlon-clone-demo.mp4)**
 
@@ -34,6 +34,7 @@ and get grounded, clean answers with product cards you can tap.
 - 🛍️ **Complete shopping flow**: home, categories, search, filters & sort, rich product pages, wishlist, cart with coupons, notifications.
 - 🤖 **RAG shopping assistant**: retrieves facts from the catalogue (BM25 over product chunks), understands intent, then writes the answer, offline or with **Gemini** / **Claude**.
 - 🧠 **Understands real shopper language**: budgets ("under 2k", "1000 se kam"), who it's for ("for my wife"), needs ("good cushioning", "for knees"), follow-ups ("the second one"), typos ("shose").
+- 🧭 **Personalised shopping advisor**: builds an editable **activity brief** (must-haves vs preferences), recommends with **trade-offs and evidence**, and lets you explore **"What changes if…?"** with Undo.
 - 🛒 **Takes actions**: "add it to cart" asks for your size, then adds it to the real cart.
 - ✅ **Honest by design**: answers only from catalogue facts, says when something isn't stocked, and keeps working if the AI is down.
 
@@ -58,6 +59,30 @@ and get grounded, clean answers with product cards you can tap.
 |:---:|:---:|:---:|
 | <img src="docs/screenshots/chat-size.png" width="240" /> | <img src="docs/screenshots/chat-cart.png" width="240" /> | <img src="docs/screenshots/cart.png" width="240" /> |
 | One-tap size chips | Toast + "View my cart" | Same cart as the store, coupons included |
+
+### Personalised shopping advisor: brief → recommendation → what changes if…?
+
+*"I'm starting yoga and want pants under ₹1,000"*: the assistant keeps what you said (yoga, beginner, ₹1,000), asks only what could change the answer, then shows one live recommendation area that updates as you change your mind.
+
+| 1. Asks only what's missing | 2. Editable activity brief | 3. Recommendation with trade-offs |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/advisor-question.png" width="240" /> | <img src="docs/screenshots/advisor-brief.png" width="240" /> | <img src="docs/screenshots/advisor-recommendation.png" width="240" /> |
+| Activity, level and budget aren't asked again | Must-haves vs preferences; tap any value to edit | Why it fits · what you give up · what still needs checking |
+
+| 4. Compared "For your needs" | 5. "All specifications" view | 6. View product evidence |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/advisor-compare.png" width="240" /> | <img src="docs/screenshots/advisor-specs.png" width="240" /> | <img src="docs/screenshots/advisor-evidence.png" width="240" /> |
+| Neutral labels: within budget, lowest price, matches coverage | Every catalogue field; "Not specified" when missing | Each claim links to the catalogue field behind it |
+
+| 7. What changes if…? "Lowest price" | 8. The effect is explained | 9. Undo restores the earlier pick |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/advisor-whatif.png" width="240" /> | <img src="docs/screenshots/advisor-change.png" width="240" /> | <img src="docs/screenshots/advisor-undo.png" width="240" /> |
+| Budget slider, coverage, priority, practice type | "The capri now ranks first. It costs ₹200 less…" | Brief, ranking and comparison all roll back |
+
+| Edit in a bottom sheet | No match? Explicit choices | Another sport, its own criteria | Backpack "What changes if…?" |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/advisor-sheet.png" width="200" /> | <img src="docs/screenshots/advisor-conflict.png" width="200" /> | <img src="docs/screenshots/advisor-backpack.png" width="200" /> | <img src="docs/screenshots/advisor-backpack-whatif.png" width="200" /> |
+| Make a preference a must-have | Never silently raises the budget | "4 day trek" → 60 L+ capacity (editable) | Trip duration, capacity, lightest, budget |
 
 ### More
 
@@ -123,6 +148,17 @@ flowchart LR
 - **Works with no API key**: the offline assistant answers from the same retrieved facts.
 - **Gemini resilience**: low "thinking" for faster replies, a 12-second budget for the first words, a quick retry on "high demand" errors, a backup model, and a 2-minute cooldown where answers come instantly from the catalogue.
 - **Regression tests**: `scripts/chat-eval/` holds 36 real shopper conversations (50 turns) that you can re-run after any change.
+
+### Personalised shopping advisor
+
+For yoga pants, yoga mats and trekking backpacks, a request that describes a need ("I'm starting yoga and want pants under ₹1,000", "lightest trekking backpack for a 4 day trek", "compare 2 yoga mats for beginners") starts a guided flow. It runs on the device, so changes are instant and can't race.
+
+- **Activity brief** (`lib/advisor/session.ts`): extracts activity, level, budget and preferences from the message, then asks at most 3 questions, and only those whose answer would separate the products still in play (with Skip / Not sure). Every value is editable; a stated budget is a must-have.
+- **One source of truth**: chat messages ("make it under 800"), brief edits and "What changes if…?" controls all commit to the same session, with a short "what changed" summary and multi-step **Undo**.
+- **Filter → rank → explain** (`lib/advisor/engine.ts`): must-haves decide eligibility (never silently relaxed); eligible products are ranked by your priority and preferences; the deciding reason is recorded. No percentage scores: if the data can't separate two products, it says **"Both are suitable"**.
+- **Explanations from facts only** (`lib/advisor/explain.ts`): every sentence is built from the ranking reasons and catalogue fields, with a "View product evidence" panel. Missing data shows as **"Not specified"**, and a control whose data is missing says it "can't be evaluated" instead of faking a change.
+- **Profiles per sport** (`lib/advisor/profiles.ts`): each category defines its own criteria, questions and controls (yoga: coverage, practice type; backpacks: trip duration, capacity, weight). Adding a sport is adding a profile.
+- **Saved preferences** are opt-in and stored on this device only (there are no accounts); the budget is never saved.
 
 ---
 
@@ -193,12 +229,14 @@ decath-clone-rag/
 │   │   ├── PhoneFrame.tsx         # iPhone frame on desktop
 │   │   ├── ProductView.tsx        # product page UI
 │   │   ├── ListingView.tsx        # listing + sort/filter sheets
-│   │   └── RichText.tsx           # renders assistant replies
+│   │   ├── RichText.tsx           # renders assistant replies
+│   │   └── advisor/AdvisorPanel.tsx  # brief, recommendation, comparison, what-if
 │   ├── lib/
 │   │   ├── rag/index.ts           # chunking + BM25 retrieval + typo correction
 │   │   ├── rag/assistant.ts       # intent understanding + grounded replies
 │   │   ├── rag/llm.ts             # prompt, context building, provider choice
 │   │   ├── rag/gemini.ts          # Gemini streaming with fallbacks
+│   │   ├── advisor/               # shopping advisor: profiles, engine, explanations, session
 │   │   ├── products.ts            # catalogue helpers
 │   │   └── store.tsx              # cart / wishlist state
 │   └── data/products.json         # 32 products, 8 categories
@@ -227,6 +265,12 @@ python3 scripts/chat-eval/run.py scripts/chat-eval/cases.json
 ```
 
 It sends every conversation through `/api/chat` and prints the products picked and the reply, so you can spot regressions quickly.
+
+The shopping advisor has its own checks (demo journey, budget conflicts, undo, missing data, other sports), no server needed:
+
+```bash
+cd decath-mobile && node scripts/advisor-check.mjs
+```
 
 ---
 

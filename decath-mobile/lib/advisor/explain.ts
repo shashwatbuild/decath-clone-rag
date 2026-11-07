@@ -199,7 +199,7 @@ export function needsRows(r: Result, brief: Brief): Row[] {
       continue;
     }
     rows.push({
-      label: `${c.label}${brief.must[c.id] && c.canBeMust ? " (must)" : ""}`,
+      label: `${c.id === "level" ? "Level" : c.label}${brief.must[c.id] && c.canBeMust ? " (must)" : ""}`,
       cells: sel.map((e) => {
         const ch = e.checks.find((x) => x.id === c.id)!;
         return { text: `${ch.status === "match" ? "✓ " : ch.status === "mismatch" ? "✗ " : ""}${ch.listed}`, tone: tone(ch.status) };
@@ -301,7 +301,15 @@ export function changeEffect(a: Brief, ra: Result, b: Brief, rb: Result, keyOf: 
   if (a.profile !== b.profile) return `Switched to ${profileOf(b).noun}. Your level and budget carried over; other preferences start fresh.`;
   if (vb.kind === "none") return vb.conflict.text;
   const newlyOut = rb.selected.filter((e) => !e.eligible && ra.selected.find((o) => o.p.id === e.p.id)?.eligible);
-  const outNote = newlyOut.map((e) => `The ${nm(e.p)} ${verb(e.p, "is", "are")} now ${blockerText(e.blockers[0]).toLowerCase()}.`).join(" ");
+  const nowOut = (e: Eval) => {
+    const c = e.blockers[0];
+    if (c.id === "budget") return `The ${nm(e.p)} ${verb(e.p, "is", "are")} now above your budget.`;
+    if (c.id === "stock") return `The ${nm(e.p)} ${verb(e.p, "is", "are")} currently unavailable.`;
+    return c.status === "unknown"
+      ? `The ${nm(e.p)} can't be confirmed for your ${c.label.toLowerCase()} must-have (not specified).`
+      : `The ${nm(e.p)} no longer ${verb(e.p, "meets", "meet")} your ${c.label.toLowerCase()} must-have.`;
+  };
+  const outNote = newlyOut.map(nowOut).join(" ");
   const newlyIn = rb.alternatives.filter((e) => !ra.eligible.some((o) => o.p.id === e.p.id)).slice(0, 2);
   const inNote = newlyIn.length ? ` ${newlyIn.map((e) => `The ${nm(e.p)}`).join(" and ")} now ${newlyIn.length > 1 || plural(newlyIn[0].p) ? "fit" : "fits"} your brief; you can add ${newlyIn.length > 1 ? "them" : "it"} to the comparison.` : "";
 
