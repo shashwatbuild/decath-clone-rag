@@ -22,7 +22,7 @@ and get grounded answers, an editable activity brief, honest trade-offs and "wha
 <img src="docs/screenshots/advisor-recommendation.png" width="270" alt="Personalised recommendation with why it fits, what you give up and what to check" />
 <img src="docs/screenshots/advisor-whatif.png" width="270" alt="What changes if…? controls with the effect of the change and Undo" />
 
-**🎬 [Watch the 90-second demo video (MP4, 1080p): store → activity brief → trade-offs → what changes if…? → cart](docs/demo/decathlon-clone-demo.mp4)**
+**🎬 [Watch the 2½-minute demo video (MP4, 1080p): store → search → RAG answers & comparison → pant type → activity brief → trade-offs → what changes if…? → activity kit → cart](docs/demo/decathlon-clone-demo.mp4)**
 
 </div>
 
