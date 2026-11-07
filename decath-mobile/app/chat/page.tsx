@@ -8,6 +8,19 @@ import { getProduct, img, inr } from "@/lib/products";
 import { useStore } from "@/lib/store";
 import RichText from "@/components/RichText";
 import { DecathlonMark, IconClose, IconHome, IconSend } from "@/components/Icons";
+import AdvisorPanel from "@/components/advisor/AdvisorPanel";
+import { RE } from "@/lib/rag/assistant";
+import { applyPatch, questionsFor, type BriefPatch } from "@/lib/advisor/engine";
+import { PROFILES } from "@/lib/advisor/profiles";
+import {
+  acknowledge, answer, begin, commit, detectStart, finish, parseUpdate, questionMessage, undo,
+  type SavedPrefs, type Session, type Start,
+} from "@/lib/advisor/session";
+
+const SAVED_KEY = "dc.briefs";
+function loadSaved(): SavedPrefs {
+  try { return JSON.parse(localStorage.getItem(SAVED_KEY) ?? "{}") as SavedPrefs; } catch { return {}; }
+}
 
 const fmtTime = (t: number) =>
   new Date(t).toLocaleString("en-IN", { weekday: "short", hour: "numeric", minute: "2-digit", hour12: true }).replace(",", "");
@@ -27,6 +40,13 @@ function ChatInner() {
   const pending = useRef<ChatMessage | null>(null);
   const [source, setSource] = useState<"claude" | "gemini" | "offline" | "rag" | null>(null);
   const { addToCart, showToast } = useStore();
+  /** The guided shopping session: one source of truth for brief, comparison and Undo */
+  const [session, setSession] = useState<Session | null>(null);
+  const sessionRef = useRef<Session | null>(null);
+  sessionRef.current = session;
+  const pendingStart = useRef<{ msg: string; options: { id: string; label: string }[] } | null>(null);
+  const [saved, setSaved] = useState<SavedPrefs>({});
+  useEffect(() => { setSaved(loadSaved()); }, []);
 
   useEffect(() => {
     setMessages([{
@@ -37,7 +57,7 @@ function ChatInner() {
         : "Hi! 👋 Welcome to Decathlon Sports India 🏃\nHow can I assist you today? 😊",
       suggestions: focus
         ? ["What is it made of?", "What sizes are available?", "Is it good for beginners?", "Compare with a similar product"]
-        : ["Help me explore a product 🤔📦", "Running shoes for a marathon", "Compare 2 yoga pants which will be suitable for beginners", "Lightest trekking backpack", "What's on sale?"],
+        : ["Help me explore a product 🤔📦", "I'm starting yoga and want pants under ₹1,000", "Running shoes for a marathon", "Lightest trekking backpack", "What's on sale?"],
     }]);
   }, [focusId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -50,7 +70,112 @@ function ChatInner() {
     }
   }, [messages, initialQ]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function send(text: string) {
+  /**
+   * Guided shopping flow, handled on the device with the shared advisor engine (no network, so rapid
+   * changes can't race). Returns true when the message was handled here.
+   */
+  function advisorTurn(msg: string): boolean {
+    const s = sessionRef.current;
+    const lower = msg.toLowerCase();
+    const idx = messages.length + 1; // index of the reply we're about to add
+    const reply = (m: Partial<ChatMessage>) => setMessages((ms) => [...ms, { role: "assistant", time: Date.now(), text: "", ...m }]);
+    if (RE.addCart.test(lower) || /^(view|open|go to|show) (my )?cart$/i.test(msg)) return false;
+
+    // switching activity keeps the previous brief one Undo away
+    const carryUndo = (next: Session): Session =>
+      s?.ready
+        ? {
+            ...next,
+            undo: [...s.undo, { brief: s.brief, selected: s.selected }].slice(-20),
+            change: next.brief.profile !== s.brief.profile
+              ? { lines: [`Activity: ${PROFILES[s.brief.profile].noun} → ${PROFILES[next.brief.profile].noun}`], effect: `Started a new brief for ${PROFILES[next.brief.profile].noun}. Undo returns to your ${PROFILES[s.brief.profile].noun} brief.`, n: (s.change?.n ?? 0) + 1 }
+              : null,
+          }
+        : next;
+    const advance = (next: Session, intro?: string) => {
+      if (next.queue.length) {
+        setSession(next);
+        reply(questionMessage(next, intro));
+      } else {
+        setSession(finish(next, idx));
+        reply({ text: `${intro ? intro.replace(/ One quick question:$/, "") + "\n\n" : ""}Here's your **activity brief** and my recommendation 👇 Tap any value in the brief to change it, or try **What changes if…?** below.` });
+      }
+    };
+    const startFlow = (st: Extract<Start, { kind: "start" }>) => {
+      const s0 = carryUndo(begin(st.brief, st.selected, st.count, idx));
+      advance(s0, `${acknowledge(st.brief)}${s0.queue.length ? " One quick question:" : ""}`);
+    };
+
+    // "Yoga pants or a mat?" answered
+    const ps = pendingStart.current;
+    if (ps) {
+      pendingStart.current = null;
+      const choice = ps.options.find((o) => o.label.toLowerCase() === lower || lower.includes(o.label.toLowerCase().split(" ").pop()!));
+      if (choice) {
+        const st = detectStart(`${ps.msg} ${choice.label}`, saved);
+        if (st?.kind === "start") { startFlow(st); return true; }
+      }
+    }
+
+    // Answering the question on screen (chips, "Not sure", "Skip", or typed text)
+    if (s && !s.ready && s.queue.length) {
+      const a = answer(s, msg);
+      if (a) { advance(a); return true; }
+      const patch = parseUpdate(msg, s.brief);
+      if (patch && !patch.profile) {
+        const brief = applyPatch(s.brief, patch, "stated");
+        const still = new Set(questionsFor(brief, 5));
+        advance({ ...s, brief, queue: s.queue.filter((q) => still.has(q) && !(q in brief.values)) });
+        return true;
+      }
+    }
+
+    if (s?.ready && /^undo\b/.test(lower)) {
+      if (!s.undo.length) { reply({ text: "There's nothing to undo yet." }); return true; }
+      setSession({ ...undo(s), anchor: idx });
+      reply({ text: "Undone ↩ Your earlier brief and recommendation are back 👇" });
+      return true;
+    }
+
+    const st = detectStart(msg, saved);
+    const sameActivity = st?.kind === "start" && s?.ready && st.brief.profile === s.brief.profile && !st.selected;
+    if (st && !sameActivity) {
+      if (st.kind === "ask-profile") {
+        pendingStart.current = { msg, options: st.options };
+        reply({ text: "Happy to help you get started! 🧘 What are you shopping for?", suggestions: st.options.map((o) => o.label) });
+        return true;
+      }
+      startFlow(st);
+      return true;
+    }
+
+    // A change to the active brief, typed in the chat ("make it under 800", "any length is fine")
+    if (s?.ready) {
+      const patch = parseUpdate(msg, s.brief);
+      if (patch) {
+        const next = commit(s, patch, "stated");
+        setSession({ ...next, anchor: idx });
+        reply({ text: next === s ? "Your brief already says that, so nothing changed 👇" : `**Updated your brief.** ${next.change?.effect ?? ""} 👇` });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  const commitEdit = (patch: BriefPatch, selected?: string[]) => setSession((s) => (s ? commit(s, patch, "edited", selected) : s));
+  const undoEdit = () => setSession((s) => (s ? undo(s) : s));
+  const savePrefs = (on: boolean) => {
+    const s = sessionRef.current;
+    if (!s) return;
+    const next = { ...saved };
+    if (on) next[s.brief.profile] = { values: s.brief.values, must: s.brief.must, priority: s.brief.priority };
+    else delete next[s.brief.profile];
+    setSaved(next);
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)); } catch {}
+    showToast(on ? "Saved on this device" : "Saved preferences removed");
+  };
+
+  async function send(text: string, opts: { productId?: string } = {}) {
     const msg = text.trim();
     if (!msg || busy) return;
     setInput("");
@@ -59,6 +184,8 @@ function ChatInner() {
     const lastList = assistantMsgs.find((m) => (m.products?.length ?? 0) > 1)?.products ?? [];
     const lastFocus = assistantMsgs.find((m) => m.products?.length === 1)?.products?.[0];
     setMessages((m) => [...m, { role: "user", text: msg, time: Date.now() }]);
+
+    if (!opts.productId && advisorTurn(msg)) return;
 
     if (/^(view|open|go to|show) (my )?cart$/i.test(msg)) {
       router.push("/cart");
@@ -83,10 +210,11 @@ function ChatInner() {
         body: JSON.stringify({
           message: msg,
           history,
-          contextIds: lastProducts.map((p) => p.id),
-          listIds: lastList.map((p) => p.id),
-          lastFocusId: lastFocus?.id,
-          productId: lastProducts.length ? undefined : focusId ?? undefined,
+          // a button on a specific product (e.g. "Add to cart" in the recommendation) scopes the request to it
+          contextIds: opts.productId ? [opts.productId] : lastProducts.map((p) => p.id),
+          listIds: opts.productId ? [opts.productId] : lastList.map((p) => p.id),
+          lastFocusId: opts.productId ?? lastFocus?.id,
+          productId: opts.productId || lastProducts.length ? undefined : focusId ?? undefined,
         }),
       });
       if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
@@ -147,7 +275,19 @@ function ChatInner() {
 
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
         {messages.map((m, i) => (
-          <Bubble key={i} m={m} onSuggest={send} isLast={i === messages.length - 1} />
+          <div key={i}>
+            <Bubble m={m} onSuggest={(t) => send(t)} isLast={i === messages.length - 1} />
+            {session?.ready && session.anchor === i && (
+              <AdvisorPanel
+                session={session}
+                onCommit={commitEdit}
+                onUndo={undoEdit}
+                onAsk={(t, productId) => send(t, { productId })}
+                saved={Boolean(saved[session.brief.profile])}
+                onSave={savePrefs}
+              />
+            )}
+          </div>
         ))}
         {busy && (
           <div className="flex items-end gap-2">

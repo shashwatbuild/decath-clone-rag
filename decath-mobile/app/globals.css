@@ -208,3 +208,23 @@ body {
     min-height: 76px;
   }
 }
+
+/* ---------- shopping advisor: changed content cues ---------- */
+@keyframes adv-flash {
+  from { background-color: #e3e6f7; }
+  to { background-color: transparent; }
+}
+@keyframes adv-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes adv-sheet {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+.adv-flash { animation: adv-flash 1.1s ease-out; }
+.adv-in { animation: adv-in 0.25s ease-out; }
+.adv-sheet { animation: adv-sheet 0.22s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .adv-flash, .adv-in, .adv-sheet { animation: none; }
+}

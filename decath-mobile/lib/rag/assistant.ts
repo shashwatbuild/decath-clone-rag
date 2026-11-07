@@ -70,7 +70,7 @@ const NOT_STOCKED: { re: RegExp; label: string; alt?: string }[] = [
   { re: /\b(helmets?|gloves?|watch(es)?|smartwatch|jackets?|shorts|socks|bottles?|caps?|sunglasses)\b/, label: "that item" },
 ];
 
-const RE = {
+export const RE = {
   greet: /^(hi+|hello+|hey+|hola|namaste|yo|good (morning|afternoon|evening))\b[\s!.]*$/,
   thanks: /^(thanks?|thank you|thx|ty|ok(ay)?|cool|great|nice|awesome|perfect)\b[\s!.]*$/,
   compare: /\b(compare|comparison|vs\.?|versus|difference|differ|better than)\b/,
@@ -106,7 +106,7 @@ function parseAmount(s: string) {
 }
 
 /** Budget phrases: "under 2k", "below ₹1,500", "1000 se kam", "above 5000", "between 1000 and 3000", "1k-3k". */
-function parsePrice(text: string): { range: PriceRange | null; rest: string } {
+export function parsePrice(text: string): { range: PriceRange | null; rest: string } {
   const t = text.toLowerCase().replace(/,(?=\d{3})/g, "");
   const num = String.raw`(?:rs\.?|₹|inr)?\s*(\d+(?:\.\d+)?\s*k?)\b`;
   const patterns: [RegExp, (m: RegExpMatchArray) => PriceRange][] = [
@@ -126,7 +126,7 @@ function parsePrice(text: string): { range: PriceRange | null; rest: string } {
   return { range: null, rest: t };
 }
 
-function detectCategories(tokens: string[]): string[] {
+export function detectCategories(tokens: string[]): string[] {
   const nouns = Object.entries(CATEGORY_NOUNS).filter(([, ws]) => ws.some((w) => tokens.includes(w))).map(([c]) => c);
   if (nouns.length) return nouns;
   const sports = new Set<string>();
@@ -196,7 +196,7 @@ function bestNamed(segment: string): { p: Product; score: number } | null {
 }
 
 /** Products the shopper names, in order. Splits "A vs B", "A and B", "A, B". */
-function namedProducts(text: string): Product[] {
+export function namedProducts(text: string): Product[] {
   const segments = text.split(/\s+(?:vs\.?|versus|and|or|with|&)\s+|,|\bor\b/i).filter((s) => s.trim());
   const found: Product[] = [];
   for (const seg of segments.length > 1 ? segments : [text]) {
