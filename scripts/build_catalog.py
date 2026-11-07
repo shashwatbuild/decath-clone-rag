@@ -7,7 +7,8 @@ from parse_pdp import parse
 
 CATS = {
     'Running Shoes': ['8960547', '8958673', '8940046', '9001242'],
-    'Yoga Pants': ['9030986', '9030989', '8881558', '8975729'],
+    'Yoga Pants': ['9030986', '9030989', '8881558', '8975729', '8966109', '8737177', '8935688', '8603213',
+                   '8935716', '8560854', '8872652', '8827357'],
     'Backpacks': ['8735043', '8581388', '8751964', '8843416'],
     'Footballs': ['8789910', '8827905', '8968122', '8968127'],
     'Yoga Mats': ['8665059', '8965434', '8600557', '8600698'],
@@ -32,6 +33,10 @@ SHORT = {
     '8515669': 'Triban RC100 Road Bike', '8988443': 'Rockrider Explore 40 MTB', '8389398': 'Riverside 120 Hybrid',
     '8591166': 'Rockrider ST120 MTB', '8842237': 'Gym Compression T-Shirt', '8660163': 'Recycled Polyester Gym T-Shirt',
     '8667940': 'Sportee Cotton T-Shirt', '8488034': 'Kiprun 100 Running T-Shirt',
+    '8966109': 'Second-Skin Long Yoga Leggings', '8737177': '7/8 Seamless Dynamic Yoga Leggings',
+    '8935688': 'Seamless Yoga & Pilates Leggings', '8603213': 'High-Waisted 7/8 Yoga Leggings',
+    '8935716': 'Loose-Fit Flared Yoga Trackpants', '8560854': 'Gentle Maternity Yoga Trackpants',
+    '8872652': 'Adjustable Yoga Trackpants 500', '8827357': 'Yoga Retreat Bottoms',
 }
 
 

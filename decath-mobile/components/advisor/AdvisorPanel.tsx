@@ -8,11 +8,13 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { img, inr } from "@/lib/products";
-import type { Product } from "@/lib/types";
+import type { CartItem, Product } from "@/lib/types";
 import { evaluateBrief, verdictKey, type Brief, type BriefPatch, type Eval, type Result } from "@/lib/advisor/engine";
 import { allSpecRows, briefLines, labelsFor, needsRows, recommend, type Row } from "@/lib/advisor/explain";
-import { PROFILES, criterion, optionLabel, type Criterion, type ProfileId } from "@/lib/advisor/profiles";
+import { PROFILES, asList, criterion, optionLabel, type Criterion, type ProfileId } from "@/lib/advisor/profiles";
 import type { Session } from "@/lib/advisor/session";
+import type { KitItem, KitLine } from "@/lib/advisor/kit";
+import KitBoard from "./KitBoard";
 
 type Props = {
   session: Session;
@@ -21,9 +23,13 @@ type Props = {
   onAsk: (text: string, productId?: string) => void;
   saved: boolean;
   onSave: (save: boolean) => void;
+  cart: CartItem[];
+  onOpenKit: () => void;
+  onKit: (items: Record<string, Partial<KitItem>>, budget?: number | null) => void;
+  onAddKit: (lines: KitLine[]) => void;
 };
 
-export default function AdvisorPanel({ session, onCommit, onUndo, onAsk, saved, onSave }: Props) {
+export default function AdvisorPanel({ session, onCommit, onUndo, onAsk, saved, onSave, cart, onOpenKit, onKit, onAddKit }: Props) {
   const { brief, selected } = session;
   const result = useMemo(() => evaluateBrief(brief, selected), [brief, selected]);
   const [editing, setEditing] = useState<string | null>(null);
@@ -31,10 +37,19 @@ export default function AdvisorPanel({ session, onCommit, onUndo, onAsk, saved, 
   return (
     <section aria-label="Your shopping recommendation" className="space-y-3 mt-1">
       <BriefCard brief={brief} change={session.change} onEdit={setEditing} saved={saved} onSave={onSave} />
+      <Refine brief={brief} onCommit={onCommit} />
       {session.change && <ChangeBanner key={session.change.n} change={session.change} canUndo={session.undo.length > 0} onUndo={onUndo} />}
       <RecommendationCard result={result} brief={brief} onAsk={onAsk} onCommit={onCommit} onEdit={setEditing} />
       {result.selected.length > 0 && <Comparison result={result} brief={brief} selected={selected} onSelect={(ids) => onCommit({}, ids)} />}
       <WhatIf brief={brief} onCommit={onCommit} change={session.change} canUndo={session.undo.length > 0} onUndo={onUndo} />
+      {PROFILES[brief.profile].kit && (session.kit ? (
+        <KitBoard brief={brief} kit={session.kit} cart={cart} onKit={onKit} onAddToCart={onAddKit} />
+      ) : (
+        <button onClick={onOpenKit} className="w-full border-2 border-dashed border-brand/50 rounded-2xl bg-white px-4 py-3.5 text-left">
+          <span className="block font-bold text-[15px] text-brand">Build my activity kit →</span>
+          <span className="block text-[12px] text-muted mt-0.5">Tell us what you already own; we&apos;ll only suggest what you still need.</span>
+        </button>
+      ))}
       {editing && <EditSheet field={editing} brief={brief} onCommit={onCommit} onClose={() => setEditing(null)} />}
     </section>
   );
@@ -289,9 +304,72 @@ function Segmented({ label, options, value, onChange }: { label: string; options
 }
 
 const NONE = "__none";
+
+/** Single choice (radio chips) or, for multi-select criteria, toggle chips. */
+function Choice({ c, brief, onCommit }: { c: Criterion; brief: Brief; onCommit: Props["onCommit"] }) {
+  if (!c.multi) return <Segmented label={c.label} options={critOptions(c)} value={critValue(brief, c)} onChange={(id) => onCommit({ values: { [c.id]: id === NONE ? null : id } })} />;
+  const cur = asList(brief.values[c.id]);
+  const toggle = (id: string) => {
+    const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
+    onCommit({ values: { [c.id]: next.length ? next : null } });
+  };
+  return (
+    <div role="group" aria-label={`${c.label} (choose any)`} className="flex flex-wrap gap-1.5">
+      {c.options.map((o) => (
+        <button key={o.id} aria-pressed={cur.includes(o.id)} onClick={() => toggle(o.id)}
+          className={`rounded-full text-[13px] px-3.5 min-h-[36px] border ${cur.includes(o.id) ? "bg-brand border-brand text-white font-semibold" : "border-[#c9c9cf] text-[#222] bg-white"}`}>
+          {cur.includes(o.id) ? "✓ " : ""}{o.label}
+        </button>
+      ))}
+      <button aria-pressed={brief.values[c.id] === null} onClick={() => brief.values[c.id] !== null && onCommit({ values: { [c.id]: null } })}
+        className={`rounded-full text-[13px] px-3.5 min-h-[36px] border ${brief.values[c.id] === null ? "bg-brand border-brand text-white font-semibold" : "border-[#c9c9cf] text-[#222] bg-white"}`}>{c.noneLabel}</button>
+    </div>
+  );
+}
+
+/** Don't mind / Prefer / Require, for a yes-or-no feature such as pockets. */
+function RequireControl({ c, brief, onCommit }: { c: Criterion; brief: Brief; onCommit: Props["onCommit"] }) {
+  const on = asList(brief.values[c.id]).length > 0;
+  const value = !on ? "none" : brief.must[c.id] ? "must" : "pref";
+  return (
+    <Segmented label={c.label} value={value}
+      options={[{ id: "none", label: "Don't mind" }, { id: "pref", label: "Prefer" }, { id: "must", label: "Require" }]}
+      onChange={(id) => onCommit(id === "none" ? { values: { [c.id]: null }, must: { [c.id]: false } } : { values: { [c.id]: c.options[0].id }, must: { [c.id]: id === "must" } })} />
+  );
+}
+
+/** "Refine my preferences": the remaining catalogue-backed preferences, collapsed by default. */
+function Refine({ brief, onCommit }: { brief: Brief; onCommit: Props["onCommit"] }) {
+  const profile = PROFILES[brief.profile];
+  const inControls = new Set(profile.controls.flatMap((c) => ("id" in c ? [c.id] : [])));
+  const list = profile.criteria.filter((c) => c.refine && !inControls.has(c.id));
+  if (!list.length) return null;
+  const set = list.filter((c) => c.id in brief.values).length;
+  return (
+    <details className="border border-line rounded-2xl bg-white group">
+      <summary className="cursor-pointer px-4 min-h-[48px] flex items-center justify-between">
+        <span className="font-bold text-[15px]">Refine my preferences</span>
+        <span className="text-[12px] text-muted">{set ? `${set} set · ` : ""}optional</span>
+      </summary>
+      <div className="px-4 pb-4 space-y-4">
+        {list.map((c) => (
+          <div key={c.id}>
+            <p className="text-[13px] font-semibold mb-1.5">{c.label}</p>
+            {c.canBeMust && c.options.length === 1 ? <RequireControl c={c} brief={brief} onCommit={onCommit} /> : <Choice c={c} brief={brief} onCommit={onCommit} />}
+            {c.benefitBased && <p className="text-[11px] text-muted mt-1">Matched only when a product lists it as a benefit; otherwise shown as “not listed”.</p>}
+          </div>
+        ))}
+        <p className="text-[11px] text-muted">Size is chosen when you add to cart, using each product&apos;s size guide.</p>
+      </div>
+    </details>
+  );
+}
 const critOptions = (c: Criterion) => [...c.options.map((o) => ({ id: o.id, label: o.label })), { id: NONE, label: c.noneLabel }];
 /** "" = never answered: no option is shown as selected */
-const critValue = (b: Brief, c: Criterion) => (b.values[c.id] === undefined ? "" : b.values[c.id] === null ? NONE : b.values[c.id]!);
+const critValue = (b: Brief, c: Criterion): string => {
+  const v = b.values[c.id];
+  return v === undefined ? "" : v === null ? NONE : Array.isArray(v) ? (v[0] ?? NONE) : v;
+};
 
 function BudgetControl({ brief, onCommit }: { brief: Brief; onCommit: Props["onCommit"] }) {
   const range = PROFILES[brief.profile].budget;
@@ -348,10 +426,17 @@ function WhatIf({ brief, onCommit, change, canUndo, onUndo }: { brief: Brief; on
               </div>
             );
           const c = criterion(profile, ctl.id)!;
+          if (ctl.kind === "require")
+            return (
+              <div key={c.id}>
+                <p className="text-[13px] font-semibold mb-1.5">{c.label}</p>
+                <RequireControl c={c} brief={brief} onCommit={onCommit} />
+              </div>
+            );
           return (
             <div key={c.id}>
-              <p className="text-[13px] font-semibold mb-1.5">{c.label}{c.informational ? "" : brief.must[c.id] ? " (must-have)" : " (preference)"}</p>
-              <Segmented label={c.label} options={critOptions(c)} value={critValue(brief, c)} onChange={(id) => onCommit({ values: { [c.id]: id === NONE ? null : id } })} />
+              <p className="text-[13px] font-semibold mb-1.5">{c.label}{c.informational ? "" : brief.must[c.id] ? " (must-have)" : asList(brief.values[c.id]).length ? " (preference)" : ""}{c.multi ? <span className="font-normal text-muted"> · choose any</span> : null}</p>
+              <Choice c={c} brief={brief} onCommit={onCommit} />
             </div>
           );
         })}
@@ -383,6 +468,9 @@ function EditSheet({ field, brief, onCommit, onClose }: { field: string; brief: 
         <p className="text-[12px] text-muted mt-2">Your budget is a must-have: products above it are marked, never silently included.</p>
       </>
     );
+  } else if (field === "size") {
+    title = "Size";
+    body = <p className="text-[14px]">Size {brief.size} came from your cart or kit choice. Pick a different size when you add a product to the cart (each product page has a size guide).</p>;
   } else if (field === "priority") {
     title = "Priority";
     body = <Segmented label="Priority" options={profile.priorities} value={brief.priority} onChange={(id) => onCommit({ priority: id })} />;
@@ -399,8 +487,8 @@ function EditSheet({ field, brief, onCommit, onClose }: { field: string; brief: 
     title = c.label;
     body = (
       <>
-        <Segmented label={c.label} options={critOptions(c)} value={critValue(brief, c)} onChange={(id) => onCommit({ values: { [c.id]: id === NONE ? null : id } })} />
-        {c.canBeMust && brief.values[c.id] && (
+        <Choice c={c} brief={brief} onCommit={onCommit} />
+        {c.canBeMust && asList(brief.values[c.id]).length > 0 && (
           <div className="mt-4">
             <p className="text-[13px] font-semibold mb-1.5">How strict?</p>
             <Segmented label={`${c.label}: must-have or preference`} options={[{ id: "pref", label: "Preference (rank higher)" }, { id: "must", label: "Must-have (filter)" }]}

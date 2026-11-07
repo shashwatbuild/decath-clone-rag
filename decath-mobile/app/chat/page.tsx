@@ -10,12 +10,14 @@ import RichText from "@/components/RichText";
 import { DecathlonMark, IconClose, IconHome, IconSend } from "@/components/Icons";
 import AdvisorPanel from "@/components/advisor/AdvisorPanel";
 import { RE } from "@/lib/rag/assistant";
-import { applyPatch, questionsFor, type BriefPatch } from "@/lib/advisor/engine";
+import { applyPatch, type BriefPatch } from "@/lib/advisor/engine";
 import { PROFILES } from "@/lib/advisor/profiles";
 import {
-  acknowledge, answer, begin, commit, detectStart, finish, parseUpdate, questionMessage, undo,
+  acknowledge, answer, begin, commit, commitKit, detectStart, finish, helpSummary, openKit, parseKit, parseUpdate, questionMessage, undo,
   type SavedPrefs, type Session, type Start,
 } from "@/lib/advisor/session";
+import type { KitItem, KitLine } from "@/lib/advisor/kit";
+import TypeCards from "@/components/advisor/TypeCards";
 
 const SAVED_KEY = "dc.briefs";
 function loadSaved(): SavedPrefs {
@@ -39,7 +41,7 @@ function ChatInner() {
   const endRef = useRef<HTMLDivElement>(null);
   const pending = useRef<ChatMessage | null>(null);
   const [source, setSource] = useState<"claude" | "gemini" | "offline" | "rag" | null>(null);
-  const { addToCart, showToast } = useStore();
+  const { addToCart, showToast, cart } = useStore();
   /** The guided shopping session: one source of truth for brief, comparison and Undo */
   const [session, setSession] = useState<Session | null>(null);
   const sessionRef = useRef<Session | null>(null);
@@ -86,7 +88,7 @@ function ChatInner() {
       s?.ready
         ? {
             ...next,
-            undo: [...s.undo, { brief: s.brief, selected: s.selected }].slice(-20),
+            undo: [...s.undo, { brief: s.brief, selected: s.selected, kit: s.kit }].slice(-20),
             change: next.brief.profile !== s.brief.profile
               ? { lines: [`Activity: ${PROFILES[s.brief.profile].noun} → ${PROFILES[next.brief.profile].noun}`], effect: `Started a new brief for ${PROFILES[next.brief.profile].noun}. Undo returns to your ${PROFILES[s.brief.profile].noun} brief.`, n: (s.change?.n ?? 0) + 1 }
               : null,
@@ -97,8 +99,10 @@ function ChatInner() {
         setSession(next);
         reply(questionMessage(next, intro));
       } else {
-        setSession(finish(next, idx));
-        reply({ text: `${intro ? intro.replace(/ One quick question:$/, "") + "\n\n" : ""}Here's your **activity brief** and my recommendation 👇 Tap any value in the brief to change it, or try **What changes if…?** below.` });
+        const done = finish(next, idx);
+        setSession(done);
+        const help = done.helping ? helpSummary(done.brief) + "\n\n" : "";
+        reply({ text: `${intro ? intro.replace(/ One quick question:$/, "") + "\n\n" : ""}${help}Here's your **activity brief** and my recommendation 👇 Tap any value in the brief to change it, try **What changes if…?**, or **build your activity kit** below.` });
       }
     };
     const startFlow = (st: Extract<Start, { kind: "start" }>) => {
@@ -124,10 +128,23 @@ function ChatInner() {
       const patch = parseUpdate(msg, s.brief);
       if (patch && !patch.profile) {
         const brief = applyPatch(s.brief, patch, "stated");
-        const still = new Set(questionsFor(brief, 5));
-        advance({ ...s, brief, queue: s.queue.filter((q) => still.has(q) && !(q in brief.values)) });
+        advance({ ...s, brief, queue: s.queue.filter((q) => !(q in brief.values)) });
         return true;
       }
+    }
+
+    // Activity kit, from chat
+    if (s?.ready && /\b(build|start|make|open)\b.*\bkit\b|^my kit$/.test(lower)) {
+      setSession({ ...openKit(s), anchor: idx });
+      reply({ text: "Here's your **activity kit** 👇 What do you already have for this activity? Mark each item, and I'll only suggest what you still need." });
+      return true;
+    }
+    const kitChange = s?.ready ? parseKit(msg, s) : null;
+    if (s && kitChange) {
+      const next = commitKit(s, kitChange.items, kitChange.budget);
+      setSession({ ...next, anchor: idx });
+      reply({ text: next === s ? "Your kit already says that 👇" : `**Updated your kit.** ${next.change?.lines.join(" · ")} 👇` });
+      return true;
     }
 
     if (s?.ready && /^undo\b/.test(lower)) {
@@ -163,6 +180,13 @@ function ChatInner() {
   }
 
   const commitEdit = (patch: BriefPatch, selected?: string[]) => setSession((s) => (s ? commit(s, patch, "edited", selected) : s));
+  const kitEdit = (items: Record<string, Partial<KitItem>>, budget?: number | null) => setSession((s) => (s ? commitKit(s, items, budget) : s));
+  const addKitToCart = (lines: KitLine[]) => {
+    for (const l of lines) addToCart(l.product!.id, l.needsSize ? l.item.size : (l.product!.sizes[0] ?? null));
+    const core = lines.find((l) => l.product?.category === "Yoga Pants" && l.item.size);
+    if (core) setSession((s) => (s ? { ...s, brief: { ...s.brief, size: core.item.size! } } : s));
+    showToast(`Added ${lines.length} item${lines.length > 1 ? "s" : ""} to cart`);
+  };
   const undoEdit = () => setSession((s) => (s ? undo(s) : s));
   const savePrefs = (on: boolean) => {
     const s = sessionRef.current;
@@ -184,6 +208,14 @@ function ChatInner() {
     const lastList = assistantMsgs.find((m) => (m.products?.length ?? 0) > 1)?.products ?? [];
     const lastFocus = assistantMsgs.find((m) => m.products?.length === 1)?.products?.[0];
     setMessages((m) => [...m, { role: "user", text: msg, time: Date.now() }]);
+
+    // keep the brief and kit in step with what the shopper picks in chat
+    const sizeTap = msg.match(/^add size (.+) to cart$/i);
+    if (sizeTap && sessionRef.current?.ready) setSession((s) => (s ? { ...s, brief: { ...s.brief, size: sizeTap[1] } } : s));
+    if (opts.productId && /^add .+ to cart$/i.test(msg)) {
+      const pid = opts.productId;
+      setSession((s) => (s ? { ...s, chosen: pid } : s));
+    }
 
     if (!opts.productId && advisorTurn(msg)) return;
 
@@ -277,6 +309,11 @@ function ChatInner() {
         {messages.map((m, i) => (
           <div key={i}>
             <Bubble m={m} onSuggest={(t) => send(t)} isLast={i === messages.length - 1} />
+            {m.cards && session && (i === messages.length - 1 || session.ready) && (
+              <div className="pl-11">
+                <TypeCards brief={session.brief} id={m.cards} active={i === messages.length - 1 && !busy} onAnswer={(t) => send(t)} />
+              </div>
+            )}
             {session?.ready && session.anchor === i && (
               <AdvisorPanel
                 session={session}
@@ -285,6 +322,10 @@ function ChatInner() {
                 onAsk={(t, productId) => send(t, { productId })}
                 saved={Boolean(saved[session.brief.profile])}
                 onSave={savePrefs}
+                cart={cart}
+                onOpenKit={() => setSession((s) => (s ? openKit(s) : s))}
+                onKit={kitEdit}
+                onAddKit={addKitToCart}
               />
             )}
           </div>

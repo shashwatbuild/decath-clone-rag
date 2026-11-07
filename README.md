@@ -4,7 +4,7 @@
 
 **A pixel-faithful mobile sports store, with an AI shopping assistant that actually knows the catalogue.**
 
-Browse 32 real products, filter and sort, compare gear, add to cart, and ask the assistant things like
+Browse 40 real products (including 12 yoga pants), filter and sort, compare gear, add to cart, and ask the assistant things like
 *"lightest trekking backpack"*, *"compare Kipride Max vs Kipcore Premium"* or *"I'm starting yoga and want pants under ₹1,000"*,
 and get grounded answers, an editable activity brief, honest trade-offs and "what changes if…?" controls.
 
@@ -34,7 +34,7 @@ and get grounded answers, an editable activity brief, honest trade-offs and "wha
 - 🛍️ **Complete shopping flow**: home, categories, search, filters & sort, rich product pages, wishlist, cart with coupons, notifications.
 - 🤖 **RAG shopping assistant**: retrieves facts from the catalogue (BM25 over product chunks), understands intent, then writes the answer, offline or with **Gemini** / **Claude**.
 - 🧠 **Understands real shopper language**: budgets ("under 2k", "1000 se kam"), who it's for ("for my wife"), needs ("good cushioning", "for knees"), follow-ups ("the second one"), typos ("shose").
-- 🧭 **Personalised shopping advisor**: builds an editable **activity brief** (must-haves vs preferences), recommends with **trade-offs and evidence**, and lets you explore **"What changes if…?"** with Undo.
+- 🧭 **Personalised shopping advisor**: starts with the **type of pants** you want, builds an editable **activity brief** (must-haves vs preferences), recommends with **trade-offs and evidence**, lets you explore **"What changes if…?"** with Undo, and builds an **activity kit** that skips what you already own.
 - 🛒 **Takes actions**: "add it to cart" asks for your size, then adds it to the real cart.
 - ✅ **Honest by design**: answers only from catalogue facts, says when something isn't stocked, and keeps working if the AI is down.
 
@@ -60,29 +60,39 @@ and get grounded answers, an editable activity brief, honest trade-offs and "wha
 | <img src="docs/screenshots/chat-size.png" width="240" /> | <img src="docs/screenshots/chat-cart.png" width="240" /> | <img src="docs/screenshots/cart.png" width="240" /> |
 | One-tap size chips | Toast + "View my cart" | Same cart as the store, coupons included |
 
-### Personalised shopping advisor: brief → recommendation → what changes if…?
+### Personalised shopping advisor: pant type → brief → trade-offs → what changes if…? → kit
 
-*"I'm starting yoga and want pants under ₹1,000"*: the assistant keeps what you said (yoga, beginner, ₹1,000), asks only what could change the answer, then shows one live recommendation area that updates as you change your mind.
+*"I'm starting yoga and want pants under ₹1,000"*: the assistant keeps what you said (yoga, beginner, ₹1,000), starts with the **type of pants** you want, asks at most two more questions, then shows one live recommendation area that updates as you change your mind.
 
-| 1. Asks only what's missing | 2. Editable activity brief | 3. Recommendation with trade-offs |
+| 1. Pick your type of yoga pants | 2. One or two quick questions | 3. Editable activity brief |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/advisor-question.png" width="240" /> | <img src="docs/screenshots/advisor-brief.png" width="240" /> | <img src="docs/screenshots/advisor-recommendation.png" width="240" /> |
-| Activity, level and budget aren't asked again | Must-haves vs preferences; tap any value to edit | Why it fits · what you give up · what still needs checking |
+| <img src="docs/screenshots/advisor-types.png" width="240" /> | <img src="docs/screenshots/advisor-question.png" width="240" /> | <img src="docs/screenshots/advisor-brief.png" width="240" /> |
+| Visual cards from the catalogue; choose several, "Help me choose" or "No preference" | Fit / practice, each skippable; nothing asked twice | Only what you told us; must-have vs preference on every value |
 
-| 4. Compared "For your needs" | 5. "All specifications" view | 6. View product evidence |
+| 4. Recommendation with trade-offs | 5. Compared "For your needs" | 6. View product evidence |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/advisor-compare.png" width="240" /> | <img src="docs/screenshots/advisor-specs.png" width="240" /> | <img src="docs/screenshots/advisor-evidence.png" width="240" /> |
-| Neutral labels: within budget, lowest price, matches coverage | Every catalogue field; "Not specified" when missing | Each claim links to the catalogue field behind it |
+| <img src="docs/screenshots/advisor-recommendation.png" width="240" /> | <img src="docs/screenshots/advisor-compare.png" width="240" /> | <img src="docs/screenshots/advisor-evidence.png" width="240" /> |
+| "Matches your preferred flared style … ₹200 more than the capri" | Labels like *Matches your preferred flared style*, *Lowest price among these options* | Each claim links to the catalogue field behind it |
 
 | 7. What changes if…? "Lowest price" | 8. The effect is explained | 9. Undo restores the earlier pick |
 |:---:|:---:|:---:|
 | <img src="docs/screenshots/advisor-whatif.png" width="240" /> | <img src="docs/screenshots/advisor-change.png" width="240" /> | <img src="docs/screenshots/advisor-undo.png" width="240" /> |
-| Budget slider, coverage, priority, practice type | "The capri now ranks first. It costs ₹200 less…" | Brief, ranking and comparison all roll back |
+| Budget, pant type, fit, waist, fabric, pockets, practice, priority | Capri ranks first; cheaper leggings flagged outside the comparison | Brief, ranking, comparison (and kit) roll back |
 
-| Edit in a bottom sheet | No match? Explicit choices | Another sport, its own criteria | Backpack "What changes if…?" |
+| 10. Build my activity kit | 11. Owned mat and skipped strap excluded | 12. Separate kit budget |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/advisor-kit-start.png" width="240" /> | <img src="docs/screenshots/advisor-kit.png" width="240" /> | <img src="docs/screenshots/advisor-kit-over.png" width="240" /> |
+| Already own / Need this / Not sure / Skip; nothing assumed | Your chosen pants carry over without duplicates; size before cart | Over budget? Cheaper eligible swaps, remove optional items, or raise it yourself |
+
+| Refine my preferences | Flared as a must-have | No match? Explicit choices | Edit in a bottom sheet |
 |:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/advisor-sheet.png" width="200" /> | <img src="docs/screenshots/advisor-conflict.png" width="200" /> | <img src="docs/screenshots/advisor-backpack.png" width="200" /> | <img src="docs/screenshots/advisor-backpack-whatif.png" width="200" /> |
-| Make a preference a must-have | Never silently raises the budget | "4 day trek" → 60 L+ capacity (editable) | Trip duration, capacity, lightest, budget |
+| <img src="docs/screenshots/advisor-refine.png" width="200" /> | <img src="docs/screenshots/advisor-must.png" width="200" /> | <img src="docs/screenshots/advisor-conflict.png" width="200" /> | <img src="docs/screenshots/advisor-sheet.png" width="200" /> |
+| Feel, waistband, use, colour, length | The capri is marked as not meeting it | Never silently raises the budget | Preference ↔ must-have |
+
+| All specifications | Another sport, its own criteria | Backpack "What changes if…?" |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/advisor-specs.png" width="200" /> | <img src="docs/screenshots/advisor-backpack.png" width="200" /> | <img src="docs/screenshots/advisor-backpack-whatif.png" width="200" /> |
+| Every catalogue field; "Not specified" when missing | "4 day trek" → 60 L+ capacity (editable) | Trip duration, capacity, lightest, budget |
 
 ### More
 
@@ -153,11 +163,14 @@ flowchart LR
 
 For yoga pants, yoga mats and trekking backpacks, a request that describes a need ("I'm starting yoga and want pants under ₹1,000", "lightest trekking backpack for a 4 day trek", "compare 2 yoga mats for beginners") starts a guided flow. It runs on the device, so changes are instant and can't race.
 
-- **Activity brief** (`lib/advisor/session.ts`): extracts activity, level, budget and preferences from the message, then asks at most 3 questions, and only those whose answer would separate the products still in play (with Skip / Not sure). Every value is editable; a stated budget is a must-have.
+- **Pant type first** (`lib/advisor/profiles.ts`): visual cards for fitted leggings, flared, relaxed/straight-fit and capris, read from product names and the listed fit. Length is only an optional refinement. "Help me choose" asks fit and practice, then explains each type from catalogue facts without picking one for you.
+- **Activity brief** (`lib/advisor/session.ts`): extracts activity, level, budget and preferences from the message, then asks at most 2 more questions, and only those whose answer would separate the products still in play (Skip / Not sure / No preference). Fit, waist, fabric, pockets, adjustable waistband, feel, everyday use, colour and length sit under **Refine my preferences**. A stated budget is a must-have; everything else is a preference unless you make it a must-have.
 - **One source of truth**: chat messages ("make it under 800"), brief edits and "What changes if…?" controls all commit to the same session, with a short "what changed" summary and multi-step **Undo**.
 - **Filter → rank → explain** (`lib/advisor/engine.ts`): must-haves decide eligibility (never silently relaxed); eligible products are ranked by your priority and preferences; the deciding reason is recorded. No percentage scores: if the data can't separate two products, it says **"Both are suitable"**.
 - **Explanations from facts only** (`lib/advisor/explain.ts`): every sentence is built from the ranking reasons and catalogue fields, with a "View product evidence" panel. Missing data shows as **"Not specified"**, and a control whose data is missing says it "can't be evaluated" instead of faking a change.
-- **Profiles per sport** (`lib/advisor/profiles.ts`): each category defines its own criteria, questions and controls (yoga: coverage, practice type; backpacks: trip duration, capacity, weight). Adding a sport is adding a profile.
+- **Only catalogue-backed preferences**: "soft" or "supportive" match only when a product lists that benefit (otherwise "not listed", never a mismatch); missing fit or waist data shows as "Not specified".
+- **Activity kit** (`lib/advisor/kit.ts`): mark mat, clothing, blocks and strap as *Already own*, *Need this*, *Not sure* or *Skip*. Owned and skipped items never appear in suggestions or totals; the pants you chose carry over without duplicates; the kit budget is separate from the pants budget; only selected new items with sizes chosen can be added to the cart (items already in it aren't added twice). Blocks and straps aren't in this demo catalogue, so the kit says so instead of inventing products.
+- **Profiles per sport** (`lib/advisor/profiles.ts`): each category defines its own criteria, questions and controls (yoga: pant type, fit, waist, fabric, pockets, practice; backpacks: trip duration, capacity, weight). Adding a sport is adding a profile.
 - **Saved preferences** are opt-in and stored on this device only (there are no accounts); the budget is never saved.
 
 ---
@@ -209,7 +222,7 @@ Restart `npm run dev`. The chat footer shows **"Powered by Gemini + product RAG"
 ## 🧱 Tech stack
 
 - **Next.js 15** (App Router, Turbopack) · **React 19** · **TypeScript** · **Tailwind CSS v4**
-- **RAG**: custom BM25 retriever + intent engine in TypeScript (no vector DB needed for 32 products)
+- **RAG**: custom BM25 retriever + intent engine in TypeScript (no vector DB needed for 40 products)
 - **LLMs**: Gemini REST streaming API, Anthropic SDK (Claude), both optional
 - **Data pipeline**: Python scripts that parse product pages into `products.json` (no browser automation, no executing site scripts)
 
@@ -230,16 +243,16 @@ decath-clone-rag/
 │   │   ├── ProductView.tsx        # product page UI
 │   │   ├── ListingView.tsx        # listing + sort/filter sheets
 │   │   ├── RichText.tsx           # renders assistant replies
-│   │   └── advisor/AdvisorPanel.tsx  # brief, recommendation, comparison, what-if
+│   │   └── advisor/               # AdvisorPanel, TypeCards, KitBoard
 │   ├── lib/
 │   │   ├── rag/index.ts           # chunking + BM25 retrieval + typo correction
 │   │   ├── rag/assistant.ts       # intent understanding + grounded replies
 │   │   ├── rag/llm.ts             # prompt, context building, provider choice
 │   │   ├── rag/gemini.ts          # Gemini streaming with fallbacks
-│   │   ├── advisor/               # shopping advisor: profiles, engine, explanations, session
+│   │   ├── advisor/               # shopping advisor: profiles, engine, explanations, session, kit
 │   │   ├── products.ts            # catalogue helpers
 │   │   └── store.tsx              # cart / wishlist state
-│   └── data/products.json         # 32 products, 8 categories
+│   └── data/products.json         # 40 products, 8 categories
 ├── scripts/
 │   ├── build_catalog.py           # product pages → products.json
 │   └── chat-eval/                 # assistant regression conversations
@@ -248,7 +261,7 @@ decath-clone-rag/
 
 ## 📦 Product data
 
-`decath-mobile/data/products.json` holds **32 products, 4 in each of 8 categories** (running shoes, yoga pants, yoga mats, trekking backpacks, footballs, badminton, cycles, t-shirts), collected from decathlon.in on 6 Nov 2026: prices, specs, benefits, sizes, weights, images and rating counts. Review texts and the star breakdown are generated sample data.
+`decath-mobile/data/products.json` holds **40 products in 8 categories**: 12 yoga pants (leggings, flared, relaxed and capri styles) and 4 each of running shoes, yoga mats, trekking backpacks, footballs, badminton, cycles and t-shirts, collected from decathlon.in on 6–7 Nov 2026: prices, specs, benefits, sizes, weights, images and rating counts. Review texts and the star breakdown are generated sample data.
 
 To refresh or add products, edit the IDs in `scripts/build_catalog.py`, save each product page as `<pdp_dir>/<id>.html` (from `https://www.decathlon.in/qr/<id>/-1`), then run:
 

@@ -7,18 +7,20 @@
  */
 import { getProduct, inr, products } from "@/lib/products";
 import type { Product } from "@/lib/types";
-import { PROFILES, criterion, optionLabel, type Criterion, type Evidence, type Profile, type ProfileId } from "./profiles";
+import { PROFILES, asList, criterion, optionLabel, type Criterion, type Evidence, type Profile, type ProfileId, type Val } from "./profiles";
 
 export type Source = "stated" | "answered" | "edited" | "saved" | "implied";
 export type Brief = {
   profile: ProfileId;
   /** must-have maximum price; null = no limit */
   budget: number | null;
-  /** criterion id -> option id; null = no preference / not sure; missing = not asked */
-  values: Record<string, string | null>;
+  /** criterion id -> option id (or ids, for multi-select); null = no preference / not sure; missing = not asked */
+  values: Record<string, Val>;
   must: Record<string, boolean>;
   priority: string;
   sources: Record<string, Source>;
+  /** size the shopper picked (from the cart or kit), shown in the brief */
+  size?: string;
 };
 
 export type Status = "match" | "mismatch" | "unknown";
@@ -66,24 +68,26 @@ export type Result = {
   /** eligible products not in the comparison, best first */
   alternatives: Eval[];
 };
-export type BriefPatch = Partial<Pick<Brief, "budget" | "priority" | "profile">> & {
-  values?: Record<string, string | null>;
+export type BriefPatch = Partial<Pick<Brief, "budget" | "priority" | "profile" | "size">> & {
+  values?: Record<string, Val>;
   must?: Record<string, boolean>;
 };
 
 export const profileOf = (b: Brief) => PROFILES[b.profile];
 export const NOT_SPECIFIED = "Not specified";
 
-function check(c: Criterion, p: Product, value: string, must: boolean): Check {
+function check(c: Criterion, p: Product, value: Val, must: boolean): Check {
   const ids = c.classify?.(p) ?? null;
   const ev = c.fact?.(p) ?? null;
+  const wanted = asList(value);
   return {
     id: c.id,
     label: c.label,
-    status: ids === null ? "unknown" : ids.includes(value) ? "match" : "mismatch",
+    // benefit-based criteria: a benefit that isn't listed is unknown, never a mismatch
+    status: ids === null ? "unknown" : wanted.some((w) => ids.includes(w)) ? "match" : c.benefitBased ? "unknown" : "mismatch",
     must,
     wanted: optionLabel(c, value),
-    listed: ev?.value ?? NOT_SPECIFIED,
+    listed: c.display?.(p) ?? ev?.value ?? NOT_SPECIFIED,
     evidence: ev,
   };
 }
@@ -110,7 +114,7 @@ export function evaluateProduct(brief: Brief, p: Product): Eval {
   let prefScore = 0;
   for (const c of profile.criteria) {
     const v = brief.values[c.id];
-    if (v === undefined || v === null || c.informational || !c.classify) continue;
+    if (!asList(v).length || c.informational || !c.classify) continue;
     const must = Boolean(brief.must[c.id] && c.canBeMust);
     const ch = check(c, p, v, must);
     checks.push(ch);
@@ -154,8 +158,10 @@ function describeMusts(brief: Brief): string {
   const profile = profileOf(brief);
   const parts: string[] = [];
   for (const c of profile.criteria)
-    if (brief.must[c.id] && c.canBeMust && brief.values[c.id]) parts.push(optionLabel(c, brief.values[c.id]).toLowerCase());
-  return `${parts.length ? parts.join(", ") + " " : ""}${profile.noun}${brief.budget !== null ? ` under ${inr(brief.budget)}` : ""}`;
+    if (brief.must[c.id] && c.canBeMust && asList(brief.values[c.id]).length) parts.push(optionLabel(c, brief.values[c.id]).toLowerCase());
+  // "flared yoga pants" already names the product: don't repeat the noun
+  const named = parts.some((x) => /(pants|leggings|capris)$/.test(x));
+  return `${parts.length ? parts.join(", ") + (named ? "" : " ") : ""}${named ? "" : profile.noun}${brief.budget !== null ? ` under ${inr(brief.budget)}` : ""}`;
 }
 
 function conflictFor(brief: Brief, all: Product[]): Conflict {
@@ -168,9 +174,10 @@ function conflictFor(brief: Brief, all: Product[]): Conflict {
     if (fits.length) fixes.push({ label: `Raise budget to ${inr(fits[0].price)}`, patch: { budget: fits[0].price } });
   }
   for (const c of profile.criteria) {
-    if (!(brief.must[c.id] && c.canBeMust && brief.values[c.id])) continue;
+    if (!(brief.must[c.id] && c.canBeMust && asList(brief.values[c.id]).length)) continue;
     musts.push(c.id);
-    fixes.push({ label: c.id === "coverage" ? "Allow other lengths" : `Make ${c.label.toLowerCase()} a preference`, patch: { must: { [c.id]: false } } });
+    const allow: Record<string, string> = { coverage: "Allow other lengths", length: "Allow other lengths", type: "Allow other pant types", fit: "Allow other fits", colour: "Allow other colours" };
+    fixes.push({ label: allow[c.id] ?? `Make ${c.label.toLowerCase()} a preference`, patch: { must: { [c.id]: false } } });
   }
   return { musts, text: `Nothing currently matches ${describeMusts(brief)}.`, fixes };
 }
@@ -211,12 +218,13 @@ export function applyPatch(brief: Brief, patch: BriefPatch, source: Source = "ed
     next.sources.profile = source;
   }
   if ("budget" in patch && patch.budget !== undefined) { next.budget = patch.budget; next.sources.budget = source; }
+  if (patch.size) next.size = patch.size;
   if (patch.priority) { next.priority = patch.priority; next.sources.priority = source; }
   const profile = profileOf(next);
   for (const [k, v] of Object.entries(patch.values ?? {})) {
     next.values[k] = v;
     next.sources[k] = source;
-    const implied = v ? criterion(profile, k)?.implies?.(v) : null;
+    const implied = typeof v === "string" ? criterion(profile, k)?.implies?.(v) : null;
     if (implied) for (const [ik, iv] of Object.entries(implied.values)) { next.values[ik] = iv; next.sources[ik] = "implied"; }
   }
   for (const [k, v] of Object.entries(patch.must ?? {})) next.must[k] = v;
@@ -229,19 +237,24 @@ export function verdictKey(r: Result) {
   return v.kind === "pick" || v.kind === "only" ? `${v.kind}:${v.top.p.id}` : v.kind === "tie" ? `tie:${v.group.map((e) => e.p.id).join(",")}` : "none";
 }
 
-/** Questions worth asking: not yet answered, and the answer would separate the products still in play. */
-export function questionsFor(brief: Brief, max = 3): string[] {
+/**
+ * Questions worth asking: a "cards" question first (e.g. pant type) when not yet answered, then at most
+ * `maxQuestions` more, each one not yet answered and able to separate the products still in play.
+ */
+export function questionsFor(brief: Brief, max?: number): string[] {
   const profile = profileOf(brief);
+  max = max ?? profile.maxQuestions ?? 3;
   const inPlay = products.filter((p) => p.category === profile.category && evaluateProduct(brief, p).eligible);
-  const out: string[] = [];
+  const out: string[] = profile.criteria.filter((c) => c.cards && !(c.id in brief.values)).map((c) => c.id);
+  const first = out.length;
   for (const c of profile.criteria) {
-    if (!c.question || c.id in brief.values) continue;
+    if (!c.question || c.cards || c.refine || c.id in brief.values) continue;
     const reads = (crit: Criterion) => new Set(inPlay.map((p) => JSON.stringify(crit.classify?.(p) ?? "?"))).size > 1;
     const matters = c.informational
       ? c.options.some((o) => { const imp = c.implies?.(o.id); return imp && Object.keys(imp.values).some((k) => { const ic = criterion(profile, k); return ic && reads(ic); }); })
       : reads(c);
     if (matters && inPlay.length > 1) out.push(c.id);
-    if (out.length >= max) break;
+    if (out.length - first >= max) break;
   }
   return out;
 }

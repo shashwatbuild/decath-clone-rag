@@ -5,7 +5,7 @@
 import { inr } from "@/lib/products";
 import type { Product } from "@/lib/types";
 import { NOT_SPECIFIED, profileOf, type Brief, type Check, type Eval, type Result } from "./engine";
-import { criterion, optionLabel, specOf, type Evidence } from "./profiles";
+import { asList, criterion, optionLabel, specOf, type Evidence } from "./profiles";
 
 const plural = (p: Product) => /(pants|trousers|trackpants|shoes|leggings)$/i.test(p.shortName);
 const verb = (p: Product, one: string, many: string) => (plural(p) ? many : one);
@@ -14,9 +14,15 @@ export const nm = (p: Product) => p.shortName;
 export const ranksVerb = (p: Product) => verb(p, "ranks", "rank");
 /** lower-case a label for mid-sentence use, but keep "60 L+" as written */
 const lc = (s: string) => (/\d/.test(s) ? s : s.toLowerCase());
+const lcPhrase = (s: string) => s.replace(/\b([A-Z])([a-z])/g, (m, a, b) => a.toLowerCase() + b);
 const reviews = (p: Product) => (p.reviewCount ? `★ ${p.rating} from ${p.reviewCount.toLocaleString("en-IN")} reviews` : "No reviews yet");
 
+/** "flared", "fitted leggings": the pant type as used in a sentence */
+const TYPE_TAG: Record<string, string> = { "Fitted leggings": "fitted leggings", "Flared yoga pants": "flared", "Relaxed or straight-fit pants": "relaxed or straight-fit", "Yoga capris": "capri" };
+const typeTags = (wanted: string) => wanted.split(" or ").map((w) => TYPE_TAG[w] ?? w.toLowerCase()).join(" or ");
 function prefPhrase(c: Check) {
+  if (c.id === "type") return `preferred ${typeTags(c.wanted)} style`;
+  if (c.id === "pockets") return "requested pockets";
   return c.id === "level" ? `listed for ${c.listed.toLowerCase()}` : `${c.label.toLowerCase()} preference (${lc(c.wanted)})`;
 }
 const blockerText = (c: Check) =>
@@ -37,10 +43,19 @@ export function labelsFor(e: Eval, r: Result, brief: Brief): { text: string; ton
       else if (c.status === "mismatch") out.push({ text: `Listed for ${c.listed.toLowerCase()} only`, tone: "bad" });
       continue;
     }
+    if (c.id === "type") {
+      out.push(c.status === "match" ? { text: `Matches your preferred ${typeTags(c.wanted)} style`, tone: "good" } : c.status === "mismatch" ? { text: `Not your preferred style`, tone: "bad" } : { text: "Pant type not clear from listing", tone: "info" });
+      continue;
+    }
+    if (c.id === "pockets") {
+      out.push(c.status === "match" ? { text: "Includes your requested pockets", tone: "good" } : c.status === "mismatch" ? { text: "No pockets listed", tone: "bad" } : { text: "Pocket information not specified", tone: "info" });
+      continue;
+    }
+    const crit = criterion(profileOf(brief), c.id);
     out.push(
       c.status === "match" ? { text: `Matches your ${c.label.toLowerCase()} preference`, tone: "good" }
       : c.status === "mismatch" ? { text: `Doesn't match your ${c.label.toLowerCase()} preference`, tone: "bad" }
-      : { text: `${c.label} not specified`, tone: "info" },
+      : { text: crit?.benefitBased ? `${c.wanted} not listed as a benefit` : c.id === "waist" ? "Waist-rise information not specified" : `${c.label} information not specified`, tone: "info" },
     );
   }
   if (["yoga-pants"].includes(brief.profile) && !specOf(e.p, "Fit")) out.push({ text: "Fit information unavailable", tone: "info" });
@@ -63,7 +78,7 @@ function whyFits(e: Eval, brief: Brief): string[] {
   if (e.budget) out.push(`Within your ${inr(brief.budget!)} budget at ${inr(e.p.price)}`);
   for (const c of e.checks) {
     if (c.status !== "match") continue;
-    out.push(c.id === "level" ? `Listed for ${c.listed.toLowerCase()} (Level of practice)` : `Matches your ${c.label.toLowerCase()} preference: ${c.listed}`);
+    out.push(c.id === "level" ? `Listed for ${c.listed.toLowerCase()} (Level of practice)` : c.id === "type" ? `Matches your preferred ${typeTags(c.wanted)} style: ${c.listed}` : c.id === "pockets" ? `Includes your requested pockets: ${c.listed}` : `Matches your ${c.label.toLowerCase()} preference: ${c.listed}`);
   }
   return out;
 }
@@ -71,7 +86,7 @@ function whyFits(e: Eval, brief: Brief): string[] {
 function ownMismatches(e: Eval): string[] {
   return e.checks
     .filter((c) => c.status === "mismatch")
-    .map((c) => (c.id === "level" ? `Listed for ${c.listed.toLowerCase()}, not ${c.wanted.toLowerCase()} level` : `Doesn't match your ${c.label.toLowerCase()} preference (${lc(c.wanted)}): listed as ${c.listed}`));
+    .map((c) => (c.id === "level" ? `Listed for ${c.listed.toLowerCase()}, not ${c.wanted.toLowerCase()} level` : c.id === "type" ? `Not your preferred ${typeTags(c.wanted)} style` : `Doesn't match your ${c.label.toLowerCase()} preference (${lc(c.wanted)}): listed as ${c.listed}`));
 }
 
 function tradeOffs(e: Eval, vs: Eval, brief: Brief): string[] {
@@ -79,7 +94,9 @@ function tradeOffs(e: Eval, vs: Eval, brief: Brief): string[] {
   if (e.p.price > vs.p.price) out.push(`Costs ${inr(e.p.price - vs.p.price)} more than the ${nm(vs.p)}`);
   for (const c of e.checks) {
     const o = vs.checks.find((x) => x.id === c.id);
-    if (o?.status === "match" && c.status !== "match")
+    if (o?.status === "match" && c.status !== "match" && c.id === "type")
+      out.push(`Not your preferred ${typeTags(c.wanted)} style, which the ${nm(vs.p)} ${verb(vs.p, "is", "are")}`);
+    else if (o?.status === "match" && c.status !== "match")
       out.push(c.status === "unknown" ? `${c.label} isn't specified, while the ${nm(vs.p)} ${verb(vs.p, "matches", "match")} your preference` : `${c.label}: ${c.listed}, where the ${nm(vs.p)} ${verb(vs.p, "matches", "match")} your preference (${o.listed})`);
   }
   if (vs.p.reviewCount && e.p.reviewCount && vs.p.rating > e.p.rating) out.push(`The ${nm(vs.p)} has a higher rating (${reviews(vs.p)} vs ${reviews(e.p)})`);
@@ -93,7 +110,7 @@ function stillCheck(e: Eval, brief: Brief): string[] {
   const profile = profileOf(brief);
   for (const c of e.checks) if (c.status === "unknown") out.push(`${c.label}: not specified in the catalogue`);
   for (const c of profile.criteria)
-    if (!c.informational && c.classify && (brief.values[c.id] === undefined || brief.values[c.id] === null) && c.question && c.classify(e.p) === null && c.id !== "level")
+    if (!c.informational && c.classify && !asList(brief.values[c.id]).length && c.question && !c.refine && c.classify(e.p) === null && c.id !== "level")
       out.push(`${c.label}: not specified for this product`);
   if (e.p.sizes.length > 1) {
     const fit = specOf(e.p, "Fit");
@@ -145,7 +162,7 @@ export function recommend(r: Result, brief: Brief): Recommendation {
   const { top, alt, reason } = v;
   let headline: string;
   const lost = top.checks.filter((c) => c.id !== "level" && c.status !== "match" && alt.checks.find((o) => o.id === c.id)?.status === "match");
-  const lostText = lost.length ? ` ${they(top.p)} ${verb(top.p, "doesn't", "don't")} match your ${lost.map((c) => `${c.label.toLowerCase()} preference (${lc(c.wanted)})`).join(" or ")}.` : "";
+  const lostText = lost.length ? ` ${they(top.p)} ${verb(top.p, "doesn't", "don't")} match your ${lost.map(prefPhrase).join(" or ")}.` : "";
   if (reason.kind === "price") {
     const lvl = top.checks.find((c) => c.id === "level" && c.status === "match");
     headline = `The ${nm(top.p)} ${verb(top.p, "costs", "cost")} ${inr(reason.diff)} less${lvl ? ` and ${verb(top.p, "is", "are")} listed for ${brief.values.level ?? "all"}-level practice` : ""}.` + lostText;
@@ -192,10 +209,10 @@ export function needsRows(r: Result, brief: Brief): Row[] {
   for (const c of profile.criteria) {
     const v = brief.values[c.id];
     if (c.informational || !c.classify) continue;
-    if (v === undefined || v === null) {
+    if (!asList(v).length) {
       // not part of the brief: show only if the products differ on it (it may still matter)
       const listed = sel.map((e) => c.fact?.(e.p)?.value ?? NOT_SPECIFIED);
-      if (c.id !== "level" && new Set(listed).size > 1 && c.question) rows.push({ label: c.label, cells: listed.map((t) => ({ text: t, tone: t === NOT_SPECIFIED ? "muted" : undefined })) });
+      if (c.id !== "level" && new Set(listed).size > 1 && c.question && !c.cards) rows.push({ label: c.label, cells: listed.map((t) => ({ text: t, tone: t === NOT_SPECIFIED ? "muted" : undefined })) });
       continue;
     }
     rows.push({
@@ -248,19 +265,23 @@ export function allSpecRows(r: Result): Row[] {
 // ------------------------------------------------------------------ what changed
 
 type BriefLine = { key: string; label: string; hint?: string; value: string; kind: "must" | "pref" | "info" | null };
+/** Only values the shopper supplied or confirmed (plus budget and priority); assumptions are labelled. */
 export function briefLines(brief: Brief): BriefLine[] {
   const profile = profileOf(brief);
   const lines: BriefLine[] = [
     { key: "profile", label: "Activity", value: `${profile.activity} · ${profile.noun.replace(/^yoga |^trekking /, "")}`, kind: null },
   ];
+  const hint = (k: string, c?: { role: string; label: string }) =>
+    brief.sources[k] === "implied" ? "Set from trip duration" : brief.sources[k] === "saved" ? "Saved preference" : c?.role === "use" ? c.label : undefined;
   const ordered = [...profile.criteria].sort((a, b) => ["level", "use", "pref"].indexOf(a.role) - ["level", "use", "pref"].indexOf(b.role));
   for (const c of ordered) {
-    if (c.role === "pref") continue;
-    lines.push({ key: c.id, label: c.role === "level" ? "Experience level" : "Intended use", hint: c.role === "use" ? c.label : undefined, value: optionLabel(c, brief.values[c.id]), kind: c.informational ? "info" : brief.values[c.id] ? "pref" : null });
+    if (c.role === "pref" || !(c.id in brief.values)) continue;
+    lines.push({ key: c.id, label: c.role === "level" ? "Experience level" : "Intended use", hint: hint(c.id, c), value: optionLabel(c, brief.values[c.id]), kind: c.informational ? "info" : asList(brief.values[c.id]).length ? "pref" : null });
   }
   lines.push({ key: "budget", label: "Budget", value: brief.budget === null ? "No limit" : `Up to ${inr(brief.budget)}`, kind: brief.budget === null ? null : "must" });
-  for (const c of ordered.filter((c) => c.role === "pref"))
-    lines.push({ key: c.id, label: c.label, hint: brief.sources[c.id] === "implied" ? "Set from trip duration" : brief.sources[c.id] === "saved" ? "Saved preference" : undefined, value: optionLabel(c, brief.values[c.id]), kind: brief.values[c.id] ? (brief.must[c.id] && c.canBeMust ? "must" : "pref") : null });
+  for (const c of ordered.filter((c) => c.role === "pref" && c.id in brief.values))
+    lines.push({ key: c.id, label: c.label, hint: hint(c.id), value: optionLabel(c, brief.values[c.id]), kind: asList(brief.values[c.id]).length ? (brief.must[c.id] && c.canBeMust ? "must" : "pref") : null });
+  if (brief.size) lines.push({ key: "size", label: "Size", value: brief.size, kind: null });
   lines.push({ key: "priority", label: "Priority", value: profile.priorities.find((p) => p.id === brief.priority)?.label ?? brief.priority, kind: null });
   return lines;
 }
@@ -270,13 +291,16 @@ export function briefDiff(a: Brief, b: Brief): string[] {
   const out: string[] = [];
   for (const l of lb) {
     const o = la.find((x) => x.key === l.key && x.label === l.label);
-    if (!o) { if (l.value !== "Not set") out.push(`${l.label}: ${l.value}`); continue; }
+    if (!o) { out.push(`${l.label}: ${l.value}`); continue; }
     if (o.value !== l.value) out.push(`${l.label}: ${o.value} → ${l.value}`);
     else if (o.kind !== l.kind && (o.kind === "must" || l.kind === "must")) out.push(`${l.label}: ${l.kind === "must" ? "now a must-have" : "now a preference"}`);
   }
+  for (const o of la) if (!lb.some((l) => l.key === o.key) && a.profile === b.profile) out.push(`${o.label}: removed`);
   if (a.profile !== b.profile) return [`Activity: ${profileOf(a).noun} → ${profileOf(b).noun}`, ...out.filter((x) => !x.startsWith("Activity"))];
   return out;
 }
+
+const same = (x: unknown, y: unknown) => JSON.stringify(x ?? "∅") === JSON.stringify(y ?? "∅");
 
 function causeOf(a: Brief, b: Brief): { text: string; key: string } {
   const profile = profileOf(b);
@@ -284,14 +308,15 @@ function causeOf(a: Brief, b: Brief): { text: string; key: string } {
     return { key: "priority", text: b.priority === "price" ? "You prioritised lower price" : b.priority === "weight" ? "You prioritised lower weight" : "You prioritised your preferences over price" };
   if (a.budget !== b.budget) return { key: "budget", text: b.budget === null ? "With no budget limit" : `With a ${inr(b.budget)} budget` };
   for (const c of profile.criteria) {
-    if (a.values[c.id] !== b.values[c.id]) {
+    if (!same(a.values[c.id], b.values[c.id])) {
       const v = b.values[c.id];
-      return { key: c.id, text: v ? `You prioritised ${optionLabel(c, v).toLowerCase()}${c.role === "pref" && c.id === "coverage" ? " coverage" : c.role === "level" ? " level" : ""}` : `You removed your ${c.label.toLowerCase()} preference` };
+      return { key: c.id, text: asList(v).length ? `You prioritised ${lcPhrase(optionLabel(c, v))}${c.id === "coverage" || c.id === "length" ? " length" : c.role === "level" ? " level" : c.id === "fit" ? " fit" : c.id === "waist" || c.id === "fabric" || c.id === "feel" ? "" : ""}` : `You removed your ${c.label.toLowerCase()} preference` };
     }
     if (Boolean(a.must[c.id]) !== Boolean(b.must[c.id]))
       return { key: c.id, text: b.must[c.id] ? `You made ${c.label.toLowerCase()} a must-have` : `You made ${c.label.toLowerCase()} a preference` };
   }
   return { key: "", text: "With your updated brief" };
+
 }
 
 /** One or two sentences: the specific effect of a change, from before/after results. */
@@ -319,18 +344,21 @@ export function changeEffect(a: Brief, ra: Result, b: Brief, rb: Result, keyOf: 
       const vs = prevTop && prevTop.p.id !== vb.top.p.id ? prevTop : vb.kind === "pick" ? vb.alt : null;
       const delta = vs && vs.p.price !== vb.top.p.price ? ` ${they(vb.top.p)} ${verb(vb.top.p, "costs", "cost")} ${inr(Math.abs(vb.top.p.price - vs.p.price))} ${vb.top.p.price > vs.p.price ? "more" : "less"} than the ${nm(vs.p)}.` : "";
       const why = newlyOut.length ? outNote.replace(/\.$/, "") : cause.text;
-      return `${why}, so the ${nm(vb.top.p)} now ${verb(vb.top.p, "ranks", "rank")} first.${delta}${inNote}`.trim();
+      const cheapest = b.priority === "price" ? rb.alternatives.find((e) => e.p.price < vb.top.p.price) : undefined;
+      const cheapNote = cheapest ? ` The ${nm(cheapest.p)} (${inr(cheapest.p.price)}) also ${verb(cheapest.p, "meets", "meet")} your must-haves and ${verb(cheapest.p, "costs", "cost")} less; ${plural(cheapest.p) ? "they aren't" : "it isn't"} in your comparison yet.` : "";
+      return `${why}, so the ${nm(vb.top.p)} now ${verb(vb.top.p, "ranks", "rank")} first.${delta}${cheapNote}${inNote}`.trim();
     }
     if (vb.kind === "tie") return `${outNote ? outNote + " " : ""}${cause.text}: ${vb.group.map((e) => `the ${nm(e.p)}`).join(" and ")} now fit equally, so there's no clear winner.${inNote}`;
   }
   // unchanged
   const c = criterion(profileOf(b), cause.key);
-  if (c && !c.informational && c.classify && b.values[c.id] && rb.selected.every((e) => c.classify!(e.p) === null))
+  if (c && !c.informational && c.classify && asList(b.values[c.id]).length && rb.selected.every((e) => c.classify!(e.p) === null))
     return `${c.label} isn't listed for ${rb.selected.length > 1 ? "these products" : "this product"}, so this can't be evaluated. The recommendation is unchanged.`;
   if (cause.key === "budget" && rb.selected.every((e) => e.eligible) && rb.selected.length > 1)
     return `${rb.selected.length === 2 ? "Both products" : "All the products"} remain within your new budget, so the recommendation is unchanged.${inNote}`;
-  if (c?.informational && c.implies && b.values[c.id]) {
-    const imp = c.implies(b.values[c.id]!);
+  const iv = c ? b.values[c.id] : null;
+  if (c?.informational && c.implies && typeof iv === "string") {
+    const imp = c.implies(iv);
     if (imp) return `${imp.note}. The recommendation is unchanged.${inNote}`;
   }
   const top = vb.kind === "pick" || vb.kind === "only" ? vb.top : null;

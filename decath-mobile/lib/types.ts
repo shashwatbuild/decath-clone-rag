@@ -46,6 +46,8 @@ export type ChatMessage = {
   products?: ProductLite[];
   compare?: { rows: { label: string; values: string[] }[]; products: ProductLite[] };
   suggestions?: string[];
+  /** a visual-cards question from the shopping advisor (criterion id) */
+  cards?: string;
   /** Something the app should do for the shopper (e.g. add an item to the cart) */
   action?: { type: "add_to_cart"; productId: string; size: string | null };
   time: number;
