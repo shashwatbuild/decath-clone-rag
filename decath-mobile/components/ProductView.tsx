@@ -5,7 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import type { Product } from "@/lib/types";
 import { getProduct, img, inr, toCard } from "@/lib/products";
 import { useStore } from "@/lib/store";
+import { deliveryDays } from "@/lib/delivery";
+import { defaultTarget, useWatches } from "@/lib/watch";
 import ProductCard, { Tag } from "./ProductCard";
+import Explain from "./Explain";
+import SizeFinder from "./SizeFinder";
 import { ChatFab, SectionTitle, Stars, TopBar } from "./ui";
 import { IconClose, IconExchange, IconHeart, IconPlus, IconReturn, IconShare, IconShield, IconStore, IconTag, IconTruck } from "./Icons";
 
@@ -20,6 +24,8 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
   const [sizeError, setSizeError] = useState(false);
   const sizeRef = useRef<HTMLDivElement>(null);
   const wished = wishlist.includes(p.id);
+  const { watch, unwatch, find } = useWatches();
+  const watching = find(p.id);
 
   useEffect(() => { markViewed(p.id); }, [p.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -68,6 +74,17 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
           {p.mrp > p.price && <span className="text-[16px] text-[#757575]">MRP <s>{inr(p.mrp)}</s></span>}
         </div>
         <p className="text-xs text-muted">Inclusive of all taxes</p>
+        <div className="mt-3">
+          {watching ? (
+            <p className="text-sm">
+              <span className="text-[#3d9a6d] font-semibold">Watching</span> · alert at {inr(watching.target)}{" "}
+              <button onClick={() => { unwatch(p.id); showToast("Price watch removed"); }} className="text-brand underline ml-1">Stop</button>
+            </p>
+          ) : (
+            <button onClick={() => { watch(p); showToast(`We'll alert you at ${inr(defaultTarget(p.price))}`); }}
+              className="text-sm text-brand font-semibold underline">Watch this price</button>
+          )}
+        </div>
       </section>
 
       {p.offers.length > 0 && (
@@ -105,6 +122,7 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
             ))}
           </div>
           {sizeError && <p className="text-red-600 text-sm mt-2">Please select a size</p>}
+          <SizeFinder p={p} onPick={(s) => { setSize(s); setSizeError(false); showToast(`Size ${s} selected`); }} />
         </section>
       )}
 
@@ -121,7 +139,7 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
       <Accordion title="Benefits">
         <ul className="space-y-4">
           {p.benefits.map((b) => (
-            <li key={b.name} className="text-[15px] leading-relaxed"><span className="font-medium">{b.name}:</span> {b.value}</li>
+            <li key={b.name} className="text-[15px] leading-relaxed"><span className="font-medium"><Explain text={b.name} />:</span> <Explain text={b.value} /></li>
           ))}
         </ul>
       </Accordion>
@@ -218,17 +236,19 @@ function Promise({ icon, text }: { icon: React.ReactNode; text: string }) {
 }
 
 function Delivery() {
+  const { pincode } = useStore();
+  const { min, max } = deliveryDays(pincode);
   const [info, setInfo] = useState<{ date: string; left: string } | null>(null);
   useEffect(() => {
     const now = new Date();
-    const d = new Date(now); d.setDate(d.getDate() + 4);
+    const d = new Date(now); d.setDate(d.getDate() + max);
     const cutoff = new Date(now); cutoff.setHours(24 + 10, 0, 0, 0);
     const mins = Math.floor((cutoff.getTime() - now.getTime()) / 60000);
     setInfo({
       date: d.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" }),
       left: `${Math.floor(mins / 60)} hrs ${mins % 60} min`,
     });
-  }, []);
+  }, [max]);
   return (
     <section className="px-4 pt-5 pb-6 border-b border-line">
       <h2 className="text-[19px] font-semibold">Delivery & services</h2>
@@ -237,6 +257,7 @@ function Delivery() {
         <span className="w-2.5 h-2.5 mt-2 rounded-full bg-[#3d9a6d] shrink-0" /><IconTruck className="w-7 h-7 shrink-0" />
         <div>
           <p className="text-[16px] font-medium">Standard delivery by {info?.date ?? "…"}</p>
+          <p className="text-[14px] text-muted">Usually {min}–{max} days to {pincode}</p>
           <p className="text-[15px]">Order within <span className="text-[#3d9a6d]">{info?.left ?? "…"}</span></p>
         </div>
       </div>
@@ -269,8 +290,8 @@ function KVList({ items }: { items: { name: string; value: string }[] }) {
     <dl className="divide-y divide-line">
       {items.map((k) => (
         <div key={k.name} className="py-4 first:pt-0">
-          <dt className="font-semibold text-[15px]">{k.name}</dt>
-          <dd className="text-[15px] mt-1.5 leading-relaxed whitespace-pre-line">{k.value}</dd>
+          <dt className="font-semibold text-[15px]"><Explain text={k.name} /></dt>
+          <dd className="text-[15px] mt-1.5 leading-relaxed whitespace-pre-line"><Explain text={k.value} /></dd>
         </div>
       ))}
     </dl>

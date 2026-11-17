@@ -18,6 +18,8 @@ import {
 } from "@/lib/advisor/session";
 import type { KitItem, KitLine } from "@/lib/advisor/kit";
 import TypeCards from "@/components/advisor/TypeCards";
+import VoiceButton from "@/components/VoiceButton";
+import { parsePlanRequest } from "@/lib/plan";
 
 const SAVED_KEY = "dc.briefs";
 function loadSaved(): SavedPrefs {
@@ -224,6 +226,22 @@ function ChatInner() {
       return;
     }
 
+    // "10K in 8 weeks, ₹5,000 budget" opens the training plan with those answers filled in.
+    const planReq = parsePlanRequest(msg);
+    if (planReq) {
+      const q = new URLSearchParams({ goal: planReq.goal, weeks: String(planReq.weeks) });
+      if (planReq.budget) q.set("budget", String(planReq.budget));
+      showToast("Opening your training plan");
+      router.push(`/plan?${q.toString()}`);
+      return;
+    }
+
+    // The chat only opens checkout; the shopper reviews and confirms the payment there.
+    if (/^(go to |open |take me to |proceed to )?checkout$/i.test(msg)) {
+      router.push("/checkout");
+      return;
+    }
+
     if (/explore a product/i.test(msg)) {
       setMessages((m) => [...m, { role: "assistant", time: Date.now(), text: "What product would you like to explore? For example, running shoes, a trekking backpack, a football, or a bicycle.", suggestions: ["Running shoes", "Trekking backpack", "Football", "Bicycle"] }]);
       return;
@@ -347,8 +365,9 @@ function ChatInner() {
       <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="shrink-0 border-t border-line px-4 pt-4 pb-3 bg-white">
         <div className="flex items-center gap-3">
           <Link href="/" aria-label="Home" className="text-[#555]"><IconHome className="w-8 h-8" /></Link>
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type your message"
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type or speak your message"
             className="flex-1 min-w-0 border border-[#ccc] rounded-full px-5 py-3.5 text-[16px] outline-none focus:border-brand" />
+          <VoiceButton disabled={busy} onText={(t) => setInput((cur) => (cur ? cur + " " : "") + t)} />
           <button type="submit" disabled={!input.trim() || busy} aria-label="Send" className="text-brand disabled:text-[#aaa]"><IconSend className="w-8 h-8" /></button>
         </div>
         <p className="text-center text-[13px] text-[#888] mt-3">{source === "claude" ? "Powered by Claude + product RAG" : source === "gemini" ? "Powered by Gemini + product RAG" : source === "offline" ? "Catalogue answers · AI is busy right now" : "Powered by product RAG"}</p>

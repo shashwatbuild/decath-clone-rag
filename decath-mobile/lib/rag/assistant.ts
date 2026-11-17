@@ -393,7 +393,7 @@ function storeFaq(lower: string, hasProductContext: boolean): Reply | null {
   if (RE.coupon.test(lower))
     return { text: "**Coupons you can use now** 🏷️\n\n- **NC100**: ₹100 off orders above ₹1,499\n- **NC200**: ₹200 off orders above ₹2,499\n- **NC300**: ₹300 off orders above ₹3,499\n\nApply them on the cart page.", suggestions: ["What's on sale?", "View my cart"] };
   if (RE.payment.test(lower))
-    return { text: "This is a demo store, so checkout and payments are switched off. You can still browse, add to cart, apply coupons and compare products.", suggestions: ["Any coupons?", "What's on sale?"] };
+    return { text: "**Paying**\n\nI can take you to checkout, but I never pay for you: you review the order and confirm the payment there yourself.\n\n- **Demo wallet**: simulated balance, no real money\n- **Cash on delivery**\n\nThis is a demo store, so no real payment is taken.", suggestions: ["Go to checkout", "Any coupons?"] };
   if (RE.warranty.test(lower) && !hasProductContext)
     return { text: "**Warranty**\n\n- Most products: **2 years** against manufacturing defects\n- Plus **30-day** returns and exchange\n\nAsk me about a specific product to see its exact warranty.", suggestions: ["Warranty on Rockrider ST120 MTB", "What's the return policy?"] };
   return null;

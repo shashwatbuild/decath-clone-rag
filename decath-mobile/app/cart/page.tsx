@@ -4,25 +4,18 @@ import Link from "next/link";
 import { useState } from "react";
 import { getProduct, img, inr } from "@/lib/products";
 import { useStore } from "@/lib/store";
+import { COUPONS, cartTotals } from "@/lib/pricing";
 import { TopBar } from "@/components/ui";
-
-const COUPONS: Record<string, { off: number; above: number }> = {
-  NC100: { off: 100, above: 1499 },
-  NC200: { off: 200, above: 2499 },
-  NC300: { off: 300, above: 3499 },
-};
 
 export default function CartPage() {
   const { cart, setQty, removeFromCart, toggleWish, showToast } = useStore();
   const [code, setCode] = useState("");
-  const [applied, setApplied] = useState<string | null>(null);
+  const [applied, setApplied] = useState<string | null>(() => {
+    try { return localStorage.getItem("dc.coupon"); } catch { return null; }
+  });
 
   const lines = cart.map((i) => ({ ...i, p: getProduct(i.id)! })).filter((l) => l.p);
-  const mrp = lines.reduce((s, l) => s + l.p.mrp * l.qty, 0);
-  const total = lines.reduce((s, l) => s + l.p.price * l.qty, 0);
-  const coupon = applied && COUPONS[applied] && total >= COUPONS[applied].above ? COUPONS[applied].off : 0;
-  const shipping = total === 0 || total >= 999 ? 0 : 99;
-  const pay = total - coupon + shipping;
+  const { mrp, total, coupon, shipping, pay, saved } = cartTotals(lines, applied);
 
   if (!lines.length)
     return (
@@ -74,7 +67,9 @@ export default function CartPage() {
             const c = COUPONS[code];
             if (!c) return showToast("Invalid coupon");
             if (total < c.above) return showToast(`Add ${inr(c.above - total)} more to use ${code}`);
-            setApplied(code); showToast(`${code} applied`);
+            setApplied(code);
+            try { localStorage.setItem("dc.coupon", code); } catch {}
+            showToast(`${code} applied`);
           }} className="px-5 rounded-lg bg-brand text-white font-semibold">Apply</button>
         </div>
       </div>
@@ -89,8 +84,8 @@ export default function CartPage() {
       </div>
 
       <div className="bottom-bar fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line flex items-center gap-4 px-4 py-3 z-30">
-        <div><p className="font-bold text-lg">{inr(pay)}</p><p className="text-xs text-[#3d9a6d]">You save {inr(mrp - total + coupon)}</p></div>
-        <button onClick={() => showToast("Checkout is disabled in this demo")} className="flex-1 h-[52px] rounded-full bg-brand text-white font-medium text-[17px]">Checkout</button>
+        <div><p className="font-bold text-lg">{inr(pay)}</p><p className="text-xs text-[#3d9a6d]">You save {inr(saved)}</p></div>
+        <Link href="/checkout" className="flex-1 h-[52px] rounded-full bg-brand text-white font-medium text-[17px] grid place-items-center">Checkout</Link>
       </div>
     </main>
   );

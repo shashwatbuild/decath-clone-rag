@@ -43,6 +43,15 @@ export default function Home() {
         <div className="absolute -right-8 -bottom-10 w-40 h-40 rounded-full bg-white/10" />
       </div>
 
+      <Link href="/plan" className="mx-4 mt-3 flex items-center justify-between rounded-2xl border border-line p-4">
+        <span>
+          <span className="block text-xs uppercase tracking-widest text-muted">New</span>
+          <span className="block font-semibold mt-0.5">Plan your training gear</span>
+          <span className="block text-sm text-muted">A week-by-week timeline within your budget</span>
+        </span>
+        <span aria-hidden className="text-2xl text-brand">›</span>
+      </Link>
+
       <SectionTitle>Bestsellers</SectionTitle>
       <Rail items={top.map(toCard)} />
 

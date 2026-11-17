@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { getProduct, inr } from "@/lib/products";
+import { useWatches } from "@/lib/watch";
 import { TopBar } from "@/components/ui";
 
 const NOTES = [
@@ -9,9 +13,37 @@ const NOTES = [
 ];
 
 export default function NotificationsPage() {
+  const { list, unwatch } = useWatches();
+  const watched = list.map((w) => ({ w, p: getProduct(w.id) })).filter((x) => x.p);
+
   return (
     <main className="pb-10">
       <TopBar title="Notifications" />
+
+      {watched.length > 0 && (
+        <section className="border-b-8 border-[#F5F4F5]">
+          <h2 className="px-4 pt-4 pb-1 text-[13px] uppercase tracking-widest text-muted">Price watch</h2>
+          <ul className="divide-y divide-line">
+            {watched.map(({ w, p }) => {
+              const hit = p!.price <= w.target;
+              return (
+                <li key={w.id} className="flex gap-3 px-4 py-4 items-start">
+                  <span className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${hit ? "bg-[#3d9a6d]" : "bg-[#c9c9c9]"}`} />
+                  <Link href={`/p/${w.id}`} className="flex-1 min-w-0">
+                    <span className="block font-semibold text-[15px] line-clamp-1">{p!.shortName}</span>
+                    <span className="block text-[14px] mt-0.5">
+                      {hit ? <b className="text-[#3d9a6d]">Alert price reached</b> : "Waiting for a drop"} · now {inr(p!.price)}
+                    </span>
+                    <span className="block text-[13px] text-muted">Alert at {inr(w.target)} · was {inr(w.priceThen)} when you started watching</span>
+                  </Link>
+                  <button onClick={() => unwatch(w.id)} className="text-sm text-brand underline shrink-0">Stop</button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
       <ul className="divide-y divide-line">
         {NOTES.map((n) => (
           <li key={n.title}>
