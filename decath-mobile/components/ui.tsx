@@ -88,6 +88,7 @@ function DesktopNav() {
           {SHOP_LINKS.map((c) => (
             <Link key={c.slug} href={`/c/${c.slug}`} className="hover:text-brand whitespace-nowrap">{c.name}</Link>
           ))}
+          <Link href="/m" className="ml-auto text-[14px] text-muted hover:text-brand whitespace-nowrap">Mobile version ›</Link>
         </div>
       </nav>
     </div>
