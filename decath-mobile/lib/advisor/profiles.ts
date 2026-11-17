@@ -56,6 +56,8 @@ export type KitItemDef = {
   basis: string;
   /** shown for "Not sure" */
   whenUseful: string;
+  /** words that name this item in chat ("I already have a mat"); yoga items use a built-in list */
+  words?: RegExp;
 };
 
 export type Profile = {
@@ -75,7 +77,7 @@ export type Profile = {
   maxQuestions?: number;
   kit?: KitItemDef[];
 };
-export type ProfileId = "yoga-pants" | "yoga-mats" | "backpacks";
+export type ProfileId = "yoga-pants" | "yoga-mats" | "backpacks" | "badminton-rackets" | "running-shoes";
 
 // ------------------------------------------------------------------ helpers
 
@@ -154,6 +156,26 @@ const litres = (p: Product): number | null => {
   const extra = Number(specOf(p, "Expandable volume")?.match(/(\d+)/)?.[1] ?? 0);
   return nums.length ? Math.max(...nums) + extra : null;
 };
+
+
+const BADMINTON_KIT: KitItemDef[] = [
+  { id: "racket", label: "Badminton racket", category: "Badminton Rackets", essential: true, basis: "Every player needs one. The racket you're shopping for covers this.", whenUseful: "Only needed if you don't already have one you like." , words: /\brackets?\b/},
+  { id: "shuttles", label: "Shuttlecocks", category: "Shuttlecocks", essential: true, basis: "You can't play without them, and they wear out fast. Plastic shuttles last longer; feather shuttles fly truer and cost more.", whenUseful: "Handy to keep a spare tube even if the court supplies some." , words: /\bshuttles?(cocks?)?\b/},
+  { id: "shoes", label: "Badminton shoes", category: "Badminton Shoes", essential: true, basis: "Court shoes give grip and cushioning for quick side-to-side moves on indoor courts. Running shoes aren't built for that.", whenUseful: "Useful before your first full game on a hard indoor court." , words: /\bshoes?\b/},
+  { id: "apparel", label: "Shirt and shorts", category: "Badminton Apparel", essential: false, basis: "Optional. Any breathable sportswear works to begin; badminton clothing is light and lets you move freely.", whenUseful: "Helpful once you play regularly and want clothes that dry fast." , words: /\b(shirts?|t-?shirts?|shorts|clothes|clothing|apparel)\b/},
+  { id: "bag", label: "Kit bag", category: "Badminton Bags", essential: false, basis: "Optional. Useful once you carry a racket, shoes and shuttles to the court.", whenUseful: "Helpful if you travel to a court or play with more than one racket." , words: /\b(kit ?)?bags?\b/},
+  { id: "grip", label: "Grip", category: "Badminton Accessories", essential: false, basis: "Optional. A fresh grip stops the racket slipping when your hands sweat, and costs very little.", whenUseful: "Helpful if your hands sweat or your racket handle feels worn." , words: /\b(over)?grips?\b/},
+];
+
+const MARATHON_KIT: KitItemDef[] = [
+  { id: "shoes", label: "Running shoes", category: "Running Shoes", essential: true, basis: "The most important purchase for a long run. The shoes you're shopping for cover this.", whenUseful: "Only needed if your current pair is worn out or wrong for the distance." , words: /\bshoes?\b/},
+  { id: "shorts", label: "Running shorts", category: "Running Shorts", essential: true, basis: "Light, quick-drying shorts help avoid chafing over long distances.", whenUseful: "Any shorts you already run comfortably in will do." , words: /\bshorts\b/},
+  { id: "socks", label: "Running socks", category: "Running Socks", essential: true, basis: "Cotton socks hold sweat; running socks help prevent blisters, which matter more the longer you run.", whenUseful: "Worth having a pair you have tested on long runs before race day." , words: /\bsocks?\b/},
+  { id: "top", label: "Running top", category: "Running Tops", essential: false, basis: "Optional. Any breathable top works; a technical top can reduce chafing on long runs.", whenUseful: "Helpful for runs beyond about an hour." , words: /\b(top|singlet|tank|t-?shirt|shirt)\b/},
+  { id: "hydration", label: "Hydration belt or flask", category: "Hydration & Nutrition", essential: false, basis: "Optional. Useful on long runs where you want fluids, gels and your phone on you.", whenUseful: "Helpful on runs over an hour, or where races have far-apart water points." , words: /\b(belt|flasks?|bottles?|hydration)\b/},
+  { id: "cap", label: "Cap or visor", category: "Running Caps", essential: false, basis: "Optional. Shades your eyes and keeps sweat out in hot weather.", whenUseful: "Helpful for daytime runs in the sun." , words: /\b(cap|visor)\b/},
+  { id: "watch", label: "GPS watch or heart-rate belt", category: "Running Watches", essential: false, basis: "Optional. Helps pace a long run and track training; you can start without one.", whenUseful: "Helpful when you follow a training plan with pace or heart-rate targets." , words: /\b(watch|gps|heart[- ]rate)\b/},
+];
 
 // ------------------------------------------------------------------ profiles
 
@@ -489,6 +511,223 @@ export const PROFILES: Record<ProfileId, Profile> = {
     budget: { min: 2000, max: 30000, step: 500 },
     showWeight: true,
     controls: [{ kind: "criterion", id: "duration" }, { kind: "criterion", id: "capacity" }, { kind: "priority" }, { kind: "budget" }],
+  },
+  "badminton-rackets": {
+    id: "badminton-rackets",
+    category: "Badminton Rackets",
+    activity: "Badminton",
+    noun: "badminton racket",
+    criteria: [
+      level,
+      {
+        id: "style",
+        label: "Racket style",
+        role: "pref",
+        question: "What kind of racket would you like?",
+        noneLabel: "No preference",
+        noneRe: /\b(any (type|kind|style)|no preference|don'?t mind)\b/,
+        multi: true,
+        cards: true,
+        options: [
+          { id: "easy", label: "Easy to handle", hint: "Light and forgiving, good for learning", re: /\b(easy to handle|easy|forgiving|light)\b/ },
+          { id: "power", label: "Power", hint: "Head-heavy for harder smashes", re: /\b(power(ful)?|smash(es)?|attack(ing)?|aggressive)\b/ },
+          { id: "control", label: "Control", hint: "Balanced for placement and precision", re: /\b(control|precision|placement|accura(te|cy))\b/ },
+        ],
+        canBeMust: true,
+        fact: (p) => specEvidence(p, "Racket type"),
+        classify: (p) => {
+          const v = specOf(p, "Racket type")?.toLowerCase();
+          if (!v) return null;
+          return [...(/easy/.test(v) ? ["easy"] : []), ...(/power/.test(v) ? ["power"] : []), ...(/control/.test(v) ? ["control"] : [])];
+        },
+      },
+      {
+        id: "frequency",
+        label: "How often you play",
+        role: "use",
+        question: "How often will you play?",
+        noneLabel: "Not sure",
+        noneRe: /\b(not sure|don'?t know)\b/,
+        options: [
+          { id: "occasional", label: "Occasionally, for fun", re: /\b(occasional(ly)?|casual(ly)?|for fun|weekends?|sometimes|leisure)\b/ },
+          { id: "regular", label: "Regularly or in competition", re: /\b(regular(ly)?|often|every (day|week)|several times|competitive(ly)?|tournament|league|club|intensive(ly)?)\b/ },
+        ],
+        canBeMust: false,
+        fact: (p) => specEvidence(p, "Frequency"),
+        classify: (p) => {
+          const v = specOf(p, "Frequency")?.toLowerCase();
+          if (!v) return null;
+          return [...(/occasional/.test(v) ? ["occasional"] : []), ...(/intensive|regular/.test(v) ? ["regular"] : [])];
+        },
+      },
+      {
+        id: "place",
+        label: "Where you play",
+        role: "use",
+        question: "Where will you mostly play?",
+        noneLabel: "Not sure",
+        noneRe: /\b(not sure|don'?t know)\b/,
+        options: [
+          { id: "indoor", label: "Indoor court", re: /\b(indoors?|hall|stadium|court)\b/ },
+          { id: "outdoor", label: "Outdoors", re: /\b(outdoors?|garden|park|backyard|lawn|beach|terrace)\b/ },
+        ],
+        canBeMust: true,
+        fact: (p) => specEvidence(p, "Place of practice"),
+        classify: (p) => {
+          const v = specOf(p, "Place of practice")?.toLowerCase();
+          if (!v) return null;
+          return [...(/indoor/.test(v) ? ["indoor"] : []), ...(/outdoor/.test(v) ? ["outdoor"] : [])];
+        },
+      },
+      {
+        id: "balance",
+        label: "Balance",
+        role: "pref",
+        refine: true,
+        noneLabel: "No preference",
+        options: [
+          { id: "head", label: "Head-heavy (more power)", re: /\bhead[- ]heavy\b/ },
+          { id: "even", label: "Even balance (more control)", re: /\b(even|balanced)\b/ },
+        ],
+        canBeMust: true,
+        fact: (p) => specEvidence(p, "Balance"),
+        classify: (p) => {
+          const v = specOf(p, "Balance")?.toLowerCase();
+          if (!v) return null;
+          return [...(/head heavy/.test(v) ? ["head"] : []), ...(/even/.test(v) ? ["even"] : [])];
+        },
+      },
+      {
+        id: "set",
+        label: "Racket set",
+        role: "pref",
+        refine: true,
+        noneLabel: "No preference",
+        options: [{ id: "set", label: "Sold as a set (extra rackets and shuttles)", re: /\b(set|pair|two rackets|family)\b/ }],
+        canBeMust: true,
+        fact: (p) => specEvidence(p, "Sold in set"),
+        classify: (p) => {
+          const v = specOf(p, "Sold in set")?.toLowerCase();
+          if (!v) return null;
+          return /sold alone/.test(v) ? [] : ["set"];
+        },
+      },
+    ],
+    priorities: [
+      { id: "match", label: "Best match to my preferences" },
+      { id: "price", label: "Lowest price", re: /\b(cheapest|lowest price|lower price|cheaper|most affordable|sasta)\b/ },
+      { id: "weight", label: "Lightest", re: /\b(lightest|lighter|light ?weight|ultra ?light)\b/ },
+    ],
+    budget: { min: 300, max: 4000, step: 100 },
+    showWeight: true,
+    maxQuestions: 2,
+    controls: [{ kind: "budget" }, { kind: "criterion", id: "style" }, { kind: "criterion", id: "frequency" }, { kind: "criterion", id: "place" }, { kind: "criterion", id: "balance" }, { kind: "criterion", id: "set" }, { kind: "priority" }],
+    kit: BADMINTON_KIT,
+  },
+
+  "running-shoes": {
+    id: "running-shoes",
+    category: "Running Shoes",
+    activity: "Marathon running",
+    noun: "running shoes",
+    criteria: [
+      level,
+      {
+        id: "distance",
+        label: "Race distance",
+        role: "use",
+        question: "What distance are you training for?",
+        noneLabel: "Not sure",
+        noneRe: /\b(not sure|don'?t know)\b/,
+        multi: true,
+        cards: true,
+        options: [
+          { id: "short", label: "Up to 10K", hint: "Everyday runs and short races", re: /\b(5 ?k|10 ?k|up to 10|short runs?|jogging|daily runs?)\b/ },
+          { id: "half", label: "Half marathon", hint: "21 km training and race day", re: /\bhalf[- ]marathon\b|\b21 ?k(m)?\b/ },
+          { id: "full", label: "Full marathon", hint: "42 km, long runs and race day", re: /\b(full )?marathon\b|\b42 ?k(m)?\b/ },
+          { id: "trail", label: "Trail running", hint: "Off-road paths and hills", re: /\btrails?\b/ },
+        ],
+        canBeMust: true,
+        fact: (p) => specEvidence(p, "Distance"),
+        classify: (p) => {
+          const v = specOf(p, "Distance")?.toLowerCase();
+          if (!v) return null;
+          return [
+            ...(/1 to 10 km/.test(v) ? ["short"] : []),
+            ...(/half marathon/.test(v) ? ["half"] : []),
+            ...(/(^|,)\s*marathon/.test(v) ? ["full"] : []),
+            ...(/trail/.test(v) ? ["trail"] : []),
+          ];
+        },
+      },
+      {
+        id: "surface",
+        label: "Where you run",
+        role: "use",
+        question: "Where will you mostly run?",
+        noneLabel: "Not sure",
+        noneRe: /\b(not sure|don'?t know)\b/,
+        options: [
+          { id: "road", label: "Road or track", re: /\b(roads?|pavement|street|track|tarmac|bitumen|treadmill)\b/ },
+          { id: "trail", label: "Trails or hills", re: /\b(trails?|hills?|mountains?|off[- ]?road|forest)\b/ },
+        ],
+        canBeMust: true,
+        fact: (p) => specEvidence(p, "Playing surface") ?? specEvidence(p, "Place of practice"),
+        classify: (p) => {
+          const v = (specOf(p, "Playing surface") ?? specOf(p, "Place of practice"))?.toLowerCase();
+          if (!v) return null;
+          return [...(/road|bitumen|athletics/.test(v) ? ["road"] : []), ...(/trail|path|piste|ground|mountain|rocks/.test(v) ? ["trail"] : [])];
+        },
+      },
+      {
+        id: "cushion",
+        label: "Cushioning",
+        role: "pref",
+        question: "How much cushioning do you want?",
+        noneLabel: "No preference",
+        noneRe: /\b(any cushioning|no preference|don'?t mind)\b/,
+        options: [
+          { id: "max", label: "Maximum cushioning", re: /\b(max(imum)?|plush|softest|very soft)\b/ },
+          { id: "high", label: "High cushioning", re: /\b(high|good|lots of) cushion(ing)?\b|\b(cushion(ed|ing)?|soft)\b/ },
+        ],
+        canBeMust: true,
+        fact: (p) => specEvidence(p, "Cushioning level"),
+        classify: (p) => {
+          const v = specOf(p, "Cushioning level")?.toLowerCase();
+          if (!v) return null;
+          return /maximum/.test(v) ? ["max", "high"] : /high/.test(v) ? ["high"] : [];
+        },
+      },
+      {
+        id: "stride",
+        label: "Stride type",
+        role: "pref",
+        refine: true,
+        noneLabel: "Not sure",
+        noneRe: /\b(not sure|don'?t know)\b/,
+        options: [
+          { id: "neutral", label: "Neutral", re: /\bneutral\b/ },
+          { id: "pronator", label: "Pronator (feet roll inward)", re: /\b(pronat(or|ion|e)|flat feet|overpronat\w*)\b/ },
+        ],
+        canBeMust: true,
+        fact: (p) => specEvidence(p, "Stride type"),
+        classify: (p) => {
+          const v = specOf(p, "Stride type")?.toLowerCase();
+          if (!v) return null;
+          return [...(/neutral/.test(v) ? ["neutral"] : []), ...(/pronator/.test(v) ? ["pronator"] : [])];
+        },
+      },
+    ],
+    priorities: [
+      { id: "match", label: "Best match to my preferences" },
+      { id: "price", label: "Lowest price", re: /\b(cheapest|lowest price|lower price|cheaper|most affordable|sasta)\b/ },
+      { id: "weight", label: "Lightest", re: /\b(lightest|lighter|light ?weight|ultra ?light)\b/ },
+    ],
+    budget: { min: 1000, max: 15000, step: 500 },
+    showWeight: true,
+    maxQuestions: 2,
+    controls: [{ kind: "budget" }, { kind: "criterion", id: "distance" }, { kind: "criterion", id: "surface" }, { kind: "criterion", id: "cushion" }, { kind: "criterion", id: "stride" }, { kind: "priority" }],
+    kit: MARATHON_KIT,
   },
 };
 

@@ -523,9 +523,9 @@ function EditSheet({ field, brief, onCommit, onClose }: { field: string; brief: 
     );
   }
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end" role="dialog" aria-modal="true" aria-label={`Edit ${title}`}>
+    <div className="fixed inset-0 z-50 flex flex-col justify-end lg:items-center lg:justify-center" role="dialog" aria-modal="true" aria-label={`Edit ${title}`}>
       <button aria-label="Close" onClick={onClose} className="absolute inset-0 bg-black/40" />
-      <div ref={ref} className="adv-sheet relative bg-white rounded-t-3xl px-5 pt-3 pb-8 max-h-[80%] overflow-y-auto">
+      <div ref={ref} className="adv-sheet relative bg-white rounded-t-3xl lg:rounded-3xl lg:w-[460px] px-5 pt-3 pb-8 max-h-[80%] overflow-y-auto">
         <div className="mx-auto w-10 h-1.5 rounded-full bg-[#d5d5d8] mb-3" />
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-[17px]">Edit {title.toLowerCase()}</h3>

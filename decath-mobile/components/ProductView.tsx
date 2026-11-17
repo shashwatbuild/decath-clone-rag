@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Product } from "@/lib/types";
-import { getProduct, img, inr, toCard } from "@/lib/products";
+import { getProduct, img, inr, slugForCategory, toCard } from "@/lib/products";
 import { useStore } from "@/lib/store";
 import { deliveryDays } from "@/lib/delivery";
 import { defaultTarget, useWatches } from "@/lib/watch";
@@ -50,10 +50,11 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
   };
 
   return (
-    <main className="pb-28">
+    <main className="pb-28 lg:pb-12">
       <TopBar />
-      <Gallery p={p} />
-
+      <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:px-4 lg:pt-6 lg:items-start">
+      <div className="lg:sticky lg:top-44"><Gallery p={p} /></div>
+      <div>
       <section className="px-4 pt-4">
         <h1 className="text-[20px] leading-snug"><b className="font-bold">{p.brand}</b> {p.name}</h1>
         <div className="flex items-center gap-2 mt-2">
@@ -128,6 +129,19 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
 
       <Delivery />
 
+      {/* Desktop: the add-to-cart controls sit in the page instead of a fixed bottom bar */}
+      <div className="hidden lg:flex items-center gap-3 px-4 pt-6">
+        <button aria-label="Wishlist" onClick={() => { toggleWish(p.id); showToast(wished ? "Removed from wishlist" : "Added to wishlist"); }}
+          className="w-[56px] h-[56px] rounded-full border-2 border-[#9a9a9a] grid place-items-center shrink-0">
+          <IconHeart className={`w-6 h-6 ${wished ? "text-brand" : ""}`} filled={wished} />
+        </button>
+        <button onClick={onAdd} disabled={!p.inStock} className="flex-1 h-[56px] rounded-full bg-brand text-white text-[18px] font-medium disabled:opacity-50">
+          {p.inStock ? "Add to cart" : "Out of stock"}
+        </button>
+      </div>
+      </div>
+      </div>
+
       <section className="px-4 pt-6 pb-4">
         <div className="flex items-baseline">
           <h2 className="text-[21px] font-semibold">Product details</h2>
@@ -179,7 +193,7 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
 
       <ChatFab bottom="bottom-28" context={p.id} />
 
-      <div className="bottom-bar fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line flex items-center gap-3 px-4 py-3 z-30">
+      <div className="bottom-bar lg:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line flex items-center gap-3 px-4 py-3 z-30">
         <button aria-label="Wishlist" onClick={() => { toggleWish(p.id); showToast(wished ? "Removed from wishlist" : "Added to wishlist"); }}
           className="w-[60px] h-[60px] rounded-full border-2 border-[#9a9a9a] grid place-items-center shrink-0">
           <IconHeart className={`w-7 h-7 ${wished ? "text-brand" : ""}`} filled={wished} />
@@ -210,7 +224,7 @@ function Gallery({ p }: { p: Product }) {
           ))}
         </div>
         <Tag tag={p.tag} className="absolute top-0 left-0 text-[15px] px-2.5 py-1" />
-        <Link href={`/c/${p.category.toLowerCase().replace(/\s+/g, "-")}`}
+        <Link href={`/c/${slugForCategory(p.category)}`}
           className="absolute left-4 bottom-4 bg-white/95 rounded-full px-6 py-2.5 text-[16px] border border-line">View Similar</Link>
         <span className="absolute right-4 bottom-4 bg-white/95 rounded-full px-6 py-2.5 text-[16px] border border-line">{idx + 1}/{p.images.length}</span>
       </div>
@@ -300,9 +314,9 @@ function KVList({ items }: { items: { name: string; value: string }[] }) {
 
 function Rail({ items }: { items: Card[] }) {
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x-mandatory">
+    <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x-mandatory lg:grid lg:grid-cols-6 lg:gap-px lg:overflow-visible lg:bg-line lg:mx-4 lg:border lg:border-line lg:[&>*:nth-child(n+7)]:hidden">
       {items.map((x) => (
-        <div key={x.id} className="w-[46%] shrink-0 snap-start"><ProductCard p={x} compact /></div>
+        <div key={x.id} className="w-[46%] lg:w-auto shrink-0 snap-start"><ProductCard p={x} compact /></div>
       ))}
     </div>
   );

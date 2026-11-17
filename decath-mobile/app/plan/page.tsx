@@ -11,7 +11,7 @@ const BUDGETS = [3000, 5000, 10000];
 
 export default function PlanPage() {
   const { addToCart, cart, showToast } = useStore();
-  const [goal, setGoal] = useState<Goal>("yoga");
+  const [goal, setGoal] = useState<Goal>("badminton");
   const [weeks, setWeeks] = useState(4);
   const [budget, setBudget] = useState(5000);
   const [owned, setOwned] = useState<string[]>([]);
@@ -35,10 +35,11 @@ export default function PlanPage() {
   }
 
   return (
-    <main className="pb-32 bg-[#F5F4F5] min-h-[var(--app-h)]">
+    <main className="pb-32 lg:pb-12 bg-[#F5F4F5] min-h-[var(--app-h)]">
       <TopBar title="Training plan" />
 
-      <section className="bg-white p-4 space-y-4">
+      <div className="lg:grid lg:grid-cols-[360px_1fr] lg:gap-8 lg:px-4 lg:items-start lg:pt-2">
+      <section className="bg-white p-4 space-y-4 lg:rounded-xl lg:border lg:border-line lg:sticky lg:top-44">
         <div>
           <p className="text-sm text-muted mb-2">What are you training for?</p>
           <div className="flex gap-2">
@@ -85,7 +86,8 @@ export default function PlanPage() {
         </div>
       </section>
 
-      <section className="px-4 pt-4">
+      <div>
+      <section className="px-4 pt-4 lg:px-0 lg:pt-0">
         <div className={`rounded-xl p-4 ${plan.over ? "bg-[#fdecea] text-[#8a2a20]" : "bg-white"}`}>
           <p className="font-semibold">Total for new gear: {inr(plan.total)}</p>
           <p className="text-sm mt-1">
@@ -99,7 +101,7 @@ export default function PlanPage() {
         )}
       </section>
 
-      <section className="px-4 pt-4 space-y-4">
+      <section className="px-4 pt-4 space-y-4 lg:px-0">
         {plan.weeks.map((w) => (
           <div key={w.week} className="relative pl-6 border-l-2 border-line">
             <span className="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-brand" />
@@ -148,7 +150,10 @@ export default function PlanPage() {
         ))}
       </section>
 
-      <div className="bottom-bar fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line flex items-center gap-4 px-4 py-3 z-30">
+      </div>
+      </div>
+
+      <div className="bottom-bar lg:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line flex items-center gap-4 px-4 py-3 z-30">
         <div><p className="font-bold text-lg">{inr(plan.total)}</p><p className="text-xs text-muted">For {plan.lines.filter((l) => !l.owned && l.product).length} new item(s)</p></div>
         <Link href="/cart" className="flex-1 h-[52px] rounded-full bg-brand text-white font-medium text-[17px] grid place-items-center">View cart</Link>
       </div>

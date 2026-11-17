@@ -51,7 +51,7 @@ Format every reply in this small Markdown style, which the app renders as clean 
 - Use "- " bullets with a bold label for facts or differences, e.g. "- **Weight:** about 0.88 kg".
 - Put your recommendation (or a tip/offer) on its own line starting with "> ", e.g. "> 💡 **My pick: MT100 50L Backpack**, best value for a 3-day trek."
 - Separate sections with a blank line. Use **bold** only for names, labels and key numbers. No tables, no headings (#), no links.
-- Our catalogue covers running shoes, yoga pants, yoga mats, trekking backpacks, footballs, badminton rackets, cycles and gym t-shirts. Politely steer unrelated requests back to shopping.`;
+- Our catalogue covers running gear (shoes, shorts, tops, socks, hydration belts, caps, watches), badminton gear (rackets, shuttlecocks, shoes, bags, grips, clothing), yoga pants, yoga mats, trekking backpacks, footballs, cycles and gym t-shirts. Politely steer unrelated requests back to shopping.`;
 
 function factSheet(p: Product) {
   const kv = (xs: { name: string; value: string }[]) => xs.map((x) => `  - ${x.name}: ${x.value}`).join("\n");

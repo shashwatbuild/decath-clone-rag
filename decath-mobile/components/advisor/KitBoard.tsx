@@ -112,7 +112,7 @@ function KitTotals({ sum, kit, onKit }: { sum: ReturnType<typeof summarise>; kit
           {kit.budget !== null && <button onClick={() => onKit({}, null)} className="text-brand text-[14px] min-h-[36px]">Remove</button>}
         </div>
       )}
-      {kit.budget !== null && <p className="text-[12px] text-muted">Separate from your pants budget.</p>}
+      {kit.budget !== null && <p className="text-[12px] text-muted">Separate from your per-item budget.</p>}
     </div>
   );
 }
@@ -144,7 +144,7 @@ function KitRow({ line, brief, onKit }: { line: KitLine; brief: Brief; onKit: Pr
         <details className="mt-2 text-[13px]">
           <summary className="cursor-pointer text-[#1b5e2f] font-semibold min-h-[28px]">✓ Covered · add details (optional)</summary>
           <label className="sr-only" htmlFor={`own-${def.id}`}>Details</label>
-          <input id={`own-${def.id}`} defaultValue={item.ownNote ?? ""} onBlur={(e) => e.target.value !== (item.ownNote ?? "") && set({ ownNote: e.target.value })} placeholder="e.g. 4 mm mat, two years old" className="w-full border border-[#ddd] rounded-lg px-2.5 min-h-[36px] mt-1" />
+          <input id={`own-${def.id}`} defaultValue={item.ownNote ?? ""} onBlur={(e) => e.target.value !== (item.ownNote ?? "") && set({ ownNote: e.target.value })} placeholder="e.g. a few years old, still good" className="w-full border border-[#ddd] rounded-lg px-2.5 min-h-[36px] mt-1" />
         </details>
       )}
       {item.state === "unsure" && (

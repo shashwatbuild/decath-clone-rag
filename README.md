@@ -260,7 +260,7 @@ decath-clone-rag/
 
 ## 📦 Product data
 
-`decath-mobile/data/products.json` holds **40 products in 8 categories**: 12 yoga pants (leggings, flared, relaxed and capri styles) and 4 each of running shoes, yoga mats, trekking backpacks, footballs, badminton, cycles and t-shirts, collected from decathlon.in on 6–7 Nov 2026: prices, specs, benefits, sizes, weights, images and rating counts. Review texts and the star breakdown are generated sample data.
+`decath-mobile/data/products.json` holds **87 products in 19 categories**, all collected from decathlon.in: the original 40 (12 yoga pants and 4 each of running shoes, yoga mats, trekking backpacks, footballs, badminton rackets, cycles and t-shirts, collected 6–7 Nov 2026) plus 47 added for the **badminton kit** (shuttlecocks, court shoes, kit bags, grips, clothing) and the **marathon kit** (more running shoes, shorts, tops, socks, hydration belts, caps, watches). Prices, specs, benefits, sizes, weights, images and rating counts are real; review texts and the star breakdown are generated sample data. `scripts/add_products.py` downloads and appends products, so more can be added the same way.
 
 To refresh or add products, edit the IDs in `scripts/build_catalog.py`, save each product page as `<pdp_dir>/<id>.html` (from `https://www.decathlon.in/qr/<id>/-1`), then run:
 

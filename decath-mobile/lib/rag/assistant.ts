@@ -35,11 +35,30 @@ const CATEGORY_NOUNS: Record<string, string[]> = {
   Backpacks: ["backpack"],
   Footballs: ["football"],
   "Yoga Mats": ["mat"],
-  Badminton: ["badminton"],
+  "Badminton Rackets": ["racket"],
   Cycles: ["cycle"],
   "T-Shirts": ["tshirt"],
+  Shuttlecocks: ["shuttle"],
+  "Badminton Accessories": ["overgrip"],
+  "Running Shorts": ["shorts"],
+  "Running Tops": ["singlet", "tank"],
+  "Running Socks": ["socks"],
+  "Hydration & Nutrition": ["flask", "belt"],
+  "Running Caps": ["cap", "visor"],
+  "Running Watches": ["watch", "gps", "hrm"],
 };
+
+/** Phrases made of two words that name one category ("badminton shoes" is not "running shoes"). */
+const COMBOS: { all: string[]; cat: string; drop: string[] }[] = [
+  { all: ["badminton", "shoes"], cat: "Badminton Shoes", drop: ["Running Shoes"] },
+  { all: ["badminton", "backpack"], cat: "Badminton Bags", drop: ["Backpacks"] },
+  { all: ["badminton", "tshirt"], cat: "Badminton Apparel", drop: ["T-Shirts"] },
+  { all: ["badminton", "shorts"], cat: "Badminton Apparel", drop: ["Running Shorts"] },
+  { all: ["badminton", "grip"], cat: "Badminton Accessories", drop: [] },
+  { all: ["badminton", "grips"], cat: "Badminton Accessories", drop: [] },
+];
 const SPORT_WORDS: Record<string, string[]> = {
+  badminton: ["Badminton Rackets"],
   yoga: ["Yoga Pants", "Yoga Mats"],
   pilates: ["Yoga Pants", "Yoga Mats"],
   running: ["Running Shoes"],
@@ -57,8 +76,8 @@ const SPORT_WORDS: Record<string, string[]> = {
 
 /** Things shoppers ask for that this demo catalogue doesn't stock, with the closest thing we do have. */
 const NOT_STOCKED: { re: RegExp; label: string; alt?: string }[] = [
-  { re: /\b(table tennis|ping pong)\b/, label: "table tennis gear", alt: "Badminton" },
-  { re: /\btennis\b/, label: "tennis gear", alt: "Badminton" },
+  { re: /\b(table tennis|ping pong)\b/, label: "table tennis gear", alt: "Badminton Rackets" },
+  { re: /\btennis\b/, label: "tennis gear", alt: "Badminton Rackets" },
   { re: /\bcricket\b/, label: "cricket gear" },
   { re: /\bswim(ming)?\b|\bgoggles?\b|\bswimsuit\b/, label: "swimming gear" },
   { re: /\b(basketball|volleyball|rugby|hockey)\b/, label: "that sport's equipment", alt: "Footballs" },
@@ -67,7 +86,7 @@ const NOT_STOCKED: { re: RegExp; label: string; alt?: string }[] = [
   { re: /\b(skates?|skating|skateboards?|scooters?)\b/, label: "skates or scooters" },
   { re: /\b(dumbbells?|kettlebells?|barbells?|treadmills?|weights plates?)\b/, label: "gym equipment", alt: "Yoga Mats" },
   { re: /\b(tents?|sleeping bags?)\b/, label: "camping gear", alt: "Backpacks" },
-  { re: /\b(helmets?|gloves?|watch(es)?|smartwatch|jackets?|shorts|socks|bottles?|caps?|sunglasses)\b/, label: "that item" },
+  { re: /\b(helmets?|gloves?|jackets?|sunglasses)\b/, label: "that item" },
 ];
 
 export const RE = {
@@ -127,6 +146,11 @@ export function parsePrice(text: string): { range: PriceRange | null; rest: stri
 }
 
 export function detectCategories(tokens: string[]): string[] {
+  const combo = COMBOS.find((c) => c.all.every((w) => tokens.includes(w)));
+  if (combo) {
+    const others = Object.entries(CATEGORY_NOUNS).filter(([c, ws]) => !combo.drop.includes(c) && c !== combo.cat && !c.startsWith("Badminton") && ws.some((w) => tokens.includes(w))).map(([c]) => c);
+    return [combo.cat, ...others];
+  }
   const nouns = Object.entries(CATEGORY_NOUNS).filter(([, ws]) => ws.some((w) => tokens.includes(w))).map(([c]) => c);
   if (nouns.length) return nouns;
   const sports = new Set<string>();
@@ -330,11 +354,11 @@ export function respond(req: ChatRequest): Reply {
 
   // Items we don't sell
   const notStocked = NOT_STOCKED.find((n) => n.re.test(lower));
-  if (notStocked && !named.length && cats.every((c) => c === notStocked.alt || (c === "Badminton" && /\brackets?\b/.test(lower)))) {
+  if (notStocked && !named.length && cats.every((c) => c === notStocked.alt || (c === "Badminton Rackets" && /\brackets?\b/.test(lower)))) {
     const alt = notStocked.alt ? products.filter((p) => p.category === notStocked.alt) : [];
     return {
       text:
-        `Sorry, we don't stock **${notStocked.label}** yet.\n\nWe carry running shoes, yoga pants & mats, trekking backpacks, footballs, badminton rackets, cycles and gym t-shirts.` +
+        `Sorry, we don't stock **${notStocked.label}** yet.\n\nWe carry running gear (shoes, shorts, socks, hydration, caps, watches), badminton gear (rackets, shuttlecocks, shoes, bags, grips, clothing), yoga pants & mats, trekking backpacks, footballs, cycles and gym t-shirts.` +
         (alt.length ? `\n\n> 💡 The closest thing we have: **${notStocked.alt!.toLowerCase()}**, shown below.` : ""),
       products: lite(sortBy(alt, "best").slice(0, 4)),
       suggestions: alt.length ? [`Show ${notStocked.alt!.toLowerCase()}`, "What's on sale?"] : ["Show me running shoes", "What's on sale?"],
@@ -434,7 +458,7 @@ function listing(o: { msg: string; lower: string; tokens: string[]; cats: string
   if ((/\bbeginners?\b/.test(tokens.join(" ")) || RE.beginner.test(lower)) && !sort) pool = [...pool].sort((a, b) => beginnerScore(b) - beginnerScore(a));
   pool = sortBy(pool, sort ?? (extra || RE.beginner.test(lower) ? null : "best"));
 
-  const LABEL: Record<string, string> = { Badminton: "badminton rackets", "T-Shirts": "t-shirts", Cycles: "cycles" };
+  const LABEL: Record<string, string> = { "Badminton Rackets": "badminton rackets", "T-Shirts": "t-shirts", Cycles: "cycles", Shuttlecocks: "shuttlecocks" };
   const what = cats.length === 1 ? (LABEL[cats[0]] ?? cats[0].toLowerCase()) : "products";
   const budget = range ? (range.min && range.max ? ` between ${inr(range.min)} and ${inr(range.max)}` : range.max ? ` under ${inr(range.max)}` : ` above ${inr(range.min!)}`) : "";
   const forWhom = gender ? ` for ${gender.toLowerCase()}` : "";

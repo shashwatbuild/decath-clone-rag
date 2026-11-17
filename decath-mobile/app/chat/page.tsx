@@ -61,7 +61,7 @@ function ChatInner() {
         : "Hi! 👋 Welcome to Decathlon Sports India 🏃\nHow can I assist you today? 😊",
       suggestions: focus
         ? ["What is it made of?", "What sizes are available?", "Is it good for beginners?", "Compare with a similar product"]
-        : ["Help me explore a product 🤔📦", "I'm starting yoga and want pants under ₹1,000", "Running shoes for a marathon", "Lightest trekking backpack", "What's on sale?"],
+        : ["Help me explore a product 🤔📦", "Help me build a badminton kit", "I'm training for a marathon, shoes under ₹8,000", "I'm starting yoga and want pants under ₹1,000", "What's on sale?"],
     }]);
   }, [focusId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -185,7 +185,7 @@ function ChatInner() {
   const kitEdit = (items: Record<string, Partial<KitItem>>, budget?: number | null) => setSession((s) => (s ? commitKit(s, items, budget) : s));
   const addKitToCart = (lines: KitLine[]) => {
     for (const l of lines) addToCart(l.product!.id, l.needsSize ? l.item.size : (l.product!.sizes[0] ?? null));
-    const core = lines.find((l) => l.product?.category === "Yoga Pants" && l.item.size);
+    const core = lines.find((l) => l.product?.category === (sessionRef.current ? PROFILES[sessionRef.current.brief.profile].category : "Yoga Pants") && l.item.size);
     if (core) setSession((s) => (s ? { ...s, brief: { ...s.brief, size: core.item.size! } } : s));
     showToast(`Added ${lines.length} item${lines.length > 1 ? "s" : ""} to cart`);
   };
@@ -310,7 +310,7 @@ function ChatInner() {
   }
 
   return (
-    <main className="flex flex-col h-[var(--app-h)]">
+    <main className="flex flex-col h-[var(--app-h)] lg:max-w-3xl lg:mx-auto lg:h-[calc(100dvh-48px)] lg:my-6 lg:rounded-3xl lg:overflow-hidden lg:shadow-2xl lg:border lg:border-line lg:bg-white">
       <header className="bg-brand text-white flex items-center gap-4 px-5 pt-6 pb-5 shrink-0">
         <span className="relative shrink-0">
           <DecathlonMark className="w-11 h-9 text-white" />
@@ -323,7 +323,7 @@ function ChatInner() {
         <button onClick={() => router.back()} className="ml-auto" aria-label="Close chat"><IconClose className="w-7 h-7" /></button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 lg:mx-0 lg:max-w-none lg:w-full lg:px-6">
         {messages.map((m, i) => (
           <div key={i}>
             <Bubble m={m} onSuggest={(t) => send(t)} isLast={i === messages.length - 1}
@@ -362,7 +362,7 @@ function ChatInner() {
         <div ref={endRef} />
       </div>
 
-      <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="shrink-0 border-t border-line px-4 pt-4 pb-3 bg-white">
+      <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="shrink-0 border-t border-line px-4 pt-4 pb-3 bg-white lg:mx-0 lg:max-w-none lg:w-full lg:px-6">
         <div className="flex items-center gap-3">
           <Link href="/" aria-label="Home" className="text-[#555]"><IconHome className="w-8 h-8" /></Link>
           <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type or speak your message"

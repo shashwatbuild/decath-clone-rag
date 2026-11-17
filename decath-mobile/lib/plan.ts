@@ -5,25 +5,41 @@
 import { products } from "./products";
 import type { Product } from "./types";
 
-export type Goal = "yoga" | "running" | "trekking";
+export type Goal = "badminton" | "running" | "yoga" | "trekking";
 
-type Need = { id: string; category: string; label: string; week: number; essential: boolean; why: string };
+/** w = how big a share of the budget this item usually takes (a shoe costs more than a grip) */
+type Need = { id: string; category: string; label: string; week: number; essential: boolean; why: string; w?: number };
 
 export const GOALS: Record<Goal, { label: string; blurb: string; needs: Need[] }> = {
+  badminton: {
+    label: "Badminton",
+    blurb: "Racket and court shoes first, then shuttles, grips and clothing.",
+    needs: [
+      { id: "racket", category: "Badminton Rackets", label: "Racket", week: 1, essential: true, w: 2, why: "Start here. A light, easy-to-handle racket is enough to learn." },
+      { id: "shoes", category: "Badminton Shoes", label: "Court shoes", week: 1, essential: true, w: 3, why: "Grip and cushioning for quick side-to-side moves. Running shoes aren't built for it." },
+      { id: "shuttles", category: "Shuttlecocks", label: "Shuttlecocks", week: 2, essential: true, w: 2, why: "They wear out fast. Plastic shuttles last longer; feather ones fly truer." },
+      { id: "grip", category: "Badminton Accessories", label: "Grip", week: 3, essential: false, w: 0.5, why: "A fresh grip stops the racket slipping and costs very little." },
+      { id: "apparel", category: "Badminton Apparel", label: "Shirt or shorts", week: 3, essential: false, w: 1.5, why: "Light, quick-drying clothes. Any sportswear works to begin." },
+      { id: "bag", category: "Badminton Bags", label: "Kit bag", week: 4, essential: false, w: 2, why: "Handy once you carry a racket, shoes and shuttles to the court." },
+    ],
+  },
+  running: {
+    label: "Marathon",
+    blurb: "Shoes and socks first, then shorts and a top, then hydration for long runs.",
+    needs: [
+      { id: "shoes", category: "Running Shoes", label: "Running shoes", week: 1, essential: true, w: 4, why: "The purchase that matters most. Wear them in for a week before long runs." },
+      { id: "socks", category: "Running Socks", label: "Running socks", week: 1, essential: true, w: 0.5, why: "Blister protection matters more the longer you run." },
+      { id: "shorts", category: "Running Shorts", label: "Running shorts", week: 2, essential: true, w: 1, why: "Light, quick-drying shorts help avoid chafing." },
+      { id: "top", category: "Running Tops", label: "Running top", week: 3, essential: false, w: 1.5, why: "Breathable layer for longer runs. Your current top may already do." },
+      { id: "hydration", category: "Hydration & Nutrition", label: "Hydration belt or flask", week: 5, essential: false, w: 1.5, why: "Useful once your long runs pass about an hour." },
+    ],
+  },
   yoga: {
     label: "Yoga",
     blurb: "Start with clothing you can move in, then a mat for home practice.",
     needs: [
       { id: "pants", category: "Yoga Pants", label: "Yoga pants", week: 1, essential: true, why: "Clothing you can stretch in. Start here." },
       { id: "mat", category: "Yoga Mats", label: "Yoga mat", week: 2, essential: true, why: "For home practice. Skip it if your studio lends mats." },
-    ],
-  },
-  running: {
-    label: "Running",
-    blurb: "Shoes first, then a breathable top once your runs get longer.",
-    needs: [
-      { id: "shoes", category: "Running Shoes", label: "Running shoes", week: 1, essential: true, why: "The one purchase that matters most. Wear them in for a week before long runs." },
-      { id: "top", category: "T-Shirts", label: "Running top", week: 3, essential: false, why: "Breathable layer for longer runs. Your current top may already do." },
     ],
   },
   trekking: {
@@ -59,13 +75,14 @@ function pickProduct(category: string, share: number): Product | null {
 export function buildPlan({ goal, weeks, budget, owned }: PlanInput): PlanResult {
   const needs = GOALS[goal].needs;
   const buying = needs.filter((n) => !owned.includes(n.id));
-  // Each item to buy gets an equal share of the budget; owned items cost nothing.
-  const share = buying.length ? budget / buying.length : budget;
+  // Each item to buy gets a share of the budget in proportion to its weight; owned items cost nothing.
+  const totalW = buying.reduce((t, n) => t + (n.w ?? 1), 0) || 1;
+  const shareOf = (n: Need) => (budget * (n.w ?? 1)) / totalW;
   const lines: PlanLine[] = needs.map((need) => {
     const isOwned = owned.includes(need.id);
-    const product = isOwned ? null : pickProduct(need.category, share);
+    const product = isOwned ? null : pickProduct(need.category, shareOf(need));
     // Items that fall after the window go into the last week, so nothing is dropped silently.
-    return { need, product, owned: isOwned, week: Math.min(Math.max(need.week, 1), Math.max(weeks, 1)), share };
+    return { need, product, owned: isOwned, week: Math.min(Math.max(need.week, 1), Math.max(weeks, 1)), share: shareOf(need) };
   });
   const toBuy = lines.filter((l) => !l.owned && l.product);
   const total = toBuy.reduce((t, l) => t + l.product!.price, 0);
@@ -90,7 +107,8 @@ export function buildPlan({ goal, weeks, budget, owned }: PlanInput): PlanResult
 export function parsePlanRequest(msg: string): { goal: Goal; weeks: number; budget: number | null } | null {
   const t = msg.toLowerCase();
   if (!/\b(plan|training|train|prepar\w*|get ready|ready for)\b/.test(t)) return null;
-  const goal: Goal | null = /\byoga\b/.test(t) ? "yoga"
+  const goal: Goal | null = /\b(badminton|shuttle\w*|racket|racquet)\b/.test(t) ? "badminton"
+    : /\byoga\b/.test(t) ? "yoga"
     : /\b(trek\w*|hik\w*)\b/.test(t) ? "trekking"
     : /\b(run\w*|jog\w*|marathon|5k|10k|half)\b/.test(t) ? "running" : null;
   const wk = t.match(/(\d+)\s*(?:weeks?|wks?)\b/);

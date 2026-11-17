@@ -18,7 +18,7 @@ const SYNONYMS: Record<string, string> = {
   pant: "pants", trouser: "pants", trousers: "pants", trackpant: "pants", trackpants: "pants", bottoms: "pants", leggings: "pants", capri: "pants", capris: "pants",
   bag: "backpack", bags: "backpack", backpacks: "backpack", rucksack: "backpack", trekking: "hiking", trek: "hiking", hike: "hiking",
   ball: "football", soccer: "football", footballs: "football",
-  mats: "mat", racket: "badminton", racquet: "badminton", rackets: "badminton", shuttle: "badminton",
+  mats: "mat", racket: "racket", racquet: "racket", rackets: "racket", racquets: "racket", shuttle: "shuttle", shuttles: "shuttle", shuttlecock: "shuttle", shuttlecocks: "shuttle", socks: "socks", sock: "socks",
   bike: "cycle", bicycle: "cycle", bikes: "cycle", cycles: "cycle", cycling: "cycle", mtb: "mountain",
   tshirt: "tshirt", tee: "tshirt", tees: "tshirt", shirt: "tshirt", jersey: "tshirt",
   ladies: "women", woman: "women", womens: "women", female: "women", girls: "women", man: "men", mens: "men", male: "men", boys: "men",

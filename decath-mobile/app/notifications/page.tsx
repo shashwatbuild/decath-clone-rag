@@ -21,7 +21,7 @@ export default function NotificationsPage() {
       <TopBar title="Notifications" />
 
       {watched.length > 0 && (
-        <section className="border-b-8 border-[#F5F4F5]">
+        <section className="border-b-8 border-[#F5F4F5] lg:max-w-3xl">
           <h2 className="px-4 pt-4 pb-1 text-[13px] uppercase tracking-widest text-muted">Price watch</h2>
           <ul className="divide-y divide-line">
             {watched.map(({ w, p }) => {
@@ -44,7 +44,7 @@ export default function NotificationsPage() {
         </section>
       )}
 
-      <ul className="divide-y divide-line">
+      <ul className="divide-y divide-line lg:max-w-3xl">
         {NOTES.map((n) => (
           <li key={n.title}>
             <Link href={n.href} className="flex gap-3 px-4 py-4">

@@ -32,7 +32,9 @@ export default function ListingView({ title, items, empty }: { title: string; it
   const [brands, setBrands] = useState<string[]>([]);
   const [bands, setBands] = useState<number[]>([]);
   const [sheet, setSheet] = useState<"sort" | "filter" | "gender" | null>(null);
+  const [cat, setCat] = useState<string | null>(null);
 
+  const allCats = useMemo(() => [...new Set(items.map((p) => p.category))], [items]);
   const allBrands = useMemo(() => [...new Set(items.map((p) => p.brand))].sort(), [items]);
   const allGenders = useMemo(() => [...new Set(items.map((p) => p.gender))].sort(), [items]);
   const tags = useMemo(() => [...new Set(items.map((p) => p.tag).filter(Boolean))] as string[], [items]);
@@ -40,6 +42,7 @@ export default function ListingView({ title, items, empty }: { title: string; it
   const shown = useMemo(() => {
     const out = items.filter(
       (p) =>
+        (!cat || p.category === cat) &&
         (!minRating || p.rating >= 4) &&
         (!onlyTag || p.tag === onlyTag) &&
         (!genders.length || genders.includes(p.gender)) &&
@@ -54,7 +57,7 @@ export default function ListingView({ title, items, empty }: { title: string; it
       discount: (a, b) => discountPct(b) - discountPct(a),
     };
     return [...out].sort(cmp[sort]);
-  }, [items, sort, minRating, onlyTag, genders, brands, bands]);
+  }, [items, sort, cat, minRating, onlyTag, genders, brands, bands]);
 
   const filterCount = brands.length + bands.length + (minRating ? 1 : 0) + (onlyTag ? 1 : 0);
   const toggle = <T,>(arr: T[], v: T) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
@@ -67,10 +70,50 @@ export default function ListingView({ title, items, empty }: { title: string; it
   );
 
   return (
-    <main className="pb-24">
+    <main className="pb-24 lg:pb-12">
       <TopBar title={title} />
 
-      <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 py-3">
+      <div className="lg:flex lg:gap-8 lg:px-4 lg:pt-2">
+      {/* Desktop: filters live in a sidebar instead of bottom sheets */}
+      <aside aria-label="Filters" className="hidden lg:block w-[240px] shrink-0 sticky top-44 self-start max-h-[calc(100dvh-12rem)] overflow-y-auto pr-3 pb-6">
+        <h2 className="font-semibold mb-1">Sort by</h2>
+        {(Object.keys(SORTS) as SortKey[]).map((k) => (
+          <label key={k} className="flex items-center py-1.5 text-[15px]">
+            {SORTS[k]}
+            <input type="radio" name="sort-desktop" className="ml-auto w-4 h-4 accent-[#3643ba]" checked={sort === k} onChange={() => setSort(k)} />
+          </label>
+        ))}
+        {allGenders.length > 1 && (
+          <>
+            <h2 className="font-semibold mt-5 mb-1">Gender</h2>
+            {allGenders.map((g) => <Check key={g} label={g} checked={genders.includes(g)} onChange={() => setGenders(toggle(genders, g))} />)}
+          </>
+        )}
+        <h2 className="font-semibold mt-5 mb-1">Price</h2>
+        {PRICE_BANDS.map((b, i) => <Check key={b.label} label={b.label} checked={bands.includes(i)} onChange={() => setBands(toggle(bands, i))} />)}
+        <h2 className="font-semibold mt-5 mb-1">Brand</h2>
+        {allBrands.map((b) => <Check key={b} label={b} checked={brands.includes(b)} onChange={() => setBrands(toggle(brands, b))} />)}
+        <h2 className="font-semibold mt-5 mb-1">Rating</h2>
+        <Check label="4★ & above" checked={minRating} onChange={() => setMinRating(!minRating)} />
+        {(filterCount > 0 || genders.length > 0) && (
+          <button onClick={() => { setBrands([]); setBands([]); setGenders([]); setMinRating(false); setOnlyTag(null); }}
+            className="mt-5 w-full border border-ink rounded-full py-2.5 font-semibold text-[15px]">Clear all</button>
+        )}
+      </aside>
+      <div className="flex-1 min-w-0">
+
+      {allCats.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 pt-3 lg:px-0 lg:flex-wrap lg:overflow-visible" role="tablist" aria-label="Categories">
+          {[null, ...allCats].map((c) => (
+            <button key={c ?? "all"} role="tab" aria-selected={cat === c} onClick={() => setCat(c)}
+              className={`shrink-0 rounded-md px-4 py-2 text-[14px] font-medium ${cat === c ? "bg-ink text-white" : "bg-[#F5F4F5]"}`}>
+              {c ?? "All"}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 py-3 lg:px-0 lg:flex-wrap lg:overflow-visible">
         <Chip on={sort === "priceAsc"} onClick={() => setSort(sort === "priceAsc" ? "relevance" : "priceAsc")}>Price (low → high)</Chip>
         <Chip on={minRating} onClick={() => setMinRating(!minRating)}>Rating: 4<span className="text-[#FF9340]">★</span>Above</Chip>
         {["Clearance", "Price drop", "New arrival", ...tags.filter((t) => !["Clearance", "Price drop", "New arrival"].includes(t))].map((t) => (
@@ -80,17 +123,19 @@ export default function ListingView({ title, items, empty }: { title: string; it
 
       <CouponBanner />
 
-      <p className="px-4 pt-3 pb-1 text-sm text-muted">{shown.length} product{shown.length === 1 ? "" : "s"}</p>
+      <p className="px-4 lg:px-0 pt-3 pb-1 text-sm text-muted">{shown.length} product{shown.length === 1 ? "" : "s"}</p>
 
       {shown.length ? (
-        <div className="grid grid-cols-2 gap-px bg-line border-y border-line">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-px bg-line border-y border-line lg:border lg:border-line">
           {shown.map((p) => <ProductCard key={p.id} p={toCard(p)} />)}
         </div>
       ) : (
         empty ?? <p className="px-6 py-16 text-center text-muted">No products match these filters.</p>
       )}
+      </div>
+      </div>
 
-      <nav className="bottom-bar fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line grid grid-cols-3 h-[76px] z-30">
+      <nav className="bottom-bar lg:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line grid grid-cols-3 h-[76px] z-30">
         <BarBtn icon={<IconUsers />} label="Gender" active={genders.length > 0} onClick={() => setSheet("gender")} />
         <BarBtn icon={<IconSort />} label="Sort" active={sort !== "relevance"} onClick={() => setSheet("sort")} />
         <BarBtn icon={<IconFilter />} label={filterCount ? `Filter (${filterCount})` : "Filter"} active={filterCount > 0} onClick={() => setSheet("filter")} />

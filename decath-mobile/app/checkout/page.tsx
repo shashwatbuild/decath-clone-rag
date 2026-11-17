@@ -65,15 +65,16 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="pb-32 bg-[#F5F4F5] min-h-[var(--app-h)]">
+    <main className="pb-32 lg:pb-12 bg-[#F5F4F5] min-h-[var(--app-h)]">
       <TopBar title="Checkout" />
 
-      <section className="bg-white p-4 mt-2">
+      <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-x-8 lg:px-4 lg:items-start">
+      <section className="bg-white p-4 mt-2 lg:mt-0 lg:col-start-1">
         <p className="text-sm text-muted">Delivering to pincode</p>
         <p className="font-semibold">{pincode}</p>
       </section>
 
-      <section className="bg-white mt-2 p-4">
+      <section className="bg-white mt-2 lg:mt-0 p-4 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-44">
         <h2 className="font-semibold mb-3">Order summary</h2>
         <div className="space-y-2">
           {lines.map((l) => (
@@ -90,9 +91,11 @@ export default function CheckoutPage() {
           <p className="flex justify-between"><span>Shipping</span><span>{shipping ? inr(shipping) : "FREE"}</span></p>
           <p className="flex justify-between font-bold text-[17px]"><span>To pay</span><span>{inr(pay)}</span></p>
         </div>
+        <button disabled={method === "wallet" && !canWallet} onClick={() => setConfirming(true)}
+          className="hidden lg:block mt-4 w-full h-[52px] rounded-full bg-brand text-white font-medium text-[17px] disabled:opacity-40">Continue</button>
       </section>
 
-      <section className="bg-white mt-2 p-4">
+      <section className="bg-white mt-2 p-4 lg:col-start-1">
         <h2 className="font-semibold mb-3">Payment method</h2>
         <label className={`flex items-start gap-3 border rounded-xl p-3 mb-2 ${method === "wallet" ? "border-brand" : "border-line"}`}>
           <input type="radio" name="pay" checked={method === "wallet"} onChange={() => setMethod("wallet")} className="mt-1 accent-[var(--brand,#0082C3)]" />
@@ -110,7 +113,9 @@ export default function CheckoutPage() {
         </label>
       </section>
 
-      <div className="bottom-bar fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line flex items-center gap-4 px-4 py-3 z-30">
+      </div>
+
+      <div className="bottom-bar lg:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line flex items-center gap-4 px-4 py-3 z-30">
         <div><p className="font-bold text-lg">{inr(pay)}</p><p className="text-xs text-muted">Review before you pay</p></div>
         <button
           disabled={method === "wallet" && !canWallet}
@@ -120,8 +125,8 @@ export default function CheckoutPage() {
       </div>
 
       {confirming && (
-        <div className="fixed inset-0 z-40 bg-black/40 flex items-end justify-center" role="dialog" aria-modal="true" aria-label="Confirm payment">
-          <div className="w-full max-w-[440px] bg-white rounded-t-2xl p-5">
+        <div className="fixed inset-0 z-40 bg-black/40 flex items-end lg:items-center justify-center" role="dialog" aria-modal="true" aria-label="Confirm payment">
+          <div className="w-full max-w-[440px] bg-white rounded-t-2xl lg:rounded-2xl p-5">
             <p className="text-lg font-semibold">Confirm your payment</p>
             <p className="text-muted mt-2">
               {method === "wallet"

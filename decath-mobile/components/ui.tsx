@@ -4,14 +4,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
+import { SHOP_LINKS } from "@/lib/products";
 import { IconBack, IconBell, IconCart, IconChevronDown, IconClose, IconHeart, IconPin, IconSearch, DecathlonMark } from "./Icons";
 
 export function TopBar({ title, back = true, logo = false }: { title?: string; back?: boolean; logo?: boolean }) {
   const router = useRouter();
   const { cartCount, wishlist } = useStore();
   return (
+    <>
     <header className="sticky top-0 z-30 bg-white">
-      <div className="flex items-center h-14 px-3 gap-2">
+      <DesktopNav />
+      <div className="flex items-center h-14 px-3 gap-2 lg:hidden">
         {back && (
           <button aria-label="Back" onClick={() => router.back()} className="p-1.5 -ml-1">
             <IconBack className="w-7 h-7" />
@@ -23,7 +26,7 @@ export function TopBar({ title, back = true, logo = false }: { title?: string; b
             <img src="/decathlon-logo.svg" alt="DECATHLON" width={188} height={28} className="h-[27px] w-auto" />
           </Link>
         )}
-        {title && <h1 className="text-[19px] font-semibold truncate pl-1">{title}</h1>}
+        {title && <h1 className="text-[19px] font-semibold truncate pl-1 lg:hidden">{title}</h1>}
         <div className={`ml-auto flex items-center pr-1 ${logo ? "gap-5" : "gap-4"}`}>
           {logo ? (
             <Link href="/notifications" aria-label="Notifications"><IconBell className="w-[26px] h-[26px]" /></Link>
@@ -42,6 +45,52 @@ export function TopBar({ title, back = true, logo = false }: { title?: string; b
       </div>
       <DeliveryBar />
     </header>
+    {title && <h1 className="hidden lg:block max-w-[1280px] mx-auto w-full px-4 pt-6 pb-2 text-[30px] font-bold tracking-tight">{title}</h1>}
+    </>
+  );
+}
+
+/** Website header for desktop screens: logo, search, category links and account icons. Hidden below 1024px. */
+function DesktopNav() {
+  const router = useRouter();
+  const { cartCount, wishlist } = useStore();
+  const [draft, setDraft] = useState("");
+  const icon = "relative flex flex-col items-center gap-0.5 text-[12px] text-[#444] hover:text-brand";
+  return (
+    <div className="hidden lg:block border-b border-line">
+      <div className="max-w-[1280px] mx-auto px-4 h-[72px] flex items-center gap-8">
+        <Link href="/" aria-label="Decathlon home" className="shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/decathlon-logo.svg" alt="DECATHLON" width={188} height={28} className="h-[28px] w-auto" />
+        </Link>
+        <form role="search" onSubmit={(e) => { e.preventDefault(); if (draft.trim()) router.push(`/search?q=${encodeURIComponent(draft.trim())}`); }}
+          className="flex-1 max-w-[620px] flex items-center gap-2 border border-line rounded-full px-5 h-12 bg-[#F5F4F5] focus-within:border-brand focus-within:bg-white">
+          <IconSearch className="w-5 h-5 text-muted" />
+          <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Search for sports and products"
+            aria-label="Search products" className="flex-1 bg-transparent outline-none text-[16px]" />
+        </form>
+        <nav className="ml-auto flex items-center gap-7" aria-label="Account and tools">
+          <Link href="/plan" className={icon}><span className="text-[15px] font-semibold">Training plan</span></Link>
+          <Link href="/chat" className={icon}><DecathlonMark className="w-6 h-5" /><span>Assistant</span></Link>
+          <Link href="/notifications" aria-label="Notifications" className={icon}><IconBell className="w-6 h-6" /><span>Alerts</span></Link>
+          <Link href="/wishlist" aria-label="Wishlist" className={icon}>
+            <IconHeart className="w-6 h-6" /><span>Wishlist</span>
+            {wishlist.length > 0 && <Badge n={wishlist.length} />}
+          </Link>
+          <Link href="/cart" aria-label="Cart" className={icon}>
+            <IconCart className="w-6 h-6" /><span>Cart</span>
+            {cartCount > 0 && <Badge n={cartCount} />}
+          </Link>
+        </nav>
+      </div>
+      <nav aria-label="Categories" className="border-t border-line">
+        <div className="max-w-[1280px] mx-auto px-4 h-11 flex items-center gap-7 text-[15px]">
+          {SHOP_LINKS.map((c) => (
+            <Link key={c.slug} href={`/c/${c.slug}`} className="hover:text-brand whitespace-nowrap">{c.name}</Link>
+          ))}
+        </div>
+      </nav>
+    </div>
   );
 }
 
@@ -63,12 +112,14 @@ export function DeliveryBar() {
   const [draft, setDraft] = useState(pincode);
   return (
     <>
+      <div className="border-b border-line">
       <button onClick={() => { setDraft(pincode); setOpen(true); }}
-        className="w-full flex items-center gap-2.5 px-3 py-2 border-b border-line text-left">
+        className="w-full max-w-[1280px] mx-auto flex items-center gap-2.5 px-3 lg:px-4 py-2 text-left">
         <span className="w-7 h-7 rounded-md border border-line grid place-items-center text-brand"><IconPin className="w-4 h-4" /></span>
         <span className="text-[14px] truncate">Delivery to <b className="font-semibold">{pincode}, Pune, Maharashtra</b></span>
-        <IconChevronDown className="w-5 h-5 ml-auto shrink-0" />
+        <IconChevronDown className="w-5 h-5 ml-auto shrink-0 lg:ml-1" />
       </button>
+      </div>
       <BottomSheet open={open} onClose={() => setOpen(false)} title="Enter delivery pincode">
         <input value={draft} onChange={(e) => setDraft(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric"
           className="w-full border border-line rounded-lg px-4 py-3 text-base outline-none focus:border-brand" placeholder="6-digit pincode" />

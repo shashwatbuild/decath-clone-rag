@@ -228,3 +228,45 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .adv-flash, .adv-in, .adv-sheet { animation: none; }
 }
+
+/* ---------- Desktop website (1024px and up) ----------
+   Below 1024px nothing changes: phones get the full-screen app, tablets the phone frame.
+   From 1024px the frame is removed and the same pages become a normal full-width website. */
+@media (min-width: 1024px) {
+  html,
+  body {
+    height: auto;
+    overflow: visible;
+  }
+  html {
+    background: #fff;
+  }
+  .stage,
+  .phone,
+  .phone-screen,
+  .phone-viewport,
+  .phone-scroll {
+    display: contents;
+  }
+  .phone-btn,
+  .status-bar,
+  .home-indicator {
+    display: none;
+  }
+  /* display: contents still passes custom properties down, so reset the screen height explicitly */
+  .phone-viewport {
+    --app-h: 100dvh;
+  }
+  .app-shell {
+    max-width: none;
+    box-shadow: none;
+    min-height: 100dvh;
+  }
+  /* Page content sits in a centred column; the sticky header spans the full width.
+     :where() keeps this at the lowest specificity so any page can still override it. */
+  main > :where(:not(header):not(.fixed):not(.full-bleed)) {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

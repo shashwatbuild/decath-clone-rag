@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { CATEGORIES, searchProducts } from "@/lib/products";
+import { SHOP_LINKS, searchProducts } from "@/lib/products";
 import ListingView from "@/components/ListingView";
 import { IconBack, IconSearch } from "@/components/Icons";
 
@@ -33,13 +33,13 @@ function SearchInner() {
       </form>
       <h2 className="px-4 pt-5 pb-2 font-semibold">Popular categories</h2>
       <div className="flex flex-wrap gap-2 px-4">
-        {CATEGORIES.map((c) => (
+        {SHOP_LINKS.map((c) => (
           <Link key={c.slug} href={`/c/${c.slug}`} className="border border-line rounded-full px-4 py-2 text-sm">{c.name}</Link>
         ))}
       </div>
       <h2 className="px-4 pt-6 pb-2 font-semibold">Try searching</h2>
       <div className="flex flex-wrap gap-2 px-4">
-        {["kiprun", "domyos", "trekking bag", "football", "women yoga", "cycle"].map((s) => (
+        {["badminton racket", "shuttlecock", "running shorts", "kiprun", "marathon", "hydration belt"].map((s) => (
           <Link key={s} href={`/search?q=${encodeURIComponent(s)}`} className="bg-[#F5F4F5] rounded-full px-4 py-2 text-sm">{s}</Link>
         ))}
       </div>

@@ -9,10 +9,40 @@ export const CATEGORIES = [
   { slug: "backpacks", name: "Backpacks" },
   { slug: "footballs", name: "Footballs" },
   { slug: "yoga-mats", name: "Yoga Mats" },
-  { slug: "badminton", name: "Badminton" },
+  { slug: "badminton-rackets", name: "Badminton Rackets" },
   { slug: "cycles", name: "Cycles" },
   { slug: "t-shirts", name: "T-Shirts" },
+  { slug: "shuttlecocks", name: "Shuttlecocks" },
+  { slug: "badminton-shoes", name: "Badminton Shoes" },
+  { slug: "badminton-bags", name: "Badminton Bags" },
+  { slug: "badminton-accessories", name: "Badminton Accessories" },
+  { slug: "badminton-apparel", name: "Badminton Apparel" },
+  { slug: "running-shorts", name: "Running Shorts" },
+  { slug: "running-tops", name: "Running Tops" },
+  { slug: "running-socks", name: "Running Socks" },
+  { slug: "hydration-nutrition", name: "Hydration & Nutrition" },
+  { slug: "running-caps", name: "Running Caps" },
+  { slug: "running-watches", name: "Running Watches" },
 ] as const;
+
+/**
+ * What the shop navigation shows: a whole sport (every product of that sport, split by category on the page)
+ * or a single category.
+ */
+export type ShopLink = { slug: string; name: string; sport?: string };
+export const SHOP_LINKS: ShopLink[] = [
+  { slug: "badminton", name: "Badminton", sport: "Badminton" },
+  { slug: "running", name: "Running & Marathon", sport: "Running" },
+  { slug: "yoga-pants", name: "Yoga Pants" },
+  { slug: "yoga-mats", name: "Yoga Mats" },
+  { slug: "backpacks", name: "Backpacks" },
+  { slug: "footballs", name: "Footballs" },
+  { slug: "cycles", name: "Cycles" },
+  { slug: "t-shirts", name: "T-Shirts" },
+];
+export const shopLinkBySlug = (slug: string) => SHOP_LINKS.find((l) => l.slug === slug);
+export const itemsForLink = (l: ShopLink): Product[] =>
+  l.sport ? products.filter((p) => p.sport === l.sport) : products.filter((p) => p.category === l.name);
 
 export const categoryBySlug = (slug: string) => CATEGORIES.find((c) => c.slug === slug);
 export const slugForCategory = (name: string) =>

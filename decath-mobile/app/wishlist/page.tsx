@@ -13,7 +13,7 @@ export default function WishlistPage() {
     <main className="pb-10">
       <TopBar title={`Wishlist (${items.length})`} />
       {items.length ? (
-        <div className="grid grid-cols-2 gap-px bg-line border-y border-line">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-px bg-line border-y border-line lg:border">
           {items.map((p) => <ProductCard key={p.id} p={p} />)}
         </div>
       ) : (

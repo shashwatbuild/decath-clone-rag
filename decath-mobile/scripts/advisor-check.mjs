@@ -89,5 +89,28 @@ ok(pu.values.waist === "high" && pu.values.type?.includes("leggings") && pu.must
 // other sports keep their own controls
 const bp = S.detectStart("Lightest trekking backpack for a 5 day trek");
 ok(bp.brief.profile === "backpacks" && bp.brief.values.capacity === "60" && !E.profileOf(bp.brief).controls.some((c) => c.id === "type"), "backpacks: own criteria, no yoga controls");
-for (const q of ["show yoga pants", "Is the capri good for beginners?", "Running shoes for a marathon"]) ok(S.detectStart(q) === null, `"${q}" → existing flow`);
+for (const q of ["show yoga pants", "Is the capri good for beginners?", "show badminton shoes", "running shorts", "show shuttlecocks"]) ok(S.detectStart(q) === null, `"${q}" → existing flow`);
+
+// badminton kit
+const bd = S.detectStart("Help me build a badminton kit");
+ok(bd?.kind === "start" && bd.brief.profile === "badminton-rackets", "badminton kit starts the racket advisor");
+ok(E.questionsFor(bd.brief)[0] === "style", "racket advisor starts with style cards");
+ok(["Badminton Rackets", "Shuttlecocks", "Badminton Shoes", "Badminton Apparel", "Badminton Bags", "Badminton Accessories"].every((c) => products.some((p) => p.category === c)), "catalogue has every badminton kit category");
+const bdKit = K.newKit(bd.brief, null);
+ok(K.kitDefs(bd.brief).length === 6 && K.kitDefs(bd.brief).every((d) => K.kitOptions(bd.brief, d).length > 0), "every badminton kit item has catalogue options");
+const bdS = S.commitKit({ brief: bd.brief, selected: [], kit: bdKit, queue: [], ready: true, count: 2, anchor: 0, undo: [], change: null, asked: 0, helping: false, skipped: [], chosen: null }, { shuttles: { state: "own" } });
+ok(bdS.kit.items.shuttles.state === "own", "badminton kit item marked owned");
+ok(S.parseKit("I already have shuttles", bdS)?.items.shuttles?.state === "own", "chat: \"I already have shuttles\"");
+
+// marathon kit
+const mr = S.detectStart("I'm training for a marathon, shoes under 8000");
+ok(mr?.kind === "start" && mr.brief.profile === "running-shoes" && mr.brief.budget === 8000, "marathon request starts the running advisor with the budget");
+ok(String(mr.brief.values.distance) === "full", `marathon sets race distance: ${JSON.stringify(mr.brief.values.distance)}`);
+const mrRes = E.evaluateBrief(mr.brief, []);
+ok(mrRes.eligible.length > 0 && mrRes.eligible.every((e) => e.p.price <= 8000), `marathon shoes within budget: ${mrRes.eligible.map((e) => e.p.shortName).join(", ")}`);
+ok(K.kitDefs(mr.brief).length === 7 && K.kitDefs(mr.brief).every((d) => K.kitOptions(mr.brief, d).length > 0), "every marathon kit item has catalogue options");
+
+// the guided flows never leak yoga wording
+const leaks = (b) => [...b.criteria.map((c) => c.question ?? ""), ...(b.kit ?? []).flatMap((d) => [d.basis, d.whenUseful])].filter((t) => /yoga|pants|\bmat\b/i.test(t));
+ok(leaks(E.profileOf(bd.brief)).length === 0 && leaks(E.profileOf(mr.brief)).length === 0, "no yoga wording in badminton or marathon flows");
 console.log(fails ? `\n${fails} FAILED` : "\nall passed"); process.exit(fails ? 1 : 0);

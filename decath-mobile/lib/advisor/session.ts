@@ -58,7 +58,7 @@ function namedIn(msg: string): Product[] {
   return out;
 }
 
-const NEED = /\b(recommend|suggest|which|help|choose|need|want|looking|starting|start|new to|for (my|a|me)|good for|suitable|beginners?|best|compare|vs|versus|under|budget|cheap|light|lightest|thick|trek|trip|days?)\b/;
+const NEED = /\b(recommend|suggest|which|help|choose|need|want|looking|starting|start|new to|for (my|a|me)|good for|suitable|beginners?|best|compare|vs|versus|under|budget|cheap|light|lightest|thick|trek|trip|days?|kit|gear|equipment|marathon|training|play(ing)?)\b/;
 
 export type Start =
   | { kind: "ask-profile"; options: { id: ProfileId; label: string }[] }
@@ -318,7 +318,7 @@ export function parseKit(msg: string, s: Session): { items: Record<string, Parti
   const words: Record<string, RegExp> = { mat: /\bmats?\b/, blocks: /\bblocks?\b/, strap: /\bstraps?\b/, pants: /\b(pants|leggings|clothing|clothes|bottoms)\b/ };
   const items: Record<string, Partial<KitItem>> = {};
   for (const d of kitDefs(s.brief)) {
-    const re = words[d.id];
+    const re = d.words ?? words[d.id];
     if (!re || !re.test(lower)) continue;
     if (/\b(already (have|own|got)|i (have|own)|got (a|one))\b/.test(lower)) items[d.id] = { state: "own" };
     else if (/\b(skip|don'?t need|no need for|without|not needed)\b/.test(lower)) items[d.id] = { state: "skip" };
