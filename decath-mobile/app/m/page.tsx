@@ -3,7 +3,7 @@
 /**
  * The mobile version as its own page: the same app running inside a phone-sized window.
  * The window is only 390px wide, so the app shows its phone layout whatever the screen is.
- * Real phones and tablets are sent straight to the app, which is already the mobile version there.
+ * Real phones (under 640px wide) are sent straight to the app, which is already the mobile version there.
  */
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ export default function MobileVersion() {
   const [time, setTime] = useState("");
 
   useEffect(() => {
-    if (window.innerWidth < 1024) { router.replace("/"); return; }
+    if (window.innerWidth < 640) { router.replace("/"); return; }
     setShow(true);
     const tick = () => setTime(new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true }).replace(/\s?[ap]m/i, ""));
     tick();
@@ -27,12 +27,12 @@ export default function MobileVersion() {
 
   return (
     <div className="full-bleed fixed inset-0 z-50 overflow-auto bg-[#eef0f4] [background:radial-gradient(1200px_600px_at_20%_10%,#e6e8f8,transparent_60%),radial-gradient(900px_500px_at_85%_90%,#dfe9f3,transparent_55%),#eef0f4]">
-      <div className="min-h-full grid place-items-center py-5 relative">
-        <Link href="/" className="absolute top-5 left-6 text-[15px] font-semibold text-brand hover:underline">← Desktop version</Link>
+      <div className="min-h-full grid place-items-center pt-12 pb-5 relative">
+        <Link href="/d" className="absolute top-5 left-6 text-[15px] font-semibold text-brand hover:underline">← Desktop version</Link>
         <p className="absolute top-5 right-6 text-[13px] text-muted">Mobile version</p>
 
         <div className="relative w-[414px] p-3 rounded-[62px] bg-[#121214] shadow-[0_0_0_2px_#45454a,0_0_0_5px_#1b1b1d,0_40px_90px_rgba(20,24,60,0.35),0_12px_30px_rgba(0,0,0,0.2)]"
-          style={{ height: "min(868px, calc(100dvh - 40px))" }}>
+          style={{ height: "min(868px, calc(100dvh - 72px))" }}>
           <div className="relative h-full flex flex-col rounded-[50px] overflow-hidden bg-white" style={{ clipPath: "inset(0 round 50px)" }}>
             <div className="relative h-[50px] shrink-0 flex items-center justify-between pl-10 pr-7 pt-1.5 bg-white" aria-hidden>
               <span className="font-semibold text-[16px] min-w-[48px]">{time}</span>

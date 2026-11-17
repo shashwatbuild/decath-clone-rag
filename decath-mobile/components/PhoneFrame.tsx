@@ -17,6 +17,9 @@ export default function PhoneFrame({ children }: { children: React.ReactNode }) 
     screenRef.current?.scrollTo(0, 0);
   }, [pathname]);
 
+  // The /m and /d pages draw their own window around the app, so they must not sit inside this frame.
+  if (pathname === "/m" || pathname === "/d") return <>{children}</>;
+
   return (
     <div className="stage">
       <div className="phone">
