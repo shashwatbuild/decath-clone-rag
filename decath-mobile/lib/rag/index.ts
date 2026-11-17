@@ -33,7 +33,7 @@ const SYNONYMS: Record<string, string> = {
 
 const STOP = new Set("a an the and or for to of in on with me i my is are be it this that what which show want need some any please can you do does have has give find looking get best good about how".split(" "));
 
-function baseTokens(s: string): string[] {
+export function baseTokens(s: string): string[] {
   return s
     .toLowerCase()
     .replace(/\bt[- ]?shirts?\b/g, "tshirt")

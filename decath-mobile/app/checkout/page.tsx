@@ -80,7 +80,7 @@ export default function CheckoutPage() {
           {lines.map((l) => (
             <div key={l.id + l.size} className="flex gap-3 items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img(l.p.images[0], 120)} alt="" className="w-12 h-12 object-cover mix-blend-multiply bg-[#F5F4F5]" />
+              <img src={img(l.p.images[0], 120)} alt="" className="w-12 h-12 object-contain mix-blend-multiply bg-[#F5F4F5]" />
               <p className="flex-1 text-[14px] line-clamp-2">{l.p.shortName}{l.size ? ` · ${l.size}` : ""} × {l.qty}</p>
               <span className="text-[14px] font-semibold">{inr(l.p.price * l.qty)}</span>
             </div>

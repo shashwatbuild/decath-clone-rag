@@ -9,12 +9,16 @@
  * comparisons, add-to-cart, store FAQs (returns, delivery, pickup, coupons), items we don't sell,
  * typos and a bit of Hinglish ("kitna price hai").
  */
+import { OFF_TOPIC, knowledgeAnswer } from "./answer";
+import { followUpMessage } from "./rewrite";
 import { boughtTogether, discountPct, getProduct, inr, products, similarProducts, toLite } from "@/lib/products";
 import type { ChatMessage, Product } from "@/lib/types";
 import { rankProducts, retrieve, tokenize } from "./index";
 
 export type ChatRequest = {
   message: string;
+  /** earlier turns, used to remember the topic when a follow-up is short ("what about for beginners?") */
+  history?: { role: "user" | "assistant"; text: string }[];
   /** products shown in the last assistant reply */
   contextIds?: string[];
   /** the last multi-product list shown (for "the second one") */
@@ -24,7 +28,7 @@ export type ChatRequest = {
   /** the last single product the conversation was about (for "it" after a list was shown) */
   lastFocusId?: string;
 };
-type Reply = Omit<ChatMessage, "role" | "time">;
+type Reply = Omit<ChatMessage, "role" | "time"> & { /** the passages behind `sources`, for an LLM to rephrase (never sent to the app) */ passages?: { n: number; title: string; text: string }[] };
 
 // ------------------------------------------------------------------ vocabulary
 
@@ -88,6 +92,11 @@ const NOT_STOCKED: { re: RegExp; label: string; alt?: string }[] = [
   { re: /\b(tents?|sleeping bags?)\b/, label: "camping gear", alt: "Backpacks" },
   { re: /\b(helmets?|gloves?|jackets?|sunglasses)\b/, label: "that item" },
 ];
+
+/** Question-shaped or explanation-seeking messages */
+const QUESTION = /^(how|what|why|which|when|where|can|could|do|does|is|are|should|will|explain|tell me|difference)\b|\b(difference between|vs\.?|versus|explain|guide|choose|choosing|tips?|meaning of)\b/;
+/** Store-policy and how-the-app-works topics */
+const POLICY = /\b(returns?|refunds?|exchange|warranty|delivery|shipping|pickup|coupons?|promo|payments?|pay|wallet|checkout|cash on delivery|cod|size finder|price watch|training plan)\b/;
 
 export const RE = {
   greet: /^(hi+|hello+|hey+|hola|namaste|yo|good (morning|afternoon|evening))\b[\s!.]*$/,
@@ -292,7 +301,10 @@ function whyFor(p: Product, query: string): string | null {
 // ------------------------------------------------------------------ main entry
 
 export function respond(req: ChatRequest): Reply {
-  const msg = req.message.trim();
+  // "what about for beginners?" after a badminton question: keep the sport (only when no products are in play)
+  const noCategory = detectCategories(tokenize(parsePrice(req.message).rest)).length === 0;
+  const followed = noCategory && !req.contextIds?.length && !req.productId ? followUpMessage(req.message, req.history ?? []) : null;
+  const msg = (followed ?? req.message).trim();
   const lower = msg.toLowerCase();
   const { range, rest } = parsePrice(msg);
   const tokens = tokenize(rest);
@@ -311,6 +323,22 @@ export function respond(req: ChatRequest): Reply {
   const focus: Product | undefined = named[0] ?? ordinal ?? (ctx.length === 1 ? ctx[0] : undefined) ?? (ctx.length === 0 ? page : undefined);
 
   if (RE.greet.test(lower)) return greet();
+
+  // Guardrail: this is a sports-shopping assistant, so don't answer unrelated questions from product text
+  if (OFF_TOPIC.test(lower))
+    return {
+      text: "I'm the shopping assistant for sports gear, so I can't help with that one. I can help you choose gear, find your size, and answer questions about delivery, returns, coupons and payments.",
+      suggestions: ["Help me build a badminton kit", "How do I choose running shoes?", "What's the return policy?"],
+    };
+
+  // Knowledge questions ("how do I choose a racket?", "feather or plastic?", "what's the return policy?"):
+  // retrieve guides, policies and product text, then answer from those sources with citations.
+  const productQuestion = named.length > 0 || Boolean(ordinal) || Boolean(focus && /\b(it|this|that|its|these)\b/.test(lower));
+  const isListing = Boolean(range) || Boolean(sort && sort !== "best");
+  if (!productQuestion && !isListing && !RE.addCart.test(lower) && (QUESTION.test(lower) || POLICY.test(lower))) {
+    const ka = knowledgeAnswer(msg, req.history ?? [], { focusName: focus ? name(focus) : undefined });
+    if (ka) return { text: ka.text, products: ka.products, suggestions: ka.suggestions, sources: ka.sources, trace: ka.trace, passages: ka.passages };
+  }
   if (RE.thanks.test(lower)) return { text: "You're welcome! 😊 Anything else I can help you find?", suggestions: ["Show me running shoes", "What's on sale?", "Yoga mats for beginners"] };
 
   // Add to cart

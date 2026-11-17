@@ -38,7 +38,7 @@ export default function CartPage() {
           <div key={l.id + l.size} className="bg-white p-4 flex gap-3">
             <Link href={`/p/${l.id}`} className="w-24 h-24 bg-[#F5F4F5] shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img(l.p.images[0], 200)} alt="" className="w-full h-full object-cover mix-blend-multiply" />
+              <img src={img(l.p.images[0], 200)} alt="" className="w-full h-full object-contain mix-blend-multiply" />
             </Link>
             <div className="flex-1 min-w-0">
               <p className="text-[14px] line-clamp-2"><b>{l.p.brand}</b> {l.p.name}</p>

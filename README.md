@@ -138,6 +138,33 @@ flowchart LR
 3. **Generation** (`lib/rag/llm.ts`, `lib/rag/gemini.ts`): the chosen products' full fact sheets plus the best snippets go to the LLM in a `<catalog_context>` block, with a strict "only use these facts" instruction. The rule-based answer is passed along as a factual draft.
 4. **Streaming UI** (`app/api/chat/route.ts`, `app/chat/page.tsx`): cards and comparison tables arrive first, then the reply streams in, rendered by a small Markdown formatter (`components/RichText.tsx`) into numbered product rows, bullets and a highlighted "My pick".
 
+### Advanced RAG: knowledge base, hybrid retrieval, citations
+
+Beyond product lookup, the assistant answers **how-to and policy questions** ("how do I choose a badminton racket?", "feather or plastic shuttlecocks?", "what's the return policy?") from a knowledge base, and shows where each answer came from.
+
+```mermaid
+flowchart LR
+    Q["Question + chat history"] --> W["Rewrite<br/>remember the topic ·<br/>resolve it/this · pick intent"]
+    W --> S1["BM25 keyword search"]
+    W --> S2["Character n-gram search<br/>(typos, word forms)"]
+    W --> S3["Query expansion<br/>(top-hit terms)"]
+    S1 & S2 & S3 --> F["Rank fusion (RRF)"]
+    F --> RR["Rerank + MMR<br/>title, topic, doc type,<br/>no near-duplicates"]
+    RR --> C{"Enough evidence?"}
+    C -- "no" --> N["Normal product search<br/>or an honest 'I don't know'"]
+    C -- "yes" --> A["Answer with [1] [2] citations<br/>every sentence copied from its source"]
+    A --> UI["Sources list · 'How I found this'<br/>· guide pages · product cards"]
+```
+
+- **Knowledge base** (`lib/rag/knowledge.ts`): store policies and buying guides (racket, shuttlecocks, shoes, marathon, yoga mats, backpacks, sizes). Product pages contribute their own written guides too, so retrieval covers about 2,250 passages. Each guide has a page at `/guides/<id>`.
+- **Hybrid retrieval** (`lib/rag/hybrid.ts`): BM25 + character n-gram TF-IDF + pseudo-relevance feedback, fused with reciprocal rank fusion, reranked and de-duplicated with MMR. About 5 ms per query, fully offline.
+- **Query rewriting** (`lib/rag/rewrite.ts`): "what about for beginners?" after a badminton question stays on badminton; "is it good for knees?" resolves "it" to the product.
+- **Grounded, cited answers** (`lib/rag/answer.ts`): when no LLM is configured, the reply is assembled from the best sentences of the retrieved passages, each tagged with its source number. With Gemini or Claude, the model gets the numbered sources, must answer only from them and cite them; invalid citations are stripped and an uncited answer is replaced by the grounded one.
+- **Guardrails**: off-topic questions ("who won the world cup") are declined, weak evidence falls back to normal search instead of guessing, and bare spec lines are never presented as an explanation.
+- **Embeddings** are deliberately not required: the retrieval stack needs no API key. A dense-vector retriever could be added as a fourth list in the fusion step.
+
+Measured with `scripts/rag-eval.mjs` on hand-labelled questions: the hybrid pipeline finds the right guide in the top 3 for 97% of 32 tuning questions and 100% of 12 held-out questions (MRR 0.96, against 0.58 for plain BM25 on both sets). The sets are small, so treat the numbers as a regression guard, not a benchmark.
+
 ### What you can ask
 
 | Kind | Examples |
@@ -277,6 +304,12 @@ python3 scripts/chat-eval/run.py scripts/chat-eval/cases.json
 ```
 
 It sends every conversation through `/api/chat` and prints the products picked and the reply, so you can spot regressions quickly.
+
+The retrieval and answer-grounding checks (hybrid vs plain BM25, citations, guardrails, memory), no server needed:
+
+```bash
+cd decath-mobile && node scripts/rag-eval.mjs
+```
 
 The shopping advisor has its own checks (demo journey, budget conflicts, undo, missing data, other sports), no server needed:
 

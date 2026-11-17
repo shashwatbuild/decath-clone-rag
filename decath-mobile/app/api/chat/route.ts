@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { respond, type ChatRequest } from "@/lib/rag/assistant";
+import { validCitations } from "@/lib/rag/answer";
 import { activeProvider, streamAnswer, type HistoryTurn } from "@/lib/rag/llm";
 import { GeminiError } from "@/lib/rag/gemini";
 
@@ -23,14 +24,14 @@ export async function POST(req: Request) {
     .map((t) => ({ role: t.role, text: t.text.slice(0, 2000) }));
 
   // Retrieval + routing (always runs; picks products and builds cards / compare table)
-  const routed = respond({ message, contextIds: body.contextIds, listIds: body.listIds, lastFocusId: body.lastFocusId, productId: body.productId });
+  const routed = respond({ message, history, contextIds: body.contextIds, listIds: body.listIds, lastFocusId: body.lastFocusId, productId: body.productId });
   const provider = activeProvider();
 
   const enc = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       const send = (o: object) => controller.enqueue(enc.encode(JSON.stringify(o) + "\n"));
-      send({ type: "meta", products: routed.products, compare: routed.compare, suggestions: routed.suggestions, action: routed.action, source: provider ?? "rag" });
+      send({ type: "meta", products: routed.products, compare: routed.compare, suggestions: routed.suggestions, action: routed.action, sources: routed.sources, trace: routed.trace, source: provider ?? "rag" });
 
       if (!provider) {
         send({ type: "text", delta: routed.text });
@@ -51,6 +52,8 @@ export async function POST(req: Request) {
         `A rule-based draft of the answer (facts are right, wording is clumsy; improve on it, don't repeat it verbatim):\n${routed.text}`;
 
       let wrote = false;
+      let full = "";
+      const grounded = Boolean(routed.sources?.length && routed.passages?.length);
       try {
         const end = await streamAnswer({
           provider,
@@ -58,10 +61,19 @@ export async function POST(req: Request) {
           history,
           productIds,
           routingNote,
-          onText: (delta) => { wrote = true; send({ type: "text", delta }); },
+          knowledge: grounded ? routed.passages : undefined,
+          onText: (delta) => { wrote = true; full += delta; send({ type: "text", delta }); },
         });
         if (end === "refused") send({ type: "replace", text: routed.text });
-        else if (end === "truncated") send({ type: "text", delta: "…" });
+        else {
+          if (end === "truncated") send({ type: "text", delta: "…" });
+          if (grounded) {
+            // Grounding check: citations must point at real sources, and the answer must cite at least one.
+            const clean = validCitations(full, routed.sources!.length);
+            if (!/\[\d+\]/.test(clean)) send({ type: "replace", text: routed.text });
+            else if (clean !== full) send({ type: "replace", text: clean });
+          }
+        }
       } catch (err) {
         const detail = err instanceof Anthropic.APIError || err instanceof GeminiError ? `${err.status} ${err.message}` : err;
         console.error(`${provider} request failed:`, detail);

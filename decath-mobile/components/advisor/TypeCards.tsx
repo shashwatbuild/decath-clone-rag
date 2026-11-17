@@ -22,9 +22,9 @@ export default function TypeCards({ brief, id, onAnswer, active }: { brief: Brie
           return (
             <button key={k.id} disabled={!active} aria-pressed={on} onClick={() => toggle(k.id)}
               className={`text-left rounded-xl border-2 bg-white overflow-hidden transition-colors ${on ? "border-brand" : "border-line"} disabled:opacity-60`}>
-              <span className="relative block aspect-[4/3] bg-[#F5F4F5]">
+              <span className="relative block aspect-square bg-[#F5F4F5] p-1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {k.image && <img src={img(k.image, 300)} alt="" className="w-full h-full object-cover" />}
+                {k.image && <img src={img(k.image, 300)} alt="" className="w-full h-full object-contain mix-blend-multiply" />}
                 <span aria-hidden className={`absolute top-1.5 right-1.5 w-6 h-6 rounded-full grid place-items-center text-[13px] font-bold ${on ? "bg-brand text-white" : "bg-white/90 border border-[#c9c9cf] text-transparent"}`}>✓</span>
               </span>
               <span className="block px-2.5 pt-2 pb-2.5">

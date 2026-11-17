@@ -232,7 +232,7 @@ function Gallery({ p }: { p: Product }) {
         {p.images.map((u, i) => (
           <button key={u} onClick={() => go(i)} className={`shrink-0 w-[92px] h-[92px] bg-[#F5F4F5] border-2 ${i === idx ? "border-brand" : "border-line"}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img(u, 200)} alt="" className="w-full h-full object-cover mix-blend-multiply" />
+            <img src={img(u, 200)} alt="" className="w-full h-full object-contain mix-blend-multiply" />
           </button>
         ))}
       </div>

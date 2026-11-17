@@ -53,12 +53,13 @@ function parse(text: string): Block[] {
 /** Inline formatting: **bold**, ~~strike~~, _italic_ / *italic* */
 function inline(text: string): ReactNode[] {
   const out: ReactNode[] = [];
-  const re = /\*\*(.+?)\*\*|~~(.+?)~~|(?<![\w*])_(.+?)_(?![\w])|(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])/g;
+  const re = /\*\*(.+?)\*\*|~~(.+?)~~|(?<![\w*])_(.+?)_(?![\w])|(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])|\[(\d{1,2})\]/g;
   let last = 0, m: RegExpExecArray | null, k = 0;
   while ((m = re.exec(text))) {
     if (m.index > last) out.push(text.slice(last, m.index));
     if (m[1] !== undefined) out.push(<strong key={k++} className="font-semibold text-ink">{inline(m[1])}</strong>);
     else if (m[2] !== undefined) out.push(<s key={k++} className="text-[#8a8a8a]">{m[2]}</s>);
+    else if (m[5] !== undefined) out.push(<sup key={k++} className="mx-0.5 text-[11px] font-semibold text-brand" aria-label={`source ${m[5]}`}>[{m[5]}]</sup>);
     else out.push(<em key={k++} className="text-muted not-italic text-[14px]">{m[3] ?? m[4]}</em>);
     last = m.index + m[0].length;
   }

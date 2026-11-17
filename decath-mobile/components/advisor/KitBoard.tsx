@@ -161,7 +161,7 @@ function KitRow({ line, brief, onKit }: { line: KitLine; brief: Brief; onKit: Pr
           {item.carried && <p className="text-[12px] font-semibold text-brand mb-1.5">Your pick from above</p>}
           <div className="flex gap-2.5 items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img(product.images[0], 140)} alt="" className="w-14 h-14 rounded-lg object-cover bg-[#F5F4F5]" />
+            <img src={img(product.images[0], 140)} alt="" className="w-14 h-14 rounded-lg object-contain mix-blend-multiply bg-[#F5F4F5]" />
             <div className="min-w-0 flex-1">
               <p className="text-[14px] font-semibold leading-tight">{product.shortName}</p>
               <p className="text-[14px]"><b>{inr(product.price)}</b> <span className="text-[13px] text-muted">{product.reviewCount ? `★ ${product.rating} · ${product.reviewCount}` : "No reviews yet"}</span></p>
@@ -204,7 +204,7 @@ function Options({ options, current, onPick }: { options: ReturnType<typeof kitO
       {options.slice(0, 4).map((e) => (
         <li key={e.p.id} className="flex items-center gap-2 text-[13px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img(e.p.images[0], 100)} alt="" className="w-10 h-10 rounded object-cover bg-[#F5F4F5]" />
+          <img src={img(e.p.images[0], 100)} alt="" className="w-10 h-10 rounded object-contain mix-blend-multiply bg-[#F5F4F5]" />
           <span className="flex-1 min-w-0">
             <span className="block font-semibold leading-tight">{e.p.shortName}</span>
             <span className="block text-muted">{inr(e.p.price)}{e.p.reviewCount ? ` · ★ ${e.p.rating} (${e.p.reviewCount})` : ""}{e.checks.filter((c) => c.status === "match").map((c) => ` · ${c.listed}`).join("")}</span>

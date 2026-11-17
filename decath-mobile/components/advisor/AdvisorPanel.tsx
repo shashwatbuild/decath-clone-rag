@@ -142,7 +142,7 @@ function ProductRow({ p, onAsk, compact }: { p: Product; onAsk: Props["onAsk"]; 
     <div className="flex gap-3 items-center">
       <Link href={`/p/${p.id}`} className="shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={img(p.images[0], 180)} alt="" className={`${compact ? "w-14 h-14" : "w-[76px] h-[76px]"} rounded-xl object-cover bg-[#F5F4F5]`} />
+        <img src={img(p.images[0], 180)} alt="" className={`${compact ? "w-14 h-14" : "w-[76px] h-[76px]"} rounded-xl object-contain mix-blend-multiply bg-[#F5F4F5]`} />
       </Link>
       <Link href={`/p/${p.id}`} className="min-w-0 flex-1">
         <span className="block text-[15px] font-semibold leading-snug line-clamp-2">{p.shortName}</span>
@@ -278,7 +278,7 @@ function Comparison({ result, brief, selected, onSelect }: { result: Result; bri
             <div className="relative">
               <Link href={`/p/${e.p.id}`} aria-label={e.p.shortName}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img(e.p.images[0], 200)} alt="" className={`w-full aspect-square object-cover bg-[#F5F4F5] rounded-lg ${e.eligible ? "" : "opacity-60"}`} />
+                <img src={img(e.p.images[0], 200)} alt="" className={`w-full aspect-square object-contain mix-blend-multiply bg-[#F5F4F5] rounded-lg ${e.eligible ? "" : "opacity-60"}`} />
               </Link>
               {e.p.id === top && <span className="absolute top-1 left-1 bg-brand text-white text-[11px] font-bold rounded px-1.5 py-0.5">Our pick</span>}
               {n > 2 && (

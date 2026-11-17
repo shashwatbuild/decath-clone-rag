@@ -25,7 +25,7 @@ export default function ProductCard({ p, compact = false }: { p: CardProduct; co
     <div className="bg-white flex flex-col">
       <Link href={`/p/${p.id}`} className="relative block aspect-square bg-[#F5F4F5] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={img(p.image, 500)} alt={p.name} loading="lazy" className="w-full h-full object-cover mix-blend-multiply" />
+        <img src={img(p.image, 500)} alt={p.name} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" />
         <Tag tag={p.tag} className="absolute top-0 left-0" />
       </Link>
       <div className={`flex flex-col flex-1 ${compact ? "px-3 pt-3 pb-3" : "px-3 pt-3 pb-4"}`}>

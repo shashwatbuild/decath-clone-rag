@@ -115,7 +115,7 @@ export default function PlanPage() {
                 <div key={l.need.id} className="bg-white rounded-xl p-3 flex gap-3">
                   {l.product ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={img(l.product.images[0], 160)} alt="" className="w-16 h-16 object-cover mix-blend-multiply bg-[#F5F4F5] rounded" />
+                    <img src={img(l.product.images[0], 160)} alt="" className="w-16 h-16 object-contain mix-blend-multiply bg-[#F5F4F5] rounded" />
                   ) : (
                     <div className="w-16 h-16 bg-[#F5F4F5] rounded" />
                   )}

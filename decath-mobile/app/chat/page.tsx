@@ -21,6 +21,8 @@ import TypeCards from "@/components/advisor/TypeCards";
 import VoiceButton from "@/components/VoiceButton";
 import { parsePlanRequest } from "@/lib/plan";
 import { kitChip, kitOffer } from "@/lib/kitSuggest";
+import Sources from "@/components/Sources";
+import { isExplanation } from "@/lib/rag/rewrite";
 
 const SAVED_KEY = "dc.briefs";
 function loadSaved(): SavedPrefs {
@@ -236,7 +238,9 @@ function ChatInner() {
       return;
     }
 
-    if (!opts.productId && advisorTurn(msg)) return;
+    // explanation questions get the cited knowledge answer first; shopping requests start the guided advisor
+    const explain = isExplanation(msg) && !midQuestion;
+    if (!opts.productId && !explain && advisorTurn(msg)) return;
 
     if (/^(view|open|go to|show) (my )?cart$/i.test(msg)) {
       router.push("/cart");
@@ -299,7 +303,7 @@ function ChatInner() {
           const ev = JSON.parse(line);
           if (ev.type === "meta") {
             setSource(ev.source);
-            pending.current = { role: "assistant", time: Date.now(), text: "", products: ev.products, compare: ev.compare, suggestions: kitChip(ev.products, ev.suggestions), action: ev.action };
+            pending.current = { role: "assistant", time: Date.now(), text: "", products: ev.products, compare: ev.compare, suggestions: kitChip(ev.products, ev.suggestions), action: ev.action, sources: ev.sources, trace: ev.trace };
             if (ev.action?.type === "add_to_cart") {
               addToCart(ev.action.productId, ev.action.size);
               showToast("Added to cart");
@@ -416,6 +420,7 @@ function Bubble({ m, onSuggest, isLast, showTime }: { m: ChatMessage; onSuggest:
         <div className="bg-[#F2F3F7] rounded-[20px] rounded-bl-md px-4 py-3 max-w-[94%] w-fit">
           <RichText text={m.text} />
         </div>
+        {m.sources && m.sources.length > 0 && <Sources sources={m.sources} trace={m.trace} />}
         {m.compare && <CompareTable c={m.compare} />}
         {m.products && m.products.length > 0 && !m.compare && <ProductStrip ps={m.products} onAsk={isLast ? onSuggest : undefined} />}
         {isLast && m.suggestions && m.suggestions.length > 0 && (
@@ -438,7 +443,7 @@ function ProductStrip({ ps, onAsk }: { ps: ProductLite[]; onAsk?: (s: string) =>
         <div key={p.id} className="w-[150px] shrink-0 border border-line rounded-xl overflow-hidden bg-white flex flex-col">
           <Link href={`/p/${p.id}`} className="block relative aspect-square bg-[#F5F4F5]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img(p.image, 300)} alt="" className="w-full h-full object-cover mix-blend-multiply" />
+            <img src={img(p.image, 300)} alt="" className="w-full h-full object-contain mix-blend-multiply" />
             {ps.length > 1 && (
               <span className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-white/95 text-[12px] font-semibold grid place-items-center shadow-sm">{i + 1}</span>
             )}
@@ -468,7 +473,7 @@ function CompareTable({ c }: { c: NonNullable<ChatMessage["compare"]> }) {
         {c.products.map((p) => (
           <Link key={p.id} href={`/p/${p.id}`} className="p-2 border-l border-line">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img(p.image, 200)} alt="" className="w-full aspect-square object-cover bg-[#F5F4F5] rounded" />
+            <img src={img(p.image, 200)} alt="" className="w-full aspect-square object-contain mix-blend-multiply bg-[#F5F4F5] rounded" />
             <p className="text-[12px] line-clamp-2 mt-1 leading-tight font-medium">{p.shortName}</p>
           </Link>
         ))}
