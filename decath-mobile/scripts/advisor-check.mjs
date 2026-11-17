@@ -113,4 +113,12 @@ ok(K.kitDefs(mr.brief).length === 7 && K.kitDefs(mr.brief).every((d) => K.kitOpt
 // the guided flows never leak yoga wording
 const leaks = (b) => [...b.criteria.map((c) => c.question ?? ""), ...(b.kit ?? []).flatMap((d) => [d.basis, d.whenUseful])].filter((t) => /yoga|pants|\bmat\b/i.test(t));
 ok(leaks(E.profileOf(bd.brief)).length === 0 && leaks(E.profileOf(mr.brief)).length === 0, "no yoga wording in badminton or marathon flows");
+// the chatbot offers a kit on its own when someone says they have started a sport
+const KS = await jiti.import("@/lib/kitSuggest.ts");
+for (const [q, ask] of [["I have started playing badminton", "Help me build a badminton kit"], ["I just started running", "Help me build a marathon kit"], ["Getting into yoga", "Help me build a yoga kit"], ["I'm new to badminton", "Help me build a badminton kit"]])
+  ok(KS.kitOffer(q)?.suggestions[0] === ask, `"${q}" → offers the kit`);
+for (const q of ["I started badminton, need a racket under 500", "show badminton rackets", "best running shoes", "Help me build a badminton kit", "training plan to run a 10K, started 8 weeks ago", "what is a shuttlecock"])
+  ok(KS.kitOffer(q) === null, `"${q}" → no automatic offer`);
+ok(KS.kitChip([{ category: "Shuttlecocks" }], ["What's on sale?"])[0] === "Help me build a badminton kit", "badminton answers carry a kit chip");
+ok(KS.kitChip([{ category: "Yoga Mats" }], ["x"]).length === 1, "other answers are unchanged");
 console.log(fails ? `\n${fails} FAILED` : "\nall passed"); process.exit(fails ? 1 : 0);

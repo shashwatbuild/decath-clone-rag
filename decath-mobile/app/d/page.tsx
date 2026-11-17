@@ -29,11 +29,12 @@ export default function DesktopVersion() {
   const scale = Math.min(1, size.w / CANVAS);
 
   return (
-    <div className="full-bleed fixed inset-0 z-50 overflow-hidden bg-white">
+    // overflow: clip (unlike hidden) can't be scrolled by code either, so nothing inside can shift the page
+    <div className="full-bleed fixed inset-0 z-50 overflow-clip bg-white">
       <iframe
         src="/"
         title="Decathlon website, desktop version"
-        className="block border-0 bg-white origin-top-left"
+        className="absolute left-0 top-0 block border-0 bg-white origin-top-left"
         style={{ width: scale < 1 ? CANVAS : "100%", height: size.h / scale, transform: scale < 1 ? `scale(${scale})` : undefined }}
       />
     </div>

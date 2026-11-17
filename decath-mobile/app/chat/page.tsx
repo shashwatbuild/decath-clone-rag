@@ -20,6 +20,7 @@ import type { KitItem, KitLine } from "@/lib/advisor/kit";
 import TypeCards from "@/components/advisor/TypeCards";
 import VoiceButton from "@/components/VoiceButton";
 import { parsePlanRequest } from "@/lib/plan";
+import { kitChip, kitOffer } from "@/lib/kitSuggest";
 
 const SAVED_KEY = "dc.briefs";
 function loadSaved(): SavedPrefs {
@@ -65,7 +66,11 @@ function ChatInner() {
     }]);
   }, [focusId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, busy]);
+  // Scroll only the message list. scrollIntoView would also scroll the page (and any window the chat is embedded in).
+  useEffect(() => {
+    const list = endRef.current?.parentElement;
+    list?.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
+  }, [messages, busy]);
 
   useEffect(() => {
     if (initialQ && !askedInitial.current && messages.length === 1) {
@@ -104,7 +109,11 @@ function ChatInner() {
         const done = finish(next, idx);
         setSession(done);
         const help = done.helping ? helpSummary(done.brief) + "\n\n" : "";
-        reply({ text: `${intro ? intro.replace(/ One quick question:$/, "") + "\n\n" : ""}${help}Here's my pick for you 👇` });
+        reply({
+          text: `${intro ? intro.replace(/ One quick question:$/, "") + "\n\n" : ""}${help}Here's my pick for you 👇` +
+            (PROFILES[done.brief.profile].kit ? `\n\n> 💡 Open the **Kit** tab to see everything else you need for ${PROFILES[done.brief.profile].activity.toLowerCase()}.` : ""),
+          suggestions: PROFILES[done.brief.profile].kit ? ["Build my kit"] : undefined,
+        });
       }
     };
     const startFlow = (st: Extract<Start, { kind: "start" }>) => {
@@ -219,6 +228,14 @@ function ChatInner() {
       setSession((s) => (s ? { ...s, chosen: pid } : s));
     }
 
+    // "I've started playing badminton": the chatbot offers to build the kit instead of waiting to be asked
+    const midQuestion = sessionRef.current && !sessionRef.current.ready;
+    const offer = !opts.productId && !midQuestion ? kitOffer(msg) : null;
+    if (offer) {
+      setMessages((m) => [...m, { role: "assistant", time: Date.now(), text: offer.text, suggestions: offer.suggestions }]);
+      return;
+    }
+
     if (!opts.productId && advisorTurn(msg)) return;
 
     if (/^(view|open|go to|show) (my )?cart$/i.test(msg)) {
@@ -282,7 +299,7 @@ function ChatInner() {
           const ev = JSON.parse(line);
           if (ev.type === "meta") {
             setSource(ev.source);
-            pending.current = { role: "assistant", time: Date.now(), text: "", products: ev.products, compare: ev.compare, suggestions: ev.suggestions, action: ev.action };
+            pending.current = { role: "assistant", time: Date.now(), text: "", products: ev.products, compare: ev.compare, suggestions: kitChip(ev.products, ev.suggestions), action: ev.action };
             if (ev.action?.type === "add_to_cart") {
               addToCart(ev.action.productId, ev.action.size);
               showToast("Added to cart");
@@ -310,7 +327,7 @@ function ChatInner() {
   }
 
   return (
-    <main className="flex flex-col h-[var(--app-h)] lg:max-w-3xl lg:mx-auto lg:h-[calc(100dvh-48px)] lg:my-6 lg:rounded-3xl lg:overflow-hidden lg:shadow-2xl lg:border lg:border-line lg:bg-white">
+    <main className="flex flex-col h-[var(--app-h)] lg:max-w-3xl lg:mx-auto lg:h-[calc(100dvh-48px)] lg:mt-6 lg:mb-0 lg:rounded-3xl lg:overflow-hidden lg:shadow-2xl lg:border lg:border-line lg:bg-white">
       <header className="bg-brand text-white flex items-center gap-4 px-5 pt-6 pb-5 shrink-0">
         <span className="relative shrink-0">
           <DecathlonMark className="w-11 h-9 text-white" />
