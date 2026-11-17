@@ -1,0 +1,19 @@
+# Render Blueprint: deploys the Next.js app in decath-mobile/ as a web service.
+# API keys are not stored here; Render asks for them when the Blueprint is created.
+services:
+  - type: web
+    name: decath-clone
+    runtime: node
+    plan: free
+    rootDir: decath-mobile
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      # Optional: with no key the assistant runs in offline (rule-based) mode.
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
