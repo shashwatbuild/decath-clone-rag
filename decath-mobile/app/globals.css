@@ -270,3 +270,16 @@ body {
     margin-right: auto;
   }
 }
+
+/* No visible scroll bars anywhere (pages still scroll with wheel, trackpad, touch and keys) */
+html,
+body,
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
