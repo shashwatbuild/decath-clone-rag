@@ -8,6 +8,8 @@ A personal project combining a responsive sports store with a catalogue-grounded
 
 **87 products · 19 categories · 5 guided advisor profiles · Desktop + mobile**
 
+Consistent typography, cleaner product cards, readable coupons and a tidier shopping-advisor experience.
+
 [Features & benefits](docs/FEATURES.md) · [Screenshots](docs/SCREENSHOTS.md) · [Architecture](docs/ARCHITECTURE.md) · [Demo video](docs/demo/decathlon-clone-demo.mp4) · [Future ideas](docs/ROADMAP.md)
 
 <img src="docs/screenshots/desktop-current.jpg" width="900" alt="Desktop storefront with sport navigation, shopping assistant, kits and gear planner" />

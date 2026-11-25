@@ -11,8 +11,8 @@ type CardProduct = ProductLite & { offers?: string[]; sizes?: string[] };
 
 export function Tag({ tag, className = "" }: { tag: string | null; className?: string }) {
   if (!tag) return null;
-  const tone = tag === "New arrival" ? "bg-[#E3E6F7]" : tag === "Only online" ? "bg-[#DDF1E8]" : "bg-[#FFD54F]";
-  return <span className={`${tone} text-[13px] px-2 py-0.5 ${className}`}>{tag}</span>;
+  const tone = tag === "New arrival" ? "bg-brand-soft text-brand" : tag === "Only online" ? "bg-[#DDF1E8] text-[#0b7a4f]" : "bg-[#FFD54F] text-ink";
+  return <span className={`${tone} rounded-md text-[11px] leading-4 font-semibold px-2 py-1 ${className}`}>{tag}</span>;
 }
 
 export default function ProductCard({ p, compact = false }: { p: CardProduct; compact?: boolean }) {
@@ -22,42 +22,39 @@ export default function ProductCard({ p, compact = false }: { p: CardProduct; co
   const needsSize = (p.sizes?.length ?? 0) > 1;
 
   return (
-    <div className="bg-white flex flex-col">
-      <Link href={`/p/${p.id}`} className="relative block aspect-square bg-[#F5F4F5] overflow-hidden">
+    <article className="product-card bg-white flex flex-col h-full rounded-2xl border border-line overflow-hidden">
+      <Link href={`/p/${p.id}`} className="relative block aspect-square bg-[#F5F4F5] overflow-hidden p-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={img(p.image, 500)} alt={p.name} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" />
-        <Tag tag={p.tag} className="absolute top-0 left-0" />
+        <Tag tag={p.tag} className="absolute top-2.5 left-2.5 max-w-[calc(100%-20px)]" />
       </Link>
-      <div className={`flex flex-col flex-1 ${compact ? "px-3 pt-3 pb-3" : "px-3 pt-3 pb-4"}`}>
-        <Link href={`/p/${p.id}`} className="text-[15px] leading-[1.35] text-[#575757] line-clamp-2 min-h-[40px]">
-          <b className="font-bold text-[#4a4a4a]">{p.brand}</b> {p.name}
+      <div className={`flex flex-col flex-1 p-3 ${compact ? "lg:p-3.5" : "lg:p-4"}`}>
+        <p className="text-[11px] font-semibold tracking-[0.06em] uppercase text-muted mb-1">{p.brand}</p>
+        <Link href={`/p/${p.id}`} title={p.name} className="text-[14px] leading-[1.5] font-medium text-ink line-clamp-2 min-h-[42px] hover:text-brand">
+          {p.shortName}
         </Link>
-        <div className="flex items-center gap-1.5 mt-2 h-5">
+        <div className="flex items-center gap-1.5 mt-2.5 h-5">
           {p.reviewCount > 0 ? (
             <>
-              <Stars value={p.rating} size={17} />
-              <span className="text-[14px] text-[#575757]">{p.reviewCount >= 1000 ? (p.reviewCount / 1000).toFixed(1) + "K" : p.reviewCount}</span>
+              <Stars value={p.rating} size={14} />
+              <span className="text-[12px] text-muted tabular-nums">{p.reviewCount >= 1000 ? (p.reviewCount / 1000).toFixed(1) + "K" : p.reviewCount}</span>
             </>
-          ) : (
-            <Stars value={0} size={17} />
-          )}
+          ) : <span className="text-[12px] text-muted">No reviews yet</span>}
         </div>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="text-[19px] font-bold">{inr(p.price)}</span>
-          {off >= 30 && <span className="bg-[#FFD54F] text-[13px] px-1.5 py-0.5 font-medium">{off}% off</span>}
+        <div className="mt-auto pt-3 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="text-[19px] leading-6 font-semibold tracking-tight tabular-nums">{inr(p.price)}</span>
+          {off >= 30 && <span className="bg-[#FFD54F]/60 rounded-md text-[11px] px-1.5 py-0.5 font-semibold whitespace-nowrap">{off}% off</span>}
         </div>
-        {p.mrp > p.price && (
-          <div className="text-[14px] text-[#757575] mt-1">MRP <s>{inr(p.mrp)}</s></div>
-        )}
+        <div className="text-[12px] text-muted mt-1 min-h-[19px]">
+          {p.mrp > p.price && <>MRP <s className="tabular-nums">{inr(p.mrp)}</s></>}
+        </div>
         {!compact && (
-          <div className="flex items-center gap-2 mt-3">
-            {p.offers?.[0] ? (
-              <span className="flex-1 bg-[#DDF1E8] text-[#0b7a4f] text-[12px] leading-tight rounded-md px-2 py-1.5 text-center line-clamp-2">{p.offers[0]}</span>
-            ) : (
-              <span className="flex-1" />
-            )}
-            <button aria-label="Add to wishlist" onClick={() => { toggleWish(p.id); showToast(wished ? "Removed from wishlist" : "Added to wishlist"); }}
-              className="w-9 h-9 border border-[#9a9a9a] rounded-lg grid place-items-center shrink-0">
+          <div className="mt-3 pt-3 border-t border-line">
+            <p className="h-[18px] truncate text-[11px] text-[#0b7a4f] mb-2" title={p.offers?.[0]}>{p.offers?.[0]}</p>
+            <div className="flex items-center gap-2">
+            <button aria-label={wished ? "Remove from wishlist" : "Add to wishlist"} aria-pressed={wished}
+              onClick={() => { toggleWish(p.id); showToast(wished ? "Removed from wishlist" : "Added to wishlist"); }}
+              className="w-11 h-11 border border-line rounded-xl grid place-items-center shrink-0 hover:bg-brand-soft">
               <IconHeart className={`w-5 h-5 ${wished ? "text-brand" : ""}`} filled={wished} />
             </button>
             <button aria-label="Add to cart"
@@ -65,12 +62,13 @@ export default function ProductCard({ p, compact = false }: { p: CardProduct; co
                 if (needsSize) { window.location.href = `/p/${p.id}#size`; return; }
                 addToCart(p.id, p.sizes?.[0] ?? null); showToast("Added to cart");
               }}
-              className="w-9 h-9 border border-[#9a9a9a] rounded-lg grid place-items-center shrink-0">
+              className="flex-1 min-w-11 h-11 border border-brand/20 text-brand bg-brand-soft/40 rounded-xl grid place-items-center shrink-0 hover:bg-brand-soft">
               <IconBasketPlus />
             </button>
+            </div>
           </div>
         )}
       </div>
-    </div>
+    </article>
   );
 }

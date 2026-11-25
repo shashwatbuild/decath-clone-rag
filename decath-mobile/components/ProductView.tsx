@@ -314,9 +314,9 @@ function KVList({ items }: { items: { name: string; value: string }[] }) {
 
 function Rail({ items }: { items: Card[] }) {
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x-mandatory lg:grid lg:grid-cols-6 lg:gap-px lg:overflow-visible lg:bg-line lg:mx-4 lg:border lg:border-line lg:[&>*:nth-child(n+7)]:hidden">
+    <div className="product-rail flex gap-3 overflow-x-auto no-scrollbar snap-x-mandatory lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-visible lg:[&>*:nth-child(n+7)]:hidden">
       {items.map((x) => (
-        <div key={x.id} className="w-[46%] lg:w-auto shrink-0 snap-start"><ProductCard p={x} compact /></div>
+        <div key={x.id} className="w-[46%] lg:w-auto min-w-0 shrink-0 snap-start"><ProductCard p={x} compact /></div>
       ))}
     </div>
   );

@@ -8,15 +8,15 @@ const KIND: Record<Source["kind"], string> = { guide: "Guide", policy: "Store po
 /** The numbered sources behind an answer, plus a "how I found this" panel showing the retrieval steps. */
 export default function Sources({ sources, trace }: { sources: Source[]; trace?: RagTrace }) {
   return (
-    <div className="mt-2 max-w-[94%]">
+    <div className="mt-3 max-w-[94%]">
       <p className="text-[12px] font-semibold uppercase tracking-wide text-muted">Sources</p>
-      <ul className="mt-1 space-y-1">
+      <ul className="mt-2 space-y-2">
         {sources.map((s) => (
           <li key={s.n}>
-            <Link href={s.url} className="flex items-start gap-2 rounded-lg border border-line bg-white px-2.5 py-1.5 hover:border-brand">
+            <Link href={s.url} className="flex items-start gap-2 rounded-xl border border-line bg-white px-3 py-3 hover:border-brand">
               <span className="mt-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-brand-soft px-1 text-[11px] font-bold text-brand">{s.n}</span>
               <span className="min-w-0">
-                <span className="block truncate text-[13px] font-medium text-ink">{s.title}</span>
+                <span className="block text-[13px] leading-relaxed font-medium text-ink">{s.title}</span>
                 <span className="block text-[11px] text-muted">{KIND[s.kind]}</span>
               </span>
             </Link>
@@ -27,7 +27,7 @@ export default function Sources({ sources, trace }: { sources: Source[]; trace?:
       {trace && (
         <details className="mt-1.5 text-[12px] text-muted">
           <summary className="cursor-pointer select-none py-1 font-medium text-brand">How I found this</summary>
-          <div className="space-y-2 rounded-lg bg-white p-2.5 border border-line">
+          <div className="space-y-3 rounded-xl bg-white p-4 border border-line">
             <p><b className="text-ink">Search used:</b> {trace.rewritten}</p>
             {trace.notes.length > 0 && (
               <ul className="list-disc pl-4 space-y-0.5">{trace.notes.map((n) => <li key={n}>{n}</li>)}</ul>

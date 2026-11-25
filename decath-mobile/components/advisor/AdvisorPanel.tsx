@@ -46,7 +46,7 @@ export default function AdvisorPanel(props: Props) {
   ];
 
   return (
-    <section aria-label="Your shopping recommendation" className="mt-1 border border-line rounded-2xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <section aria-label="Your shopping recommendation" className="advisor-panel mt-3 border border-line rounded-2xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <BriefSummary brief={brief} onEdit={setEditing} saved={saved} onSave={onSave} />
       {session.change && <ChangeNote key={session.change.n} change={session.change} canUndo={session.undo.length > 0} onUndo={onUndo} />}
 
@@ -59,7 +59,7 @@ export default function AdvisorPanel(props: Props) {
         ))}
       </div>
 
-      <div className="px-4 py-4">
+      <div className="px-4 py-5">
         {view === "pick" && <RecommendationCard result={result} brief={brief} onAsk={onAsk} onCommit={onCommit} onEdit={setEditing} onView={onView} />}
         {view === "compare" && (result.selected.length > 0
           ? <Comparison result={result} brief={brief} selected={selected} onSelect={(ids) => onCommit({}, ids)} />
@@ -86,17 +86,17 @@ function BriefSummary({ brief, onEdit, saved, onSave }: { brief: Brief; onEdit: 
   const [open, setOpen] = useState(false);
   const lines = briefLines(brief).filter((l) => l.key !== "priority" || brief.priority !== "match");
   return (
-    <div className="px-4 pt-3.5 pb-3">
+    <div className="px-4 pt-4 pb-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-[15px]">Your brief</h3>
+        <h3 className="font-semibold text-[16px] tracking-tight">Your brief</h3>
         <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="text-brand text-[14px] font-semibold min-h-[36px] px-1">{open ? "Done" : "Edit"}</button>
       </div>
       {!open ? (
-        <ul className="flex flex-wrap gap-1.5 mt-1">
+        <ul className="flex flex-wrap gap-2 mt-2">
           {lines.map((l) => (
             <li key={l.key}>
               <button onClick={() => onEdit(l.key)} aria-label={`${l.label}: ${l.value}. Edit`}
-                className={`rounded-full text-[13px] px-3 min-h-[32px] border ${l.kind === "must" ? "bg-brand border-brand text-white" : "bg-[#F5F5F7] border-[#F5F5F7] text-[#222]"}`}>
+                className={`rounded-full text-[13px] px-3 min-h-[32px] border ${l.kind === "must" ? "bg-brand border-brand text-white" : "bg-[#F5F5F7] border-line text-[#222]"}`}>
                 {l.key === "budget" ? l.value.replace("Up to ", "≤ ") : l.value}
               </button>
             </li>

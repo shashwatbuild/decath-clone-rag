@@ -22,6 +22,12 @@ These captures show the current local application. Older journey captures below 
 |---|---|
 | <img src="screenshots/gear-planner-current.jpg" width="460" alt="Week-by-week gear purchase plan" /> | <img src="screenshots/demo-checkout-current.jpg" width="460" alt="Simulated wallet and cash-on-delivery checkout" /> |
 
+## Updated product cards
+
+<img src="screenshots/desktop-products-current.jpg" width="900" alt="Refined product cards with separate brands, readable titles, aligned prices and consistent spacing" />
+
+<img src="screenshots/mobile-listing-current.jpg" width="300" alt="Refined mobile category listing with aligned prices and no page overflow" />
+
 ## Detailed journey captures
 
 ### Store

@@ -39,7 +39,7 @@ export default function PlanPage() {
       <TopBar title="Training plan" />
 
       <div className="lg:grid lg:grid-cols-[360px_1fr] lg:gap-8 lg:px-4 lg:items-start lg:pt-2">
-      <section className="bg-white p-4 space-y-4 lg:rounded-xl lg:border lg:border-line lg:sticky lg:top-44">
+      <section className="bg-white p-5 space-y-5 rounded-2xl border border-line mx-4 mt-4 lg:mx-0 lg:mt-0 lg:sticky lg:top-44">
         <div>
           <p className="text-sm text-muted mb-2">What are you training for?</p>
           <div className="flex gap-2">
@@ -112,7 +112,7 @@ export default function PlanPage() {
             {w.lines.length === 0 && <p className="text-sm text-muted mt-1">Nothing to buy this week.</p>}
             <div className="space-y-2 mt-2">
               {w.lines.map((l) => (
-                <div key={l.need.id} className="bg-white rounded-xl p-3 flex gap-3">
+                <div key={l.need.id} className="bg-white rounded-2xl border border-line p-4 flex gap-4">
                   {l.product ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={img(l.product.images[0], 160)} alt="" className="w-16 h-16 object-contain mix-blend-multiply bg-[#F5F4F5] rounded" />

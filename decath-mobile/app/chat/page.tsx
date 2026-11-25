@@ -331,20 +331,20 @@ function ChatInner() {
   }
 
   return (
-    <main className="flex flex-col h-[var(--app-h)] lg:max-w-3xl lg:mx-auto lg:h-[calc(100dvh-48px)] lg:mt-6 lg:mb-0 lg:rounded-3xl lg:overflow-hidden lg:shadow-2xl lg:border lg:border-line lg:bg-white">
-      <header className="bg-brand text-white flex items-center gap-4 px-5 pt-6 pb-5 shrink-0">
+    <main className="flex flex-col h-[var(--app-h)] lg:max-w-3xl lg:mx-auto lg:h-[calc(100dvh-48px)] lg:mt-6 lg:mb-0 lg:rounded-3xl lg:overflow-hidden lg:shadow-[0_12px_40px_rgba(30,40,90,0.08)] lg:border lg:border-line lg:bg-white">
+      <header className="bg-brand text-white flex items-center gap-3 px-5 py-5 shrink-0">
         <span className="relative shrink-0">
           <DecathlonMark className="w-11 h-9 text-white" />
           <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-[#4caf50] ring-2 ring-white" />
         </span>
         <div className="min-w-0">
-          <p className="font-bold text-[19px]">Decathlon Chat Assistant</p>
-          <p className="text-[15px] opacity-95">Your teammate for every query!</p>
+          <p className="font-semibold tracking-tight text-[18px]">Decathlon Chat Assistant</p>
+          <p className="text-[13px] opacity-90">Product advice, backed by catalogue facts</p>
         </div>
         <button onClick={() => router.back()} className="ml-auto" aria-label="Close chat"><IconClose className="w-7 h-7" /></button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 lg:mx-0 lg:max-w-none lg:w-full lg:px-6">
+      <div className="chat-messages flex-1 overflow-y-auto px-3 py-5 space-y-5 lg:mx-0 lg:max-w-none lg:w-full lg:px-6">
         {messages.map((m, i) => (
           <div key={i}>
             <Bubble m={m} onSuggest={(t) => send(t)} isLast={i === messages.length - 1}
@@ -409,7 +409,7 @@ function Bubble({ m, onSuggest, isLast, showTime }: { m: ChatMessage; onSuggest:
   if (m.role === "user")
     return (
       <div className="flex flex-col items-end">
-        <div className="bg-brand text-white rounded-[20px] rounded-br-md px-4 py-3 max-w-[80%] text-[15px] leading-[1.45] whitespace-pre-wrap break-words">{m.text}</div>
+        <div className="bg-brand text-white rounded-[20px] rounded-br-md px-4 py-3 max-w-[80%] text-[15px] leading-[1.6] whitespace-pre-wrap break-words">{m.text}</div>
         {showTime && <span className="text-[12px] text-[#8a8a8e] mt-1 mr-1">{fmtTime(m.time)}</span>}
       </div>
     );
@@ -417,7 +417,7 @@ function Bubble({ m, onSuggest, isLast, showTime }: { m: ChatMessage; onSuggest:
     <div className="flex items-end gap-2">
       {showTime ? <Avatar /> : <span className="w-8 shrink-0" />}
       <div className="min-w-0 flex-1">
-        <div className="bg-[#F2F3F7] rounded-[20px] rounded-bl-md px-4 py-3 max-w-[94%] w-fit">
+        <div className="bg-white border border-line rounded-2xl rounded-bl-md px-4 py-3.5 max-w-[94%] w-fit">
           <RichText text={m.text} />
         </div>
         {m.sources && m.sources.length > 0 && <Sources sources={m.sources} trace={m.trace} />}
@@ -426,7 +426,7 @@ function Bubble({ m, onSuggest, isLast, showTime }: { m: ChatMessage; onSuggest:
         {isLast && m.suggestions && m.suggestions.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2.5">
             {m.suggestions.map((s) => (
-              <button key={s} onClick={() => onSuggest(s)} className="bg-white border border-brand/60 text-brand rounded-full px-3.5 min-h-[36px] text-[14px] text-left">{s}</button>
+              <button key={s} onClick={() => onSuggest(s)} className="bg-white border border-line text-brand rounded-xl px-3.5 py-2 min-h-[44px] text-[13px] leading-relaxed text-left hover:border-brand">{s}</button>
             ))}
           </div>
         )}
@@ -440,21 +440,21 @@ function ProductStrip({ ps, onAsk }: { ps: ProductLite[]; onAsk?: (s: string) =>
   return (
     <div className="flex gap-2.5 overflow-x-auto no-scrollbar mt-2.5 pr-2">
       {ps.map((p, i) => (
-        <div key={p.id} className="w-[150px] shrink-0 border border-line rounded-xl overflow-hidden bg-white flex flex-col">
-          <Link href={`/p/${p.id}`} className="block relative aspect-square bg-[#F5F4F5]">
+        <div key={p.id} className="w-[168px] shrink-0 border border-line rounded-xl overflow-hidden bg-white flex flex-col">
+          <Link href={`/p/${p.id}`} className="block relative aspect-square bg-[#F5F4F5] p-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={img(p.image, 300)} alt="" className="w-full h-full object-contain mix-blend-multiply" />
             {ps.length > 1 && (
               <span className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-white/95 text-[12px] font-semibold grid place-items-center shadow-sm">{i + 1}</span>
             )}
           </Link>
-          <Link href={`/p/${p.id}`} className="px-2.5 pt-2 flex-1">
-            <p className="text-[13px] line-clamp-2 leading-snug"><b>{p.brand}</b> {p.shortName}</p>
+          <Link href={`/p/${p.id}`} className="px-3 pt-3 flex-1">
+            <p className="text-[13px] line-clamp-2 leading-relaxed"><b>{p.brand}</b> {p.shortName}</p>
             <p className="font-bold mt-1">{inr(p.price)} {p.mrp > p.price && <s className="text-[12px] font-normal text-muted">{inr(p.mrp)}</s>}</p>
             {p.reviewCount > 0 && <p className="text-[12px] text-muted">★ {p.rating} · {p.reviewCount.toLocaleString("en-IN")}</p>}
           </Link>
           {onAsk && (
-            <button onClick={() => onAsk(`Add ${p.shortName} to cart`)} className="m-2 mt-2 rounded-full bg-brand text-white text-[12px] font-semibold py-1.5">
+            <button onClick={() => onAsk(`Add ${p.shortName} to cart`)} className="m-3 mt-3 rounded-xl bg-brand text-white text-[13px] font-semibold min-h-[44px] px-2">
               Add to cart
             </button>
           )}

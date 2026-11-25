@@ -33,10 +33,10 @@ export default function CartPage() {
     <main className="pb-32 lg:pb-12 bg-[#F5F4F5] min-h-[var(--app-h)]">
       <TopBar title={`My Cart (${lines.reduce((n, l) => n + l.qty, 0)})`} />
       <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 lg:px-4 lg:items-start lg:pt-2">
-      <div className="space-y-2 pt-2 lg:pt-0">
+      <div className="space-y-3 px-4 pt-4 lg:px-0 lg:pt-0">
         {lines.map((l) => (
-          <div key={l.id + l.size} className="bg-white p-4 flex gap-3">
-            <Link href={`/p/${l.id}`} className="w-24 h-24 bg-[#F5F4F5] shrink-0">
+          <div key={l.id + l.size} className="bg-white rounded-2xl border border-line p-4 flex gap-4">
+            <Link href={`/p/${l.id}`} className="w-24 h-24 rounded-xl bg-[#F5F4F5] shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={img(l.p.images[0], 200)} alt="" className="w-full h-full object-contain mix-blend-multiply" />
             </Link>
@@ -60,7 +60,7 @@ export default function CartPage() {
       </div>
 
       <div className="lg:sticky lg:top-44">
-      <div className="bg-white mt-2 lg:mt-0 p-4">
+      <div className="bg-white rounded-2xl border border-line mx-4 lg:mx-0 mt-3 lg:mt-0 p-5">
         <h2 className="font-semibold">Apply coupon</h2>
         <div className="flex gap-2 mt-3">
           <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Enter code (try NC100)"
@@ -76,7 +76,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      <div className="bg-white mt-2 p-4 space-y-2 text-[15px]">
+      <div className="bg-white rounded-2xl border border-line mx-4 lg:mx-0 mt-3 p-5 space-y-3 text-[15px]">
         <h2 className="font-semibold mb-1">Price details</h2>
         <Row k="Total MRP" v={inr(mrp)} />
         <Row k="Discount on MRP" v={`− ${inr(mrp - total)}`} green />

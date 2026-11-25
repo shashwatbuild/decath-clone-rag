@@ -59,7 +59,7 @@ This inventory describes implemented features. “Benefit” explains the intend
 
 | Area | Implemented features | Shopper benefit |
 |---|---|---|
-| Desktop and mobile | Responsive store, dedicated desktop canvas and phone-frame preview. | Use the same application on different screens. |
+| Desktop and mobile | Responsive store, dedicated desktop canvas and phone-frame preview; consistent Inter typography, separated cards, readable coupons and clearer chat/advisor panels. | Use a cleaner, more consistent interface across screens. |
 | Catalogue | 87 products across 19 categories, including expanded badminton and running gear. | Browse a focused, inspectable demo catalogue. |
 | Home | Sport navigation, coupons, bestseller/discount rails, assistant, kit and planner links. | Find a starting point quickly. |
 | Search and listings | Name/brand/category/sport search; gender, price, brand, rating and promotional filters; sorting. | Narrow a large result set. |

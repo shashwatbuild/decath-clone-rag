@@ -70,7 +70,7 @@ function inline(text: string): ReactNode[] {
 export default function RichText({ text }: { text: string }) {
   const blocks = parse(text);
   return (
-    <div className="space-y-2.5 text-[15px] leading-[1.5] text-[#1d1d1f]">
+    <div className="space-y-3 text-[14px] lg:text-[15px] leading-[1.65] text-[#1d1d1f]">
       {blocks.map((b, i) => {
         switch (b.kind) {
           case "h":

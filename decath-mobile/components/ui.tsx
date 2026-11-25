@@ -12,7 +12,7 @@ export function TopBar({ title, back = true, logo = false }: { title?: string; b
   const { cartCount, wishlist } = useStore();
   return (
     <>
-    <header className="sticky top-0 z-30 bg-white">
+    <header className="site-header sticky top-0 z-30 bg-white">
       <DesktopNav />
       <div className="flex items-center h-14 px-3 gap-2 lg:hidden">
         {back && (
@@ -58,18 +58,18 @@ function DesktopNav() {
   const icon = "relative flex flex-col items-center gap-0.5 text-[12px] text-[#444] hover:text-brand";
   return (
     <div className="hidden lg:block border-b border-line">
-      <div className="max-w-[1280px] mx-auto px-4 h-[72px] flex items-center gap-8">
+      <div className="max-w-[1280px] mx-auto px-4 h-[76px] flex items-center gap-5">
         <Link href="/" aria-label="Decathlon home" className="shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/decathlon-logo.svg" alt="DECATHLON" width={188} height={28} className="h-[28px] w-auto" />
         </Link>
         <form role="search" onSubmit={(e) => { e.preventDefault(); if (draft.trim()) router.push(`/search?q=${encodeURIComponent(draft.trim())}`); }}
-          className="flex-1 max-w-[620px] flex items-center gap-2 border border-line rounded-full px-5 h-12 bg-[#F5F4F5] focus-within:border-brand focus-within:bg-white">
+          className="min-w-0 flex-1 max-w-[620px] flex items-center gap-2 border border-line rounded-full px-5 h-12 bg-[#F5F4F5] focus-within:border-brand focus-within:bg-white">
           <IconSearch className="w-5 h-5 text-muted" />
           <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Search for sports and products"
-            aria-label="Search products" className="flex-1 bg-transparent outline-none text-[16px]" />
+            aria-label="Search products" className="min-w-0 flex-1 bg-transparent outline-none text-[14px]" />
         </form>
-        <nav className="ml-auto flex items-center gap-7" aria-label="Account and tools">
+        <nav className="ml-auto flex items-center gap-5" aria-label="Account and tools">
           <Link href="/plan" className={icon}><span className="text-[15px] font-semibold">Training plan</span></Link>
           <Link href="/chat" className={icon}><DecathlonMark className="w-6 h-5" /><span>Assistant</span></Link>
           <Link href="/notifications" aria-label="Notifications" className={icon}><IconBell className="w-6 h-6" /><span>Alerts</span></Link>
@@ -84,11 +84,11 @@ function DesktopNav() {
         </nav>
       </div>
       <nav aria-label="Categories" className="border-t border-line">
-        <div className="max-w-[1280px] mx-auto px-4 h-11 flex items-center gap-7 text-[15px]">
+        <div className="max-w-[1280px] mx-auto px-4 h-12 flex items-center gap-6 text-[13px]">
           {SHOP_LINKS.map((c) => (
             <Link key={c.slug} href={`/c/${c.slug}`} className="hover:text-brand whitespace-nowrap">{c.name}</Link>
           ))}
-          <Link href="/m" target="_top" className="ml-auto text-[14px] text-muted hover:text-brand whitespace-nowrap">Mobile version ›</Link>
+          <Link href="/m" target="_top" className="ml-auto text-[12px] text-muted hover:text-brand whitespace-nowrap">Mobile version ›</Link>
         </div>
       </nav>
     </div>
@@ -157,7 +157,7 @@ export function BottomSheet({ open, onClose, title, children }: { open: boolean;
   return (
     <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
       <div onClick={onClose} className={`absolute inset-0 bg-black/40 transition-opacity ${open ? "opacity-100" : "opacity-0"}`} />
-      <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white rounded-t-2xl p-5 pb-8 transition-transform duration-300 max-h-[calc(var(--app-h)*0.85)] overflow-y-auto ${open ? "translate-y-0" : "translate-y-full"}`}>
+      <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white rounded-t-3xl p-6 pb-8 transition-transform duration-300 max-h-[calc(var(--app-h)*0.85)] overflow-y-auto ${open ? "translate-y-0" : "translate-y-full"}`}>
         <div className="flex items-center mb-4">
           <h2 className="text-lg font-semibold">{title}</h2>
           <button onClick={onClose} className="ml-auto p-1" aria-label="Close"><IconClose /></button>
@@ -196,9 +196,9 @@ export function ChatFab({ bottom = "bottom-28", context }: { bottom?: string; co
 
 export function SectionTitle({ children, href }: { children: React.ReactNode; href?: string }) {
   return (
-    <div className="flex items-end px-4 pt-6 pb-3">
-      <h2 className="text-[21px] font-semibold tracking-tight">{children}</h2>
-      {href && <Link href={href} className="ml-auto text-brand text-sm font-semibold">View all</Link>}
+    <div className="flex items-center gap-4 px-4 pt-8 pb-4">
+      <h2 className="text-[20px] lg:text-[22px] font-semibold tracking-tight">{children}</h2>
+      {href && <Link href={href} className="ml-auto text-brand text-[13px] font-semibold py-2">View all</Link>}
     </div>
   );
 }

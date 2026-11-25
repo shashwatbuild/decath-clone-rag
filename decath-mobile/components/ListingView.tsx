@@ -64,13 +64,13 @@ export default function ListingView({ title, items, empty }: { title: string; it
 
   const Chip = ({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) => (
     <button onClick={onClick}
-      className={`shrink-0 rounded-full border px-5 py-2.5 text-[15px] ${on ? "border-brand bg-brand-soft text-brand" : "border-[#c9c9c9]"}`}>
+      className={`shrink-0 rounded-full border px-5 py-2.5 text-[15px] ${on ? "border-brand bg-brand-soft text-brand" : "border-line bg-white"}`}>
       {children}
     </button>
   );
 
   return (
-    <main className="pb-24 lg:pb-12">
+    <main className="catalog-page pb-24 lg:pb-12">
       <TopBar title={title} />
 
       <div className="lg:flex lg:gap-8 lg:px-4 lg:pt-2">
@@ -123,10 +123,10 @@ export default function ListingView({ title, items, empty }: { title: string; it
 
       <CouponBanner />
 
-      <p className="px-4 lg:px-0 pt-3 pb-1 text-sm text-muted">{shown.length} product{shown.length === 1 ? "" : "s"}</p>
+      <p className="px-4 lg:px-0 pt-5 pb-3 text-[13px] text-muted">{shown.length} product{shown.length === 1 ? "" : "s"}</p>
 
       {shown.length ? (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-px bg-line border-y border-line lg:border lg:border-line">
+        <div className="catalog-grid grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 px-4 lg:px-0">
           {shown.map((p) => <ProductCard key={p.id} p={toCard(p)} />)}
         </div>
       ) : (

@@ -16,21 +16,21 @@ export default function TypeCards({ brief, id, onAnswer, active }: { brief: Brie
   const labels = cards.filter((x) => picked.includes(x.id)).map((x) => x.label);
   return (
     <div className="mt-2.5" aria-label={c.question}>
-      <div className="grid grid-cols-2 gap-2">
+      <div className={`grid grid-cols-2 ${cards.length >= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-3`}>
         {cards.map((k) => {
           const on = picked.includes(k.id);
           return (
             <button key={k.id} disabled={!active} aria-pressed={on} onClick={() => toggle(k.id)}
-              className={`text-left rounded-xl border-2 bg-white overflow-hidden transition-colors ${on ? "border-brand" : "border-line"} disabled:opacity-60`}>
-              <span className="relative block aspect-square bg-[#F5F4F5] p-1">
+              className={`text-left rounded-2xl border-2 bg-white overflow-hidden transition-colors ${on ? "border-brand" : "border-line"} disabled:opacity-60`}>
+              <span className="relative block aspect-square lg:aspect-[4/3] bg-[#F5F4F5] p-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {k.image && <img src={img(k.image, 300)} alt="" className="w-full h-full object-contain mix-blend-multiply" />}
                 <span aria-hidden className={`absolute top-1.5 right-1.5 w-6 h-6 rounded-full grid place-items-center text-[13px] font-bold ${on ? "bg-brand text-white" : "bg-white/90 border border-[#c9c9cf] text-transparent"}`}>✓</span>
               </span>
-              <span className="block px-2.5 pt-2 pb-2.5">
-                <span className="block text-[13px] font-semibold leading-tight">{k.label}</span>
-                <span className="block text-[11px] text-muted leading-snug mt-0.5">{k.hint}</span>
-                <span className="block text-[11px] text-[#444] mt-1">
+              <span className="block px-3 pt-3 pb-3">
+                <span className="block text-[13px] font-semibold leading-snug">{k.label}</span>
+                <span className="block text-[12px] text-muted leading-relaxed mt-1">{k.hint}</span>
+                <span className="block text-[12px] text-[#444] leading-relaxed mt-2">
                   {k.count} in catalogue · from {inr(k.from!)}
                   {brief.budget !== null && <><br />{k.inBudget ? `${k.inBudget} within ${inr(brief.budget)}` : `none within ${inr(brief.budget)}`}</>}
                 </span>
@@ -42,11 +42,11 @@ export default function TypeCards({ brief, id, onAnswer, active }: { brief: Brie
       {active && (
         <div className="flex flex-wrap gap-2 mt-2.5">
           <button disabled={!picked.length} onClick={() => onAnswer(labels.join(" + "))}
-            className="rounded-full bg-brand text-white text-[14px] font-semibold px-4 min-h-[40px] disabled:bg-[#b9bce0]">
+            className="rounded-full bg-brand text-white text-[14px] font-semibold px-4 min-h-[44px] disabled:bg-[#b9bce0]">
             Continue{picked.length ? ` (${picked.length})` : ""}
           </button>
-          <button onClick={() => onAnswer(HELP)} className="border border-brand text-brand rounded-full px-3.5 min-h-[40px] text-[14px]">{HELP}</button>
-          <button onClick={() => onAnswer(c.noneLabel)} className="border border-brand text-brand rounded-full px-3.5 min-h-[40px] text-[14px]">{c.noneLabel}</button>
+          <button onClick={() => onAnswer(HELP)} className="border border-brand text-brand rounded-full px-3.5 min-h-[44px] text-[14px]">{HELP}</button>
+          <button onClick={() => onAnswer(c.noneLabel)} className="border border-brand text-brand rounded-full px-3.5 min-h-[44px] text-[14px]">{c.noneLabel}</button>
         </div>
       )}
     </div>
