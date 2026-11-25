@@ -82,4 +82,3 @@ These captures show the current local application. Older journey captures below 
 | <img src="screenshots/chat-mat.png" width="240" /> | <img src="screenshots/notifications.png" width="240" /> |
 
 ---
-
