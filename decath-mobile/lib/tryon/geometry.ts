@@ -1,6 +1,6 @@
 import type { Product } from "../types";
 export type GarmentKind = "top" | "shorts" | "pants";
-export type Point = { x: number; y: number; visibility?: number };
+export type Point = { x: number; y: number; visibility?: number; z?: number };
 export type Placement = { x: number; y: number; width: number; height: number; angle: number; estimated?: boolean };
 export function garmentKind(p: Pick<Product, "category" | "name">): GarmentKind | null {
   if (["T-Shirts", "Running Tops"].includes(p.category)) return "top";

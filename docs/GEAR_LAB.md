@@ -16,7 +16,7 @@ Gear Lab turns futuristic ideas into practical, inspectable shopping tools. It u
 | Evidence contracts | Shows hard checks, preferences, unknowns, source fields and a fingerprint of the brief/product evidence. | A reproducible application decision record, not a legal guarantee or cryptographic attestation. |
 | Team kit | Plans essentials for one to six people within individual budgets; buys badminton shuttles once for the group. | Greedy cheapest-eligible allocation, not a globally optimal solver. Shoes, clothing and rackets remain personal. Sizes must be chosen before cart actions. Per-person add controls permit two teammates to buy the same model/size as separate quantities. |
 | Buy-less advocate | Recommends reuse, inspection, maintenance, deferral or checking borrowing before purchase. | No verified rental inventory, repair quotes or environmental savings estimate. |
-| Live outfit preview | Runs a camera and MediaPipe pose detector locally, follows visible joints with a smoothed 2D garment overlay, offers manual alignment. | Approximate colour/silhouette or catalogue crop; no realistic fabric rendering, size measurement, drape or fit guarantee. |
+| Live outfit preview | Isolates real catalogue garments, warps their photographic texture through a torso mesh and restores foreground skin/hair. Pose tracking and foreground segmentation run independently in separate workers. | Front-view photographic AR for six curated tops. No generative fabric rendering, true 3D drape, size measurement or fit guarantee. |
 
 ## Use it
 
@@ -24,24 +24,32 @@ Gear Lab turns futuristic ideas into practical, inspectable shopping tools. It u
 2. Explore the eight tabs. A free-text request informs retrieval; explicit answers control hard eligibility.
 3. Record owned equipment and its condition. Only gear marked usable offsets purchases.
 4. Open the evidence behind a candidate, select an available size and add it to the same store cart.
-5. Open `/try-on`, choose supported clothing and press **Start camera**. Press **Stop camera** to release it.
+5. Open `/try-on`, choose a supported top, wait for its real garment layer to be ready and press **Open live camera**. Press **Stop camera** to release it.
 
 The mobile brief collapses so results stay easy to scan. Export/import moves a validated brief between browsers; it is not automatic account synchronisation. Changing activity clears activity-specific answers.
 
 ### Camera guidance
 
-| Clothing | Tracking input |
+| Supported top | Asset used |
 |---|---|
-| T-shirts / running tops / supported badminton tops | Shoulders and hips. If only shoulders are visible, shirt length is estimated and labelled. |
-| Running shorts / yoga capris / badminton shorts | Hips and knees must be visible. |
-| Yoga pants | Hips and ankles must be visible. |
-| Rackets, shoes and other equipment | Clothing preview is not offered. |
+| Badminton T-Shirt 530 | Front flat-lay, with studio background removed. |
+| Gym Compression T-Shirt | Front model view; clothing isolated using multiclass segmentation. |
+| Recycled Polyester Gym T-Shirt | Front model view; real print retained. |
+| Sportee Cotton T-Shirt | Front model view; white fabric retained. |
+| Kiprun 100 Running T-Shirt | Front model view; clothing isolated from the photographed person. |
+| Run 900 Running T-Shirt | Front model view; real fabric and graphics retained. |
 
-Face forward in even lighting with one person visible. Green dots show visible anchor joints. If the overlay stays fixed, read the status: the model may still be loading or the needed joints may be outside the frame. Select **Manual positioning** or adjust scale/offsets. **Check tracking engine** tests model loading and inference without opening the camera.
+Other tops, shorts, pants and equipment are not offered as if they had a verified fitting asset. A direct link to an unsupported item explains the limit; it never passes off another product's texture as that item.
 
-Camera access requires HTTPS or localhost and browser permission. Runtime/WASM and the pose model download from jsDelivr and Google's model storage. Camera frames are processed in the browser and are not uploaded, recorded or saved. Camera resources stop on Stop, page unmount or when the page becomes hidden. See [MediaPipe's official pose documentation](https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker).
+Face forward in even lighting, with one person visible. Show shoulders and waist. If only shoulders are visible, torso length is estimated and the status says so. A missing or stale pose hides the garment instead of leaving it floating in the centre; strong side views are rejected. **Show original** compares the unmodified camera. Adjustments change visual ease and hem position, not physical size.
 
-Browser model inference passed in testing. The user confirmed that their camera opens and reported a fixed overlay; the implementation now includes a labelled shoulder-only fallback and clearer diagnostics. Reliable alignment across real devices, poses, clothing and lighting still needs validation. Repository screenshots show the demo mannequin with the camera off.
+The new page has no drawn mannequin, geometric shirt, arbitrary crop mode or opacity slider. Six curated photographs are isolated and cropped to their alpha bounds. The renderer uses a piecewise affine mesh to follow independently moving shoulder/hip anchors; a multiclass mask restores skin, hair and accessories above it. This is photographic AR, not a generative clothing replacement: existing clothes can remain visible where their silhouette is larger, sleeves do not articulate independently, and large rotations cannot reveal an unseen side/back.
+
+Camera access requires HTTPS or localhost and browser permission. Runtime/WASM and pose/segmentation models download from jsDelivr and Google's model storage. Camera frames are processed in a Web Worker and are not uploaded, recorded or saved. The server's asset endpoint accepts only curated product IDs and fetches their fixed catalogue images; it accepts no camera image or arbitrary URL. Camera tracks stop and the canvas is cleared on Stop; page hiding and unmount also release camera resources. See [MediaPipe segmentation documentation](https://developers.google.com/edge/mediapipe/solutions/vision/image_segmenter).
+
+All six asset extractions and the complete pose/foreground/mesh pipeline passed a browser check on public catalogue photographs. A development-only `/try-on/validation` page reproduces those checks; it returns 404 in production. The separated pose path averaged 13 ms over five repeated fixture frames, while the combined pose/segmentation fixture pass took 212 ms. These are small local measurements, not webcam frame-rate or device-wide guarantees. A lighter mesh, bounded motion prediction and torso-aligned older masks reduce perceived delay. Live webcam alignment, latency, segmentation edges and lighting/body diversity still require real-device acceptance testing. Screenshots deliberately do not imply that this verification has happened.
+
+The `/m` device preview now keeps a fixed 414 × 868 device rather than compressing its height to fit a short desktop window. Short windows scroll. Repository mobile captures use a full portrait frame, and desktop images have their own full-width gallery rows.
 
 ## Retrieval and shared state
 
@@ -64,4 +72,4 @@ By default records live in `decath-mobile/.local/gear-lab/` and are ignored by G
 
 ## Validation
 
-`npm test` runs existing retrieval/advisor regressions and 42 new Gear Lab/API checks. These cover all four activities, budgets and requirements, off-topic source filtering, owned/repair handling, experiments, shared equipment, input validation, pose placement and shoulder fallback, consent, aggregation thresholds, concurrent writes, deletion and API errors. Browser checks cover desktop and mobile views and the camera-off tracking engine check.
+`npm test` runs existing retrieval/advisor regressions and 50 Gear Lab/API and fitting checks. These cover all four activities, budgets and requirements, off-topic source filtering, owned/repair handling, experiments, shared equipment, input validation, pose placement and shoulder fallback, consent, aggregation thresholds, concurrent writes, deletion and API errors. Browser checks cover desktop and mobile views and the camera-free photographic fitting pipeline.

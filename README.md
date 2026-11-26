@@ -6,9 +6,9 @@
 
 **Why I built this:** a personal project that brings shopping, source-backed advice and practical gear planning into one consistent desktop/mobile experience.
 
-**The solution:** RAG retrieves catalogue facts and guides; explicit rules check budgets, stock and requirements. Gear Lab adds ownership, scenarios and shared-kit planning, while a local camera preview helps explore clothing colours and silhouettes.
+**The solution:** RAG retrieves catalogue facts and guides; explicit rules check budgets, stock and requirements. Gear Lab adds ownership, scenarios and shared-kit planning, while a local camera preview places real garment photography onto the shopper’s tracked torso.
 
-**87 products · 19 categories · 5 guided advisor profiles · 8 Gear Lab tools · Live 2D outfit preview**
+**87 products · 19 categories · 5 guided advisor profiles · 8 Gear Lab tools · Photographic live AR fitting**
 
 [Features & benefits](docs/FEATURES.md) · [Gear Lab & camera guide](docs/GEAR_LAB.md) · [Screenshots](docs/SCREENSHOTS.md) · [Architecture](docs/ARCHITECTURE.md) · [Next ideas](docs/ROADMAP.md)
 
@@ -28,9 +28,9 @@
 | **Evidence contracts** | Inspect match, mismatch and unknown checks with a revision fingerprint. | Understand why an item qualifies before adding it. |
 | **Team kit** | Plan for up to six people with individual budgets and shared shuttles. | Avoid duplicate shared equipment and budget overruns. |
 | **Buy-less advocate** | Review reuse, maintenance, borrowing and deferred purchases. | Make a useful kit with fewer new purchases. |
-| **Live outfit preview** | Use a camera with a pose-following 2D overlay or manual alignment. | Explore supported clothing visually, without uploading camera frames. |
+| **Live outfit preview** | Try six supported tops using real photographic textures, a body-following mesh and skin/hair foreground masking. | See the actual garment texture on a live camera, without uploading frames. |
 
-Available for **running, badminton, yoga and trekking**. These are working, bounded implementations of the ideas, not physical simulation, lifespan prediction or photorealistic virtual fitting. [Practical scope, privacy and setup →](docs/GEAR_LAB.md)
+Available for **running, badminton, yoga and trekking**. These are working, bounded implementations of the ideas, not physical simulation, lifespan prediction or guaranteed physical fitting. The live preview uses front-view photographic AR, not generative fabric simulation. [Practical scope, privacy and setup →](docs/GEAR_LAB.md)
 
 ## What does it do?
 
@@ -49,9 +49,15 @@ Guided advisors cover **yoga pants, yoga mats, trekking backpacks, badminton rac
 
 ## See it in action
 
-| Mobile storefront | Guided advisor | Cited answers |
-|:---:|:---:|:---:|
-| <img src="docs/screenshots/mobile-current.jpg" width="280" alt="Mobile storefront inside a phone frame" /> | <img src="docs/screenshots/badminton-advisor-current.jpg" width="280" alt="Badminton racket style cards" /> | <img src="docs/screenshots/cited-answer-current.jpg" width="280" alt="Policy answer with numbered source citations" /> |
+### Mobile storefront
+
+<img src="docs/screenshots/mobile-current.jpg" width="340" alt="Full-height mobile storefront in a correctly proportioned phone, without the wide desktop canvas" />
+
+### Guided shopping
+
+| Guided advisor | Cited answers |
+|:---:|:---:|
+| <img src="docs/screenshots/badminton-advisor-current.jpg" width="300" alt="Badminton racket style cards" /> | <img src="docs/screenshots/cited-answer-current.jpg" width="300" alt="Policy answer with numbered source citations" /> |
 
 [Explore all screenshots, including comparison, Undo, kit budgets, planner and checkout →](docs/SCREENSHOTS.md)
 
@@ -130,7 +136,7 @@ npm run lint
 npm run build
 ```
 
-The retrieval and advisor suites plus 42 Gear Lab/API checks pass. Browser checks cover desktop/mobile layouts, source contracts, ownership logs, discriminating questions and the pose engine. Camera opening was confirmed by the user; alignment remains an approximate preview that needs real-device validation. Hybrid retrieval found a relevant source in the top 3 for **97% of 32 tuning questions** and **100% of 12 held-out questions**. These are small regression sets, not general accuracy claims. The API conversation runner is documented in the [architecture guide](docs/ARCHITECTURE.md#validation).
+The retrieval and advisor suites plus 50 Gear Lab/API and fitting checks pass. Browser checks cover desktop/mobile layouts, source contracts, ownership logs, discriminating questions and the pose engine. The rebuilt worker passed all six real-asset extractions and rendered a photographic garment with a foreground mask on a public catalogue fixture. Real-camera alignment and mobile performance still need broader device validation. Hybrid retrieval found a relevant source in the top 3 for **97% of 32 tuning questions** and **100% of 12 held-out questions**. These are small regression sets, not general accuracy claims. The API conversation runner is documented in the [architecture guide](docs/ARCHITECTURE.md#validation).
 
 | Demo boundary | What to expect |
 |---|---|
@@ -139,7 +145,7 @@ The retrieval and advisor suites plus 42 Gear Lab/API checks pass. Browser check
 | Price watch | Local target-price checks; no background monitoring, email or push service. |
 | Preferences and memory | Browser-local state with Gear Lab export/import and reset; no accounts or automatic cross-device sync. |
 | Community fit | Opt-in server-side device-token reports; only groups of five or more are displayed. Requires persistent single-host storage. |
-| Camera preview | Local 2D approximation for supported clothing; no size, drape or fit guarantee. Model/runtime downloads require internet. |
+| Camera preview | Photographic AR for six curated front-view tops; no size, drape or fit guarantee. Pose and foreground segmentation run in independent workers; first use requires downloads. |
 | Recommendations | Based on available catalogue fields; size suggestions are heuristics, and missing facts remain unknown. |
 | Reviews and policies | Review text/star breakdowns are sample data; store policies describe this demo. |
 | AI answers | Citations and fallback reduce risk but do not prove every generated claim is correct. |

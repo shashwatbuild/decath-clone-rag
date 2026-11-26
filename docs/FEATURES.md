@@ -18,8 +18,8 @@ This inventory describes implemented features. “Benefit” explains the intend
 | Buy-less advocate | Suggests reuse, inspection, maintenance, deferral and checking borrowing. | Consider alternatives to new purchases. |
 | Multi-query RAG | Decomposes queries, filters sources by activity and fuses hybrid results with a visible trace. | Read focused evidence and inspect retrieval. |
 | Shared validated state | Common brief across tools; local persistence, import/export/reset and cross-tab updates. | Keep desktop/mobile interactions consistent. |
-| Live outfit preview | Browser camera, local pose tracking, smoothed 2D overlay, joint indicators and manual controls. | Explore supported clothing colours/silhouettes without uploading frames. |
-| Camera fallback | Demo mannequin, loading/error guidance, shoulder-based top estimate and manual positioning. | Keep the preview usable when full-body tracking is unavailable. |
+| Live outfit preview | Six curated photographic tops, pose-driven textured torso mesh, skin/hair foreground occlusion, a worker and original-camera comparison. | See the real product texture over your tracked body without uploading camera frames. |
+| Camera fallback | Camera-off welcome, explicit asset errors, shoulder-based length estimate and tracking-loss suppression. | Avoid a fake floating shirt when no body is tracked; understand estimated alignment. |
 
 [Implementation, supported products, privacy and practical limits →](GEAR_LAB.md)
 

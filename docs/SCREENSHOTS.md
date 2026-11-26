@@ -4,7 +4,7 @@
 
 ## Gear Lab · desktop and mobile
 
-Current Gear Lab captures use sample shopping inputs and a demo ownership log. Outfit screenshots show the camera-off mannequin; no personal camera image is published.
+Current Gear Lab captures use sample shopping inputs and a demo ownership log. Fitting-room screenshots show the camera-off interface and real garment layers; no personal camera image is published. The validation image uses public catalogue photography and is explicitly not a live customer result.
 
 | Future self | Conditions rehearsal |
 |---|---|
@@ -22,17 +22,31 @@ Current Gear Lab captures use sample shopping inputs and a demo ownership log. O
 |---|---|
 | <img src="screenshots/lab-team-desktop.jpg" width="460" alt="Separate team budgets with shuttles shared once" /> | <img src="screenshots/lab-community-desktop.jpg" width="460" alt="Opt-in feedback and an honest empty aggregate state" /> |
 
-| Desktop outfit preview | Mobile Gear Lab | Mobile outfit preview |
-|---|---|---|
-| <img src="screenshots/tryon-desktop.jpg" width="460" alt="Camera-off clothing silhouette with alignment controls" /> | <img src="screenshots/lab-mobile.jpg" width="230" alt="Collapsed brief and scenario controls on mobile" /> | <img src="screenshots/tryon-mobile.jpg" width="230" alt="Mobile camera-off shirt preview" /> |
+### Desktop photographic fitting room
+
+<img src="screenshots/tryon-desktop.jpg" width="1000" alt="Camera-first fitting room with a real isolated shirt, body-aware mesh and local camera controls" />
+
+### Mobile features · full-proportion phone previews
+
+| Mobile Gear Lab | Mobile fitting room |
+|:---:|:---:|
+| <img src="screenshots/lab-mobile.jpg" width="320" alt="Gear Lab inside a full-height mobile device" /> | <img src="screenshots/tryon-mobile.jpg" width="320" alt="Photographic fitting room inside a full-height mobile device" /> |
+
+### Rendering validation · public catalogue fixture
+
+<img src="screenshots/fitting-catalogue-validation.jpg" width="1000" alt="Six real garment extraction checks and before/after rendering on a public catalogue model; not a customer camera capture" />
 
 ## Current application
 
 These storefront captures show the approved typography/card refinement. Older journey captures below illustrate the detailed shopping and advisor flows.
 
-| Desktop | Mobile |
-|---|---|
-| <img src="screenshots/desktop-current.jpg" width="640" alt="Current desktop storefront" /> | <img src="screenshots/mobile-current.jpg" width="380" alt="Current mobile storefront in a phone frame" /> |
+### Desktop storefront
+
+<img src="screenshots/desktop-current.jpg" width="1000" alt="Desktop storefront" />
+
+### Mobile storefront
+
+<img src="screenshots/mobile-current.jpg" width="340" alt="Full-proportion phone preview, framed vertically without a wide desktop background" />
 
 | Cited answer | Retrieval explanation |
 |---|---|

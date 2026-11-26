@@ -2,7 +2,7 @@
 
 [Back to the project](../README.md)
 
-The eight Gear Lab tools and approximate live outfit preview are now implemented; see [their practical scope](GEAR_LAB.md). The table below describes further improvements, not capabilities already delivered. The order prioritises trustworthy answers and useful shopping decisions before adding more automation.
+The eight Gear Lab tools and photographic live AR fitting room are now implemented; see [their practical scope](GEAR_LAB.md). The table below describes further improvements, not capabilities already delivered. The order prioritises trustworthy answers and useful shopping decisions before adding more automation.
 
 | Priority | Improvement | Shopper benefit | How to validate it |
 |---|---|---|---|
@@ -21,7 +21,7 @@ The eight Gear Lab tools and approximate live outfit preview are now implemented
 
 | Idea | Practicality | Next implementation step |
 |---|---|---|
-| Better live garment alignment | Feasible, with real-device testing. | Test framing, latency and tracking loss; consider a worker and garment-specific meshes. |
+| Better live garment alignment | Feasible, with real-device testing. | The worker, textured torso mesh and foreground mask are implemented. Next test live framing/latency across devices and add independently articulated sleeves and more reviewed assets. |
 | Photorealistic photo try-on | Feasible through a separate model service; needs cost, consent and retention design. | Evaluate a provider on licensed garment/person images before offering uploads. |
 | True 3D drape and physical sizing | Substantial research/data work. | Obtain garment meshes, material properties and calibrated measurements; never infer a fit guarantee from a webcam silhouette. |
 | Semantic reranking | Feasible experiment. | Compare embeddings/cross-encoders against the existing hybrid/RRF baseline on a larger held-out set. |

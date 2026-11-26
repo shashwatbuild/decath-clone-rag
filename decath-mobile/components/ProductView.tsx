@@ -10,7 +10,7 @@ import { defaultTarget, useWatches } from "@/lib/watch";
 import ProductCard, { Tag } from "./ProductCard";
 import Explain from "./Explain";
 import SizeFinder from "./SizeFinder";
-import { garmentKind } from "@/lib/tryon/geometry";
+import { supportsFitting } from "@/lib/tryon/assets";
 import { ChatFab, SectionTitle, Stars, TopBar } from "./ui";
 import { IconClose, IconExchange, IconHeart, IconPlus, IconReturn, IconShare, IconShield, IconStore, IconTag, IconTruck } from "./Icons";
 
@@ -143,7 +143,7 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
       </div>
       </div>
 
-      <div className="px-4 py-4 space-y-2">{garmentKind(p) && <Link href={`/try-on?product=${p.id}`} className="lab-button lab-button-primary w-full">Preview on camera · 2D outfit overlay</Link>}<Link href={`/lab?tab=gear&product=${p.id}`} className="lab-button w-full">I own this · add to my Gear Lab</Link></div>
+      <div className="px-4 py-4 space-y-2">{supportsFitting(p.id) && <Link href={`/try-on?product=${p.id}`} className="lab-button lab-button-primary w-full">Try on in the live fitting room</Link>}<Link href={`/lab?tab=gear&product=${p.id}`} className="lab-button w-full">I own this · add to my Gear Lab</Link></div>
 
       <section className="px-4 pt-6 pb-4">
         <div className="flex items-baseline">
