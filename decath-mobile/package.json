@@ -3,13 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dev:turbo": "next dev --turbopack",
+    "check:lab": "node scripts/lab-check.mjs && node scripts/lab-api-check.mjs",
+    "test": "node scripts/rag-eval.mjs && node scripts/advisor-check.mjs && npm run check:lab"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",
+    "@mediapipe/tasks-vision": "^1.2.3",
     "next": "15.5.29",
     "react": "19.1.0",
     "react-dom": "19.1.0"
@@ -22,6 +26,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.29",
+    "jiti": "^2.7.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

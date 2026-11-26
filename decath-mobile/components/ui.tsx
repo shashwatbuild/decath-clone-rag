@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { SHOP_LINKS } from "@/lib/products";
-import { IconBack, IconBell, IconCart, IconChevronDown, IconClose, IconHeart, IconPin, IconSearch, DecathlonMark } from "./Icons";
+import { IconBack, IconBell, IconCart, IconChevronDown, IconClose, IconHeart, IconPin, IconSearch, DecathlonMark, IconLab } from "./Icons";
 
 export function TopBar({ title, back = true, logo = false }: { title?: string; back?: boolean; logo?: boolean }) {
   const router = useRouter();
@@ -27,7 +27,8 @@ export function TopBar({ title, back = true, logo = false }: { title?: string; b
           </Link>
         )}
         {title && <h1 className="text-[19px] font-semibold truncate pl-1 lg:hidden">{title}</h1>}
-        <div className={`ml-auto flex items-center pr-1 ${logo ? "gap-5" : "gap-4"}`}>
+        <div className={`ml-auto flex items-center pr-1 ${logo ? "gap-3" : "gap-4"}`}>
+          <Link href="/lab" aria-label="Gear Lab"><IconLab className="w-6 h-6" /></Link>
           {logo ? (
             <Link href="/notifications" aria-label="Notifications"><IconBell className="w-[26px] h-[26px]" /></Link>
           ) : (
@@ -70,7 +71,8 @@ function DesktopNav() {
             aria-label="Search products" className="min-w-0 flex-1 bg-transparent outline-none text-[14px]" />
         </form>
         <nav className="ml-auto flex items-center gap-5" aria-label="Account and tools">
-          <Link href="/plan" className={icon}><span className="text-[15px] font-semibold">Training plan</span></Link>
+          <Link href="/lab" className={icon}><IconLab className="w-6 h-6" /><span>Gear Lab</span></Link>
+          <Link href="/plan" className={`hidden xl:flex ${icon}`}><span className="text-[15px] font-semibold">Training plan</span></Link>
           <Link href="/chat" className={icon}><DecathlonMark className="w-6 h-5" /><span>Assistant</span></Link>
           <Link href="/notifications" aria-label="Notifications" className={icon}><IconBell className="w-6 h-6" /><span>Alerts</span></Link>
           <Link href="/wishlist" aria-label="Wishlist" className={icon}>

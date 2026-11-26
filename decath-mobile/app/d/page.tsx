@@ -31,7 +31,7 @@ export default function DesktopVersion() {
   return (
     // overflow: clip (unlike hidden) can't be scrolled by code either, so nothing inside can shift the page
     <div className="full-bleed fixed inset-0 z-50 overflow-clip bg-white">
-      <iframe
+      <iframe allow="camera"
         src="/"
         title="Decathlon website, desktop version"
         className="absolute left-0 top-0 block border-0 bg-white origin-top-left"

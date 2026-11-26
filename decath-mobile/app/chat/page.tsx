@@ -222,6 +222,14 @@ function ChatInner() {
     const lastFocus = assistantMsgs.find((m) => m.products?.length === 1)?.products?.[0];
     setMessages((m) => [...m, { role: "user", text: msg, time: Date.now() }]);
 
+    if (/\b(try on|try-on|outfit preview|camera preview)\b/i.test(msg)) { router.push("/try-on"); return; }
+
+    if (/\b(gear lab|future self|virtual expedition|rehearsal|evidence contract|buy less|team kit|gear history|fit community)\b/i.test(msg)) {
+      const tab = /rehearsal|expedition/i.test(msg) ? "rehearsal" : /team/i.test(msg) ? "team" : /buy less/i.test(msg) ? "advocate" : /history/i.test(msg) ? "gear" : /community/i.test(msg) ? "community" : /evidence/i.test(msg) ? "evidence" : "future";
+      router.push(`/lab?tab=${tab}`);
+      return;
+    }
+
     // keep the brief and kit in step with what the shopper picks in chat
     const sizeTap = msg.match(/^add size (.+) to cart$/i);
     if (sizeTap && sessionRef.current?.ready) setSession((s) => (s ? { ...s, brief: { ...s.brief, size: sizeTap[1] } } : s));

@@ -2,9 +2,33 @@
 
 [Back to the project](../README.md) · [Feature matrix](FEATURES.md)
 
+## Gear Lab · desktop and mobile
+
+Current Gear Lab captures use sample shopping inputs and a demo ownership log. Outfit screenshots show the camera-off mannequin; no personal camera image is published.
+
+| Future self | Conditions rehearsal |
+|---|---|
+| <img src="screenshots/lab-future-desktop.jpg" width="460" alt="Starting and progression gear scenarios" /> | <img src="screenshots/lab-rehearsal-desktop.jpg" width="460" alt="Rain and longer-session evidence checklist" /> |
+
+| Next experiment | Evidence contracts |
+|---|---|
+| <img src="screenshots/lab-experiment-desktop.jpg" width="460" alt="Question separating eligible running shoes" /> | <img src="screenshots/lab-evidence-desktop.jpg" width="460" alt="Product eligibility with field-level evidence" /> |
+
+| Gear memory | Buy-less advocate |
+|---|---|
+| <img src="screenshots/lab-gear-desktop.jpg" width="460" alt="Owned socks with a sample use log and care guidance" /> | <img src="screenshots/lab-advocate-desktop.jpg" width="460" alt="Reuse, deferral and borrowing suggestions" /> |
+
+| Team kit | Community fit |
+|---|---|
+| <img src="screenshots/lab-team-desktop.jpg" width="460" alt="Separate team budgets with shuttles shared once" /> | <img src="screenshots/lab-community-desktop.jpg" width="460" alt="Opt-in feedback and an honest empty aggregate state" /> |
+
+| Desktop outfit preview | Mobile Gear Lab | Mobile outfit preview |
+|---|---|---|
+| <img src="screenshots/tryon-desktop.jpg" width="460" alt="Camera-off clothing silhouette with alignment controls" /> | <img src="screenshots/lab-mobile.jpg" width="230" alt="Collapsed brief and scenario controls on mobile" /> | <img src="screenshots/tryon-mobile.jpg" width="230" alt="Mobile camera-off shirt preview" /> |
+
 ## Current application
 
-These captures show the current local application. Older journey captures below illustrate the detailed shopping and advisor flows.
+These storefront captures show the approved typography/card refinement. Older journey captures below illustrate the detailed shopping and advisor flows.
 
 | Desktop | Mobile |
 |---|---|

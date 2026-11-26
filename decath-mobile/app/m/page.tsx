@@ -42,7 +42,7 @@ export default function MobileVersion() {
                 <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="currentColor" opacity="0.4" fill="none" /><rect x="2" y="2" width="17" height="9" rx="2" fill="currentColor" /></svg>
               </span>
             </div>
-            <iframe src="/" title="Decathlon app, mobile version" className="flex-1 w-full border-0 block bg-white" />
+            <iframe allow="camera" src="/" title="Decathlon app, mobile version" className="flex-1 w-full border-0 block bg-white" />
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[136px] h-[5px] rounded-[3px] bg-[#101010] pointer-events-none" />
           </div>
         </div>

@@ -70,6 +70,12 @@ export default function Home() {
         ))}
       </div>
 
+      <Link href="/lab" className="feature-card flex items-center justify-between mx-4 mt-4 rounded-2xl border border-line bg-white p-5">
+        <span><span className="lab-eyebrow">Personal Gear Lab</span><span className="block text-[19px] font-semibold mt-2 tracking-tight">Try tomorrow’s gear decisions today.</span><span className="block text-[13px] text-muted mt-1">Future scenarios, useful experiments, owned gear and evidence you can inspect.</span></span><span aria-hidden className="text-2xl text-brand ml-3">›</span>
+      </Link>
+
+      <div className="mx-4 mt-3"><Link href="/try-on" className="lab-button w-full bg-white">Live outfit preview · explore clothing on camera →</Link></div>
+
       <SectionTitle>Bestsellers</SectionTitle>
       <Rail items={top.map(toCard)} />
 

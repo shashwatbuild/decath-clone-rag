@@ -4,6 +4,25 @@
 
 This inventory describes implemented features. “Benefit” explains the intended shopper value, not a measured conversion or business outcome.
 
+## Gear Lab and camera preview
+
+| Capability | What it does | Shopper benefit |
+|---|---|---|
+| Future sporting self | Compares budget-aware starting and progression kits, with explicit assumptions. | Understand a possible gear path before buying. |
+| Conditions rehearsal | Checks selected conditions against catalogue fields and relevant guides. | Identify what needs checking before an activity. |
+| Discriminating experiments | Offers the next criterion that separates eligible products; updates hard requirements. | Narrow choices with a useful question. |
+| Ownership and lifecycle logs | Records gear condition, size, use minutes, comfort and repairs with catalogue care links. | Reuse equipment and keep a care history. |
+| Opt-in community fit | Stores pseudonymous size votes; displays groups of at least five device tokens; allows deletion. | Consult collective feedback without publishing individual reports. |
+| Evidence contracts | Shows field evidence, match/mismatch/unknown status and a revision fingerprint. | Check the reasons behind eligibility. |
+| Team kit planning | Allocates essentials within individual budgets for up to six people; shares badminton shuttles once. | Avoid duplicate purchases and personal budget overruns. |
+| Buy-less advocate | Suggests reuse, inspection, maintenance, deferral and checking borrowing. | Consider alternatives to new purchases. |
+| Multi-query RAG | Decomposes queries, filters sources by activity and fuses hybrid results with a visible trace. | Read focused evidence and inspect retrieval. |
+| Shared validated state | Common brief across tools; local persistence, import/export/reset and cross-tab updates. | Keep desktop/mobile interactions consistent. |
+| Live outfit preview | Browser camera, local pose tracking, smoothed 2D overlay, joint indicators and manual controls. | Explore supported clothing colours/silhouettes without uploading frames. |
+| Camera fallback | Demo mannequin, loading/error guidance, shoulder-based top estimate and manual positioning. | Keep the preview usable when full-body tracking is unavailable. |
+
+[Implementation, supported products, privacy and practical limits →](GEAR_LAB.md)
+
 ## RAG chatbot
 
 | Capability | What it does | Shopper benefit / example |

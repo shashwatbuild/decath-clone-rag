@@ -148,3 +148,15 @@ This runner is observational, not an assertion-based pass/fail suite, and may ca
 ## Operational limits
 
 Catalogue retrieval is local and does not need embeddings. This is a personal prototype without authentication, cross-device state, background jobs, live order management or real payments. Price watches compare the saved target to the bundled catalogue price when viewed; they do not poll a retailer. Shipping estimates and size suggestions are deterministic heuristics. The purchase planner can exceed the budget when even the cheapest selected products do not fit, and surfaces that explicitly.
+
+## Gear Lab and live camera
+
+`/lab` shares a browser-local provider across eight tools. `POST /api/lab` validates the complete brief before running deterministic scenarios, contracts, experiments, lifecycle summaries, team allocations and reuse advice. Four activity profiles use the existing advisor criteria; budget, stock and hard requirements remain explicit gates. Requests are debounced and cancelled on change, and stale-result cart actions are disabled.
+
+Retrieval decomposes the request into up to five focused searches, runs the existing hybrid retriever, restricts sources to the activity (plus explicitly requested store policies), and fuses ranks with reciprocal-rank fusion. Product evidence breaks ranking ties among equal-preference candidates; full passages and a trace remain visible. This extension requires neither embeddings nor an external LLM. User notes are not promoted to catalogue facts.
+
+`/api/lab/community` supports aggregate reads, consented writes and device-token deletion. The server hashes tokens, deduplicates votes, suppresses cohorts below five and expires old reports. File locking and atomic rename protect single-host writes. Set `LAB_DATA_DIR` to private persistent storage; use a transactional database before multi-instance deployment. This is pseudonymous feedback, not verified purchases or federated learning.
+
+`/try-on` uses client-only MediaPipe inference on explicitly enabled camera frames. Normalised shoulder/hip/knee/ankle landmarks drive smoothed pixel-space 2D overlays. Tops have a labelled shoulder-only estimate when hips are unavailable. Missing landmarks trigger manual alignment, with visible joint indicators and loading/error guidance. Tracks, animation frames and detector resources are released on stop/unmount/hidden page. No camera frames are uploaded or saved. The model and WASM are downloaded from external CDNs.
+
+See [Gear Lab deployment, privacy and boundaries](GEAR_LAB.md). `npm test` runs the original suites and 42 new Lab/API checks; `npm run lint` and `npm run build` provide whole-app validation.
