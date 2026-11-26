@@ -19,7 +19,7 @@ export default function LabProduct({ product: p, disabled, owned = false, addFor
       <Link href={`/p/${p.id}`} className="shrink-0 rounded-lg bg-[#f7f8fa] p-1">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={img(p.image, 160)} alt="" className="h-14 w-14 object-contain mix-blend-multiply" /></Link>
-      <div className="min-w-0 flex-1"><Link href={`/p/${p.id}`} className="text-[14px] font-semibold leading-snug hover:text-brand">{p.shortName}</Link><p className="mt-1 text-[13px] text-muted">{owned ? "Already owned" : inr(p.price)}{p.weightKg != null ? ` · ${p.weightKg} kg` : ""}</p></div>
+      <div className="min-w-0 flex-1"><Link href={`/p/${p.id}`} className="text-[14px] font-semibold leading-snug hover:text-brand">{p.shortName}</Link><p className="mt-1 text-[13px] text-muted">{owned ? "Already owned" : inr(p.price)}</p></div>
     </div>
     {!owned && <div className="mt-3 flex flex-wrap gap-2">
       {needsSize && <select aria-label={`Size for ${p.shortName}`} className="lab-input min-w-0 flex-1" value={size} onChange={e => setSize(e.target.value)}><option value="">Choose size</option>{p.sizes.map(s => <option key={s}>{s}</option>)}</select>}

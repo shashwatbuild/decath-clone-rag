@@ -20,7 +20,7 @@ export default function CartPage() {
   if (!lines.length)
     return (
       <main>
-        <TopBar title="My Cart" />
+        <TopBar title="My cart" />
         <div className="px-8 py-24 text-center">
           <p className="text-xl font-semibold">Your cart is empty</p>
           <p className="text-muted mt-2">Find something you like and add it here.</p>
@@ -31,7 +31,7 @@ export default function CartPage() {
 
   return (
     <main className="pb-32 lg:pb-12 bg-[#F5F4F5] min-h-[var(--app-h)]">
-      <TopBar title={`My Cart (${lines.reduce((n, l) => n + l.qty, 0)})`} />
+      <TopBar title={`My cart (${lines.reduce((n, l) => n + l.qty, 0)})`} />
       <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 lg:px-4 lg:items-start lg:pt-2">
       <div className="space-y-3 px-4 pt-4 lg:px-0 lg:pt-0">
         {lines.map((l) => (
@@ -41,7 +41,7 @@ export default function CartPage() {
               <img src={img(l.p.images[0], 200)} alt="" className="w-full h-full object-contain mix-blend-multiply" />
             </Link>
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] line-clamp-2"><b>{l.p.brand}</b> {l.p.name}</p>
+              <p className="text-[14px] line-clamp-2"><b>{l.p.brand.charAt(0).toUpperCase() + l.p.brand.slice(1).toLowerCase()}</b> {l.p.shortName}</p>
               {l.size && <p className="text-[13px] text-muted mt-1">Size: {l.size}</p>}
               <div className="flex items-center gap-2 mt-1.5">
                 <span className="font-bold">{inr(l.p.price * l.qty)}</span>

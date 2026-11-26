@@ -29,7 +29,7 @@ export default function ProductCard({ p, compact = false }: { p: CardProduct; co
         <Tag tag={p.tag} className="absolute top-2.5 left-2.5 max-w-[calc(100%-20px)]" />
       </Link>
       <div className={`flex flex-col flex-1 p-3 ${compact ? "lg:p-3.5" : "lg:p-4"}`}>
-        <p className="text-[11px] font-semibold tracking-[0.06em] uppercase text-muted mb-1">{p.brand}</p>
+        <p className="text-[11px] font-semibold tracking-normal text-muted mb-1">{p.brand.charAt(0).toUpperCase() + p.brand.slice(1).toLowerCase()}</p>
         <Link href={`/p/${p.id}`} title={p.name} className="text-[14px] leading-[1.5] font-medium text-ink line-clamp-2 min-h-[42px] hover:text-brand">
           {p.shortName}
         </Link>

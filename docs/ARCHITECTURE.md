@@ -164,3 +164,7 @@ Each worker processes one transferred camera bitmap at a time; frames are not qu
 `/try-on/validation` is development-only. It tests six real asset extractions and the full pose/foreground/rendering pipeline against a public catalogue photograph, without camera access; production returns 404. Mesh unit checks cover identity/translation, invalid poses, smoothing and asset allowlisting. This is photographic AR with front-view limits, not a physical-fit or generative-clothing model.
 
 See [Gear Lab deployment, privacy and boundaries](GEAR_LAB.md). `npm test` runs the original suites and 50 new Lab/API/fitting checks; `npm run lint` and `npm run build` provide whole-app validation.
+
+## UI and diagnostics
+
+Shopper screens show source links and plain-language match checks. Retrieval traces, passage scores and contract fingerprints remain in API results for engineering use, but are not rendered in the shopping UI. Mobile uses sentence-case labels, a compact header, a Gear Lab section selector and stacked evidence rows. Fitting controls are progressively disclosed; camera/rendering behaviour is unchanged by this presentation cleanup.

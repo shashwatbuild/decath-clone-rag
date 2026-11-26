@@ -23,7 +23,7 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
     <main className="pb-12">
       <TopBar title={doc.title} />
       <article className="px-4 pt-4 lg:max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted">{doc.kind === "guide" ? "Buying guide" : "Store policy"}</p>
+        <p className="text-xs font-semibold text-muted">{doc.kind === "guide" ? "Buying guide" : "Store policy"}</p>
         <div className="mt-3 space-y-4 text-[16px] leading-relaxed">
           {doc.text.split(/\n\s*\n/).map((para, i) => <p key={i}>{para}</p>)}
         </div>

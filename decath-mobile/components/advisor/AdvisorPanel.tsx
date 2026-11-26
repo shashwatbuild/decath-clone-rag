@@ -162,7 +162,7 @@ function RecommendationCard({ result, brief, onAsk, onCommit, onEdit, onView }: 
   const label = v.kind === "none" ? "No match yet" : v.kind === "tie" ? rec.title : "Our pick for you";
   return (
     <div key={verdictKey(result)} className="adv-flash rounded-xl -m-1 p-1">
-      <p className="text-[12px] font-bold uppercase tracking-wide text-brand">{label}</p>
+      <p className="text-[12px] font-bold tracking-wide text-brand">{label}</p>
 
       {v.kind === "none" && (
         <>

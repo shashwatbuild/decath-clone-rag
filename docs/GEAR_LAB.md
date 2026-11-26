@@ -13,7 +13,7 @@ Gear Lab turns futuristic ideas into practical, inspectable shopping tools. It u
 | Next best experiment | Chooses a catalogue criterion that separates current eligible candidates. An answer becomes an explicit hard filter. | Counts products rather than claiming personal confidence or measured information gain. No laboratory trial is performed. |
 | Gear memory | Saves condition, size and dated use/comfort/repair notes; totals recorded use and minutes. | User reports and catalogue care facts; no sensors or remaining-life prediction. |
 | Community fit | Accepts consented size feedback, deduplicates by device/product/size, publishes thresholded aggregates, supports deleting this device's reports. | At least five distinct device tokens per product/size; tokens are not verified people. No reports are pre-seeded. |
-| Evidence contracts | Shows hard checks, preferences, unknowns, source fields and a fingerprint of the brief/product evidence. | A reproducible application decision record, not a legal guarantee or cryptographic attestation. |
+| Evidence contracts | Shows hard checks, preferences, unknowns and source fields. A fingerprint remains available in the API for debugging. | A reproducible application decision record, not a legal guarantee or cryptographic attestation. |
 | Team kit | Plans essentials for one to six people within individual budgets; buys badminton shuttles once for the group. | Greedy cheapest-eligible allocation, not a globally optimal solver. Shoes, clothing and rackets remain personal. Sizes must be chosen before cart actions. Per-person add controls permit two teammates to buy the same model/size as separate quantities. |
 | Buy-less advocate | Recommends reuse, inspection, maintenance, deferral or checking borrowing before purchase. | No verified rental inventory, repair quotes or environmental savings estimate. |
 | Live outfit preview | Isolates real catalogue garments, warps their photographic texture through a torso mesh and restores foreground skin/hair. Pose tracking and foreground segmentation run independently in separate workers. | Front-view photographic AR for six curated tops. No generative fabric rendering, true 3D drape, size measurement or fit guarantee. |
@@ -26,7 +26,7 @@ Gear Lab turns futuristic ideas into practical, inspectable shopping tools. It u
 4. Open the evidence behind a candidate, select an available size and add it to the same store cart.
 5. Open `/try-on`, choose a supported top, wait for its real garment layer to be ready and press **Open live camera**. Press **Stop camera** to release it.
 
-The mobile brief collapses so results stay easy to scan. Export/import moves a validated brief between browsers; it is not automatic account synchronisation. Changing activity clears activity-specific answers.
+Mobile uses an expandable plan, a section selector and stacked product checks. Export/import/reset sit under “Saved plan”. Export/import moves a validated brief between browsers; it is not automatic account synchronisation. Changing activity clears activity-specific answers.
 
 ### Camera guidance
 
@@ -57,7 +57,7 @@ The `/m` device preview now keeps a fixed 414 × 868 device rather than compress
 |---|---|
 | Retrieval | Up to five targeted queries, existing hybrid BM25/character-gram retrieval, activity-scoped source filtering and reciprocal-rank fusion. |
 | Evidence use | Product-scoped evidence can break equal-preference ranking ties. Explicit budget, stock and hard requirements control eligibility. |
-| Transparency | Full source passages, query trace, field-level contracts and clearly stated missing facts. No silent constraint relaxation. |
+| Transparency | Source links, optional full passages, product checks and clearly stated missing facts. Query traces and fingerprints remain in the API. No silent constraint relaxation. |
 | Personal data | Browser-local brief and ownership logs, temporarily sent to the app's analysis endpoint. The Lab does not call an external LLM. |
 | UI consistency | One provider, schema, analysis endpoint and reusable components across desktop/mobile; stale requests are cancelled and stale-result cart buttons disabled. |
 | Cart | Shared store cart with size validation and duplicate prevention. |
@@ -73,3 +73,7 @@ By default records live in `decath-mobile/.local/gear-lab/` and are ignored by G
 ## Validation
 
 `npm test` runs existing retrieval/advisor regressions and 50 Gear Lab/API and fitting checks. These cover all four activities, budgets and requirements, off-topic source filtering, owned/repair handling, experiments, shared equipment, input validation, pose placement and shoulder fallback, consent, aggregation thresholds, concurrent writes, deletion and API errors. Browser checks cover desktop and mobile views and the camera-free photographic fitting pipeline.
+
+## Shopper-facing UI
+
+Labels use sentence case. Mobile headers prioritise the page title, search and cart. In the fitting room, garment selection comes before the mirror on mobile, with size/cart controls available on demand. Desktop retains its two-column layout. Timings, numbered workflow labels, model-loading diagnostics, revision codes and retrieval scores are removed from shopper screens; useful source links and camera/privacy guidance remain.

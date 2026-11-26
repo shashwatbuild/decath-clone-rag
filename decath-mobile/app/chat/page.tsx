@@ -457,7 +457,7 @@ function ProductStrip({ ps, onAsk }: { ps: ProductLite[]; onAsk?: (s: string) =>
             )}
           </Link>
           <Link href={`/p/${p.id}`} className="px-3 pt-3 flex-1">
-            <p className="text-[13px] line-clamp-2 leading-relaxed"><b>{p.brand}</b> {p.shortName}</p>
+            <p className="text-[13px] line-clamp-2 leading-relaxed"><b>{p.brand.charAt(0).toUpperCase() + p.brand.slice(1).toLowerCase()}</b> {p.shortName}</p>
             <p className="font-bold mt-1">{inr(p.price)} {p.mrp > p.price && <s className="text-[12px] font-normal text-muted">{inr(p.mrp)}</s>}</p>
             {p.reviewCount > 0 && <p className="text-[12px] text-muted">★ {p.rating} · {p.reviewCount.toLocaleString("en-IN")}</p>}
           </Link>

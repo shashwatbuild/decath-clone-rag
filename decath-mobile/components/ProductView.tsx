@@ -57,7 +57,7 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
       <div className="lg:sticky lg:top-44"><Gallery p={p} /></div>
       <div>
       <section className="px-4 pt-4">
-        <h1 className="text-[20px] leading-snug"><b className="font-bold">{p.brand}</b> {p.name}</h1>
+        <h1 className="text-[20px] leading-snug"><b className="font-bold">{p.brand.charAt(0).toUpperCase() + p.brand.slice(1).toLowerCase()}</b> {p.shortName}</h1>
         <div className="flex items-center gap-2 mt-2">
           {p.reviewCount > 0 ? (
             <a href="#reviews" className="flex items-center gap-2">

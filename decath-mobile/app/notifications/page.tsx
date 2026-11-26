@@ -22,7 +22,7 @@ export default function NotificationsPage() {
 
       {watched.length > 0 && (
         <section className="border-b-8 border-[#F5F4F5] lg:max-w-3xl">
-          <h2 className="px-4 pt-4 pb-1 text-[13px] uppercase tracking-widest text-muted">Price watch</h2>
+          <h2 className="px-4 pt-4 pb-1 text-[13px] text-muted">Price watch</h2>
           <ul className="divide-y divide-line">
             {watched.map(({ w, p }) => {
               const hit = p!.price <= w.target;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
+import { sentenceCase } from "@/lib/presentation";
 import { SHOP_LINKS } from "@/lib/products";
 import { IconBack, IconBell, IconCart, IconChevronDown, IconClose, IconHeart, IconPin, IconSearch, DecathlonMark, IconLab } from "./Icons";
 
@@ -23,18 +24,18 @@ export function TopBar({ title, back = true, logo = false }: { title?: string; b
         {logo && (
           <Link href="/" aria-label="Decathlon home" className="flex items-center pl-1.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/decathlon-logo.svg" alt="DECATHLON" width={188} height={28} className="h-[27px] w-auto" />
+            <img src="/decathlon-logo.svg" alt="DECATHLON" width={188} height={28} className="h-6 w-auto sm:h-[27px]" />
           </Link>
         )}
-        {title && <h1 className="text-[19px] font-semibold truncate pl-1 lg:hidden">{title}</h1>}
+        {title && <h1 className="text-[18px] leading-tight font-semibold min-w-0 flex-1 truncate pl-1 lg:hidden">{sentenceCase(title)}</h1>}
         <div className={`ml-auto flex items-center pr-1 ${logo ? "gap-3" : "gap-4"}`}>
-          <Link href="/lab" aria-label="Gear Lab"><IconLab className="w-6 h-6" /></Link>
+          <Link href="/lab" aria-label="Gear lab" className="hidden sm:inline-flex"><IconLab className="w-6 h-6" /></Link>
           {logo ? (
             <Link href="/notifications" aria-label="Notifications"><IconBell className="w-[26px] h-[26px]" /></Link>
           ) : (
             <Link href="/search" aria-label="Search"><IconSearch className="w-[26px] h-[26px]" /></Link>
           )}
-          <Link href="/wishlist" aria-label="Wishlist" className="relative">
+          <Link href="/wishlist" aria-label="Wishlist" className="relative hidden sm:inline-flex">
             <IconHeart className="w-[26px] h-[26px]" />
             {wishlist.length > 0 && <Badge n={wishlist.length} outline={logo} />}
           </Link>
@@ -46,7 +47,7 @@ export function TopBar({ title, back = true, logo = false }: { title?: string; b
       </div>
       <DeliveryBar />
     </header>
-    {title && <h1 className="hidden lg:block max-w-[1280px] mx-auto w-full px-4 pt-6 pb-2 text-[30px] font-bold tracking-tight">{title}</h1>}
+    {title && <h1 className="hidden lg:block max-w-[1280px] mx-auto w-full px-4 pt-6 pb-2 text-[30px] font-bold tracking-tight">{sentenceCase(title)}</h1>}
     </>
   );
 }
@@ -71,7 +72,7 @@ function DesktopNav() {
             aria-label="Search products" className="min-w-0 flex-1 bg-transparent outline-none text-[14px]" />
         </form>
         <nav className="ml-auto flex items-center gap-5" aria-label="Account and tools">
-          <Link href="/lab" className={icon}><IconLab className="w-6 h-6" /><span>Gear Lab</span></Link>
+          <Link href="/lab" className={icon}><IconLab className="w-6 h-6" /><span>Gear lab</span></Link>
           <Link href="/plan" className={`hidden xl:flex ${icon}`}><span className="text-[15px] font-semibold">Training plan</span></Link>
           <Link href="/chat" className={icon}><DecathlonMark className="w-6 h-5" /><span>Assistant</span></Link>
           <Link href="/notifications" aria-label="Notifications" className={icon}><IconBell className="w-6 h-6" /><span>Alerts</span></Link>
@@ -88,7 +89,7 @@ function DesktopNav() {
       <nav aria-label="Categories" className="border-t border-line">
         <div className="max-w-[1280px] mx-auto px-4 h-12 flex items-center gap-6 text-[13px]">
           {SHOP_LINKS.map((c) => (
-            <Link key={c.slug} href={`/c/${c.slug}`} className="hover:text-brand whitespace-nowrap">{c.name}</Link>
+            <Link key={c.slug} href={`/c/${c.slug}`} className="hover:text-brand whitespace-nowrap">{sentenceCase(c.name)}</Link>
           ))}
           <Link href="/m" target="_top" className="ml-auto text-[12px] text-muted hover:text-brand whitespace-nowrap">Mobile version ›</Link>
         </div>
@@ -199,7 +200,7 @@ export function ChatFab({ bottom = "bottom-28", context }: { bottom?: string; co
 export function SectionTitle({ children, href }: { children: React.ReactNode; href?: string }) {
   return (
     <div className="flex items-center gap-4 px-4 pt-8 pb-4">
-      <h2 className="text-[20px] lg:text-[22px] font-semibold tracking-tight">{children}</h2>
+      <h2 className="text-[20px] lg:text-[22px] font-semibold tracking-tight">{typeof children === "string" ? sentenceCase(children) : children}</h2>
       {href && <Link href={href} className="ml-auto text-brand text-[13px] font-semibold py-2">View all</Link>}
     </div>
   );

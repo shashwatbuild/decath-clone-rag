@@ -25,7 +25,7 @@
 | **Next best experiment** | Answer a question that separates the current candidates. | Reduce uncertainty with fewer questions. |
 | **Gear memory** | Record owned products, condition, use, comfort and repairs. | Reuse equipment and keep a practical care record. |
 | **Community fit** | Opt in to product/size feedback and delete your device's contributions. | Learn from aggregate reports once at least five distinct device tokens contribute. |
-| **Evidence contracts** | Inspect match, mismatch and unknown checks with a revision fingerprint. | Understand why an item qualifies before adding it. |
+| **Evidence contracts** | Inspect match, mismatch and unknown checks with clear product evidence. | Understand why an item qualifies before adding it. |
 | **Team kit** | Plan for up to six people with individual budgets and shared shuttles. | Avoid duplicate shared equipment and budget overruns. |
 | **Buy-less advocate** | Review reuse, maintenance, borrowing and deferred purchases. | Make a useful kit with fewer new purchases. |
 | **Live outfit preview** | Try six supported tops using real photographic textures, a body-following mesh and skin/hair foreground masking. | See the actual garment texture on a live camera, without uploading frames. |
@@ -71,7 +71,7 @@ Decathlon India’s [official support page](https://www.decathlon.in/support/695
 |---|---|---|
 | Purpose | A demonstrable shopping-decision assistant plus a store prototype. | Official customer-support chat is publicly documented. |
 | Choosing gear | Editable brief, must-haves, trade-offs, comparison and “What changes if…?” with Undo. | Equivalent chatbot workflows were not established by the reviewed official source. |
-| Explaining answers | Source citations, catalogue evidence and a visible retrieval trace. | Equivalent source/trace controls were not established by the reviewed official source. |
+| Explaining answers | Source citations and catalogue evidence; technical retrieval diagnostics remain in the API. | Equivalent source/trace controls were not established by the reviewed official source. |
 | Building a kit | Owned-item logs, scenario/conditions checks, buy-less advice, individual team budgets and shared-item allocation. | Equivalent chatbot kit controls were not established by the reviewed official source. |
 | Real operations | Bundled catalogue and simulated checkout; no fulfilment or live order management. | A live retailer with official support channels. This prototype does not replace them. |
 

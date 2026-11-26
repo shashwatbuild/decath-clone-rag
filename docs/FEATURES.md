@@ -13,10 +13,10 @@ This inventory describes implemented features. “Benefit” explains the intend
 | Discriminating experiments | Offers the next criterion that separates eligible products; updates hard requirements. | Narrow choices with a useful question. |
 | Ownership and lifecycle logs | Records gear condition, size, use minutes, comfort and repairs with catalogue care links. | Reuse equipment and keep a care history. |
 | Opt-in community fit | Stores pseudonymous size votes; displays groups of at least five device tokens; allows deletion. | Consult collective feedback without publishing individual reports. |
-| Evidence contracts | Shows field evidence, match/mismatch/unknown status and a revision fingerprint. | Check the reasons behind eligibility. |
+| Evidence contracts | Shows field evidence and match/mismatch/unknown status; fingerprints remain in the analysis API. | Check the reasons behind eligibility. |
 | Team kit planning | Allocates essentials within individual budgets for up to six people; shares badminton shuttles once. | Avoid duplicate purchases and personal budget overruns. |
 | Buy-less advocate | Suggests reuse, inspection, maintenance, deferral and checking borrowing. | Consider alternatives to new purchases. |
-| Multi-query RAG | Decomposes queries, filters sources by activity and fuses hybrid results with a visible trace. | Read focused evidence and inspect retrieval. |
+| Multi-query RAG | Decomposes queries, filters sources by activity and fuses hybrid results. Technical traces remain in the API. | Read focused source evidence without technical clutter. |
 | Shared validated state | Common brief across tools; local persistence, import/export/reset and cross-tab updates. | Keep desktop/mobile interactions consistent. |
 | Live outfit preview | Six curated photographic tops, pose-driven textured torso mesh, skin/hair foreground occlusion, a worker and original-camera comparison. | See the real product texture over your tracked body without uploading camera frames. |
 | Camera fallback | Camera-off welcome, explicit asset errors, shoulder-based length estimate and tracking-loss suppression. | Avoid a fake floating shirt when no body is tracked; understand estimated alignment. |
@@ -42,7 +42,7 @@ This inventory describes implemented features. “Benefit” explains the intend
 | Buying guides | Answers supported selection questions about rackets, shuttles, shoes, mats, backpacks and sizing. | Learn what matters before buying. |
 | Policy Q&A | Retrieves demo returns, delivery, coupons, payment and other store guidance. | Resolve common shopping questions. |
 | Numbered sources | Links knowledge answers to guide, policy or product sources. | Check where an answer came from. |
-| Retrieval trace | Shows the rewritten query, retrieval stages and passage scores. | Inspect how evidence was found. |
+| Developer retrieval trace | The API includes rewritten queries, retrieval stages and passage scores; shopper screens show source links. | Debug retrieval while keeping shopping screens concise. |
 | Cart actions | Adds the selected product and asks for a size when required. | Move from advice to a cart item. |
 | Navigation actions | Opens cart, checkout or a prefilled gear planner. | Continue the shopping flow from chat. |
 | Suggestion chips | Provides clickable follow-up questions and kit offers. | Less typing and a clearer next step. |

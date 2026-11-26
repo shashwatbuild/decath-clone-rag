@@ -64,7 +64,7 @@ export default function KitBoard({ brief, kit, cart, onKit, onAddToCart }: Props
 
       {groups.filter((g) => g.lines.length).map((g) => (
         <div key={g.title} className="border-t border-line">
-          <p className="px-4 pt-3 text-[12px] font-bold uppercase tracking-wide text-[#6b6b70]">{g.title}</p>
+          <p className="px-4 pt-3 text-[12px] font-bold tracking-wide text-[#6b6b70]">{g.title}</p>
           <ul>{g.lines.map((l) => <KitRow key={l.def.id} line={l} brief={brief} onKit={onKit} />)}</ul>
         </div>
       ))}

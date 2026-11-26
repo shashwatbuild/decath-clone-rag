@@ -362,7 +362,7 @@ body {
 
 /* Gear Lab reuses the approved storefront surface and type system. */
 .lab-panel { border: 1px solid var(--color-line); border-radius: 16px; background: white; padding: 20px; min-width: 0; box-shadow: 0 2px 4px rgba(16,16,16,.025); }
-.lab-eyebrow { color: var(--color-brand); font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; }
+.lab-eyebrow { color: var(--color-brand); font-size: 11px; font-weight: 600; letter-spacing: normal; text-transform: none; }
 .lab-label { display: flex; flex-direction: column; gap: 7px; color: var(--color-muted); font-size: 12px; font-weight: 500; }
 .lab-input { display: block; width: 100%; min-height: 44px; border: 1px solid var(--color-line); border-radius: 10px; padding: 10px 12px; background: white; color: var(--color-ink); font-size: 14px; font-weight: 400; }
 .lab-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; border: 1px solid var(--color-line); border-radius: 10px; background: white; padding: 9px 14px; color: var(--color-brand); font-size: 13px; font-weight: 600; text-align: center; }
@@ -395,7 +395,7 @@ body {
 .fitting-heading p:last-child { font-size:14px; line-height:1.6; color:#626775; max-width:620px; margin-top:8px; }
 .fitting-layout { display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:24px; align-items:start; padding:0 16px; }
 .fitting-mirror { overflow:hidden; border:1px solid #dfe2e8; border-radius:20px; background:#fff; position:sticky; top:180px; }
-.fitting-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:18px 20px; font-size:10px; font-weight:600; letter-spacing:1.4px; color:#626775; }
+.fitting-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:18px 20px; font-size:10px; font-weight:600; letter-spacing:normal; color:#626775; }
 .fitting-toolbar>span { font-size:11px; letter-spacing:0; font-weight:400; }
 .fitting-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#adb3c1; }
 .fitting-dot-live { background:#29af80; box-shadow:0 0 0 4px #29af8017; }
@@ -408,7 +408,7 @@ body {
 .fitting-start { display:flex; align-items:center; gap:28px; margin-top:28px; border-radius:10px; background:#fff; color:#20293b; font-size:13px; font-weight:600; padding:14px 20px; min-height:48px; cursor:pointer; }
 .fitting-start:disabled { opacity:.5; cursor:wait; }
 .fitting-private { font-size:11px; color:#8f9bb0; margin-top:16px; }
-.fitting-live-badge { position:absolute; top:16px; left:16px; background:#121722b8; color:#fff; border:1px solid #ffffff33; padding:8px 12px; border-radius:8px; font-size:10px; letter-spacing:1.2px; backdrop-filter:blur(8px); }
+.fitting-live-badge { position:absolute; top:16px; left:16px; background:#121722b8; color:#fff; border:1px solid #ffffff33; padding:8px 12px; border-radius:8px; font-size:10px; letter-spacing:normal; backdrop-filter:blur(8px); }
 .fitting-guidance { position:absolute; bottom:20px; left:20px; right:20px; width:fit-content; max-width:calc(100% - 40px); margin:auto; padding:10px 16px; background:#121722bb; color:white; border:1px solid #ffffff22; border-radius:30px; font-size:12px; text-align:center; backdrop-filter:blur(8px); }
 .fitting-controls { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:16px 20px 0; }
 .fitting-footnote { padding:12px 20px 18px; font-size:11px; color:#717786; line-height:1.6; }
@@ -428,7 +428,7 @@ body {
 @media(max-width:639px) {
  .fitting-heading h2 { font-size:27px; }
  .fitting-heading p:last-child { font-size:13px; }
- .fitting-toolbar { padding:15px; letter-spacing:.8px; }
+ .fitting-toolbar { padding:15px; letter-spacing:normal; }
  .fitting-toolbar>span { font-size:10px; }
  .fitting-stage { aspect-ratio:3/4; }
  .fitting-welcome { padding:24px; }
@@ -439,4 +439,45 @@ body {
  .fitting-controls .lab-check { font-size:12px; gap:5px; }
  .fitting-footnote { padding:12px 14px 16px; }
  .fitting-guidance { left:12px;right:12px;max-width:calc(100% - 24px); font-size:11px; }
+}
+
+/* Concise shopper screens, with a dedicated mobile layout. */
+.lab-tab-select { display:none; }
+.lab-settings { font-size:13px; color:var(--color-brand); }
+.lab-settings summary { cursor:pointer; min-height:40px; padding:10px 0; font-weight:500; }
+.fitting-size-options { font-size:13px; color:var(--color-brand); margin-top:12px; }
+.fitting-size-options summary { cursor:pointer; padding:8px 0; min-height:40px; }
+.fitting-toolbar { font-size:12px; font-weight:500; }
+@media(max-width:1023px) {
+ .lab-tabs { display:none; }
+ .lab-tab-select { display:flex; margin-bottom:4px; }
+ .fitting-heading { padding:16px 16px 18px; }
+ .fitting-heading h2 { font-size:24px; margin:0; }
+ .fitting-heading p:last-child { margin-top:5px; }
+ .fitting-layout { gap:14px; }
+ .fitting-sidebar { display:contents; }
+ .fitting-product { grid-row:1; }
+ .fitting-mirror { grid-row:2; border-radius:16px; }
+ .fitting-garment-panel { display:none; }
+ .fitting-product .lab-label { font-size:13px; }
+ .fitting-toolbar { padding:12px 14px; }
+ .fitting-welcome h3 { font-size:22px; }
+ .fitting-welcome>svg { width:36px; height:36px; margin-bottom:18px; }
+ .fitting-start { margin-top:20px; }
+ .fitting-footnote { font-size:12px; }
+ .fitting-controls { min-height:54px; }
+ .fitting-controls:has(button[aria-pressed][hidden]) { padding-top:6px; }
+}
+@media(max-width:639px) {
+ .fitting-stage { aspect-ratio:4/5; max-height:56dvh; min-height:290px; }
+ .fitting-toolbar>span { font-size:11px; }
+ .fitting-welcome { padding:20px; }
+ .lab-settings[open] { flex-basis:100%; }
+ .lab-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .lab-stats>div:last-child { grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; padding:10px 14px; }
+ .lab-stats>div:last-child p { margin:0; }
+ .evidence-table thead { display:none; }
+ .evidence-table tr { display:block; padding:10px 0; border-bottom:1px solid var(--color-line); }
+ .evidence-table td { display:block; min-width:0; padding:6px 0; border:0; overflow-wrap:anywhere; }
+ .evidence-table td::before { content:attr(data-label); display:block; color:var(--color-muted); font-size:11px; margin-bottom:2px; }
 }

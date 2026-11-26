@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { sentenceCase } from "@/lib/presentation";
 import { SHOP_LINKS, img, itemsForLink, products, toCard } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 import { ChatFab, SectionTitle, TopBar } from "@/components/ui";
@@ -28,7 +29,7 @@ export default function Home() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img(p.images[0], 160)} alt="" className="w-full h-full object-cover mix-blend-multiply" />
               </span>
-              <span className="text-[12px] lg:text-[13px] font-medium text-center leading-snug">{c.name}</span>
+              <span className="text-[12px] lg:text-[13px] font-medium text-center leading-snug">{sentenceCase(c.name)}</span>
             </Link>
           );
         })}
@@ -38,7 +39,7 @@ export default function Home() {
 
       <div className="lg:grid lg:grid-cols-[2fr_1fr] lg:gap-4 lg:px-4 lg:items-stretch">
       <div className="mx-4 mt-5 lg:mx-0 rounded-2xl bg-brand text-white p-6 lg:p-8 relative overflow-hidden">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] opacity-80">Ask our assistant</p>
+        <p className="text-[11px] font-semibold tracking-normal opacity-80">Ask our assistant</p>
         <p className="text-[22px] font-semibold tracking-tight mt-2 leading-snug">Not sure what to buy?<br />Chat with our sports expert.</p>
         <Link href="/chat" className="inline-block mt-4 bg-white text-brand font-semibold rounded-full px-5 py-2 text-sm">Start chatting</Link>
         <div className="absolute -right-8 -bottom-10 w-40 h-40 rounded-full bg-white/10" />
@@ -46,7 +47,7 @@ export default function Home() {
 
       <Link href="/plan" className="mx-4 mt-3 lg:mx-0 lg:mt-5 flex items-center justify-between feature-card rounded-2xl border border-line bg-white p-5 lg:p-6">
         <span>
-          <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">New</span>
+          <span className="block text-[11px] font-semibold tracking-normal text-muted">New</span>
           <span className="block text-[17px] font-semibold tracking-tight mt-1">Plan your training gear</span>
           <span className="block text-[13px] leading-relaxed text-muted mt-1">A week-by-week timeline within your budget</span>
         </span>
@@ -61,7 +62,7 @@ export default function Home() {
         ].map((k) => (
           <Link key={k.name} href={`/chat?q=${encodeURIComponent(k.q)}`} className="flex items-center justify-between feature-card rounded-2xl border border-line bg-white p-5">
             <span>
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-[#0b7a4f]">Guided kit</span>
+              <span className="block text-[11px] font-semibold tracking-normal text-[#0b7a4f]">Guided kit</span>
               <span className="block text-[17px] font-semibold tracking-tight mt-1">{k.name}</span>
               <span className="block text-[13px] leading-relaxed text-muted mt-1">{k.body}</span>
             </span>
@@ -71,10 +72,10 @@ export default function Home() {
       </div>
 
       <Link href="/lab" className="feature-card flex items-center justify-between mx-4 mt-4 rounded-2xl border border-line bg-white p-5">
-        <span><span className="lab-eyebrow">Personal Gear Lab</span><span className="block text-[19px] font-semibold mt-2 tracking-tight">Try tomorrow’s gear decisions today.</span><span className="block text-[13px] text-muted mt-1">Future scenarios, useful experiments, owned gear and evidence you can inspect.</span></span><span aria-hidden className="text-2xl text-brand ml-3">›</span>
+        <span><span className="lab-eyebrow">Personal gear lab</span><span className="block text-[19px] font-semibold mt-2 tracking-tight">Make more of your gear.</span><span className="block text-[13px] text-muted mt-1">Plan a kit, compare your options and reuse what you own.</span></span><span aria-hidden className="text-2xl text-brand ml-3">›</span>
       </Link>
 
-      <div className="mx-4 mt-3"><Link href="/try-on" className="lab-button w-full bg-white">Live outfit preview · explore clothing on camera →</Link></div>
+      <div className="mx-4 mt-3"><Link href="/try-on" className="lab-button w-full bg-white">Try clothing on camera →</Link></div>
 
       <SectionTitle>Bestsellers</SectionTitle>
       <Rail items={top.map(toCard)} />
@@ -84,7 +85,7 @@ export default function Home() {
 
       {SHOP_LINKS.slice(0, 3).map((c) => (
         <section key={c.slug}>
-          <SectionTitle href={`/c/${c.slug}`}>{c.name}</SectionTitle>
+          <SectionTitle href={`/c/${c.slug}`}>{sentenceCase(c.name)}</SectionTitle>
           <Rail items={[...itemsForLink(c)].sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 10).map(toCard)} />
         </section>
       ))}
