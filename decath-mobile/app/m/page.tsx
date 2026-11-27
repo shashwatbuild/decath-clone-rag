@@ -22,7 +22,7 @@ export default function MobileVersion() {
     const capturing = query.get("capture") === "1";
     setCapture(capturing);
     const target = query.get("screen");
-    setScreen(target && ["try-on", "lab", "chat", "adventures", "try-sport", "fit"].includes(target) ? `/${target}` : "/");
+    setScreen(target && ["try-on", "lab", "chat", "plan", "adventures", "try-sport", "fit"].includes(target) ? `/${target}` : "/");
     if (!capturing && window.innerWidth < 640) { router.replace("/"); return; }
     setShow(true);
     const tick = () => setTime(new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true }).replace(/\s?[ap]m/i, ""));

@@ -54,3 +54,9 @@ npm run build
 ```
 
 Browser checks cover saving/reopening an ownership-aware plan, trial/calendar download, fit-record creation, remembered-size selection, removal/Undo, mobile overflow and a chat → product → back → refresh journey. Any fit record created for verification is labelled as a test and removed afterwards; screenshots do not publish a personal camera capture.
+
+## Mobile layout refinement
+
+The training plan has dedicated **Set up** and **Weekly plan** views on phones, expandable weekly cards and a bottom action that matches the current view. Sport, budget, timing and owned categories are carried in the plan URL so returning from a product restores the selected plan. Desktop continues to show settings and results together.
+
+Mobile Gear Lab and companion pages use shorter introductions, readable controls and consistent card spacing. Gear Lab export/import/reset options are available inside Edit activity → Saved plan options. The iPhone preview supports `/m?screen=plan` directly.

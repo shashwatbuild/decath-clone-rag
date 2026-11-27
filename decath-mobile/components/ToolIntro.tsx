@@ -29,6 +29,12 @@ export default function ToolIntro({ kind, onStart }: { kind: keyof typeof CONTEN
   const content = CONTENT[kind];
   const Icon = kind === "plan" ? IconPlan : IconLab;
   return (
+    <>
+    <section className="tool-mobile-intro" aria-label={kind === "plan" ? "About training plan" : "About Gear Lab"}>
+      <h2>{kind === "plan" ? "Your gear, week by week." : "Make more of your gear."}</h2>
+      <p>{kind === "plan" ? "Choose your sport, reuse what you own and plan your next purchases." : "Compare your options, reuse your kit and understand each recommendation."}</p>
+      <details><summary>How this works <span aria-hidden>+</span></summary><div><p>{content.audience}</p><ol>{content.steps.map(step => <li key={step}>{step}</li>)}</ol>{kind === "plan" && <p>This plans gear purchases, not workouts.</p>}<Link href={content.other}>{content.otherLabel} →</Link></div></details>
+    </section>
     <section className="tool-intro" aria-label={kind === "plan" ? "About training plan" : "About Gear Lab"}>
       <div className="tool-intro-copy">
         <div className="tool-intro-audience"><span className="tool-intro-icon"><Icon /></span><p>{content.audience}</p></div>
@@ -42,5 +48,6 @@ export default function ToolIntro({ kind, onStart }: { kind: keyof typeof CONTEN
         <Link href={content.other} className="tool-intro-other">{content.otherLabel}</Link>
       </div>
     </section>
+    </>
   );
 }

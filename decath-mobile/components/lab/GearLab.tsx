@@ -109,6 +109,7 @@ export default function GearLab() {
             <label className="lab-label">Prioritise<select className="lab-input" value={state.priority} onChange={e => update({ priority: e.target.value as LabInput["priority"] })}><option value="match">Best match</option><option value="price">Lowest price</option><option value="weight">Lightest</option></select></label>
             <label className="lab-label">What matters to you?<textarea className="lab-input min-h-20 resize-y" value={state.query} maxLength={500} onChange={e => update({ query: e.target.value })} /></label>
             <p className="text-[12px] leading-relaxed text-muted">Add specific preferences with the “Narrow choices” tool.</p>
+            <details className="lab-settings lg:hidden"><summary>Saved plan options</summary><div className="flex flex-wrap gap-2 mt-3"><button className="lab-button" onClick={exportState} disabled={!ready}>Export</button><button className="lab-button" onClick={() => importRef.current?.click()}>Import</button><button className="lab-button" onClick={() => setResetting(!resetting)}>Reset</button></div></details>
             <div className="border-t border-line pt-4"><p className="text-[12px] text-muted">Saved in this browser. Export a copy from “Saved plan”.</p></div>
           </div>
         </aside>

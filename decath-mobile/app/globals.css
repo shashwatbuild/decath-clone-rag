@@ -702,3 +702,103 @@ body {
 .experience-undo { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:12px 16px; margin-bottom:20px; border:1px solid #d8ddef; background:#eef1fb; border-radius:12px; font-size:13px; }
 .experience-undo button { color:var(--color-brand); font-weight:500; min-height:44px; }
 .experience-section-heading h3 { max-width:100%; min-width:0; overflow-wrap:anywhere; }
+
+/* Dedicated phone layouts: one task per view, with a shared readable rhythm. */
+.tool-mobile-intro,.plan-mobile-views,.plan-week-toggle { display:none; }
+@media(max-width:1023px) {
+ .planning-page .tool-intro,.lab-workspace .tool-intro { display:none; }
+ .tool-mobile-intro { display:block; padding:4px 4px 16px; }
+ .tool-mobile-intro h2 { font-size:25px; font-weight:600; letter-spacing:-.7px; line-height:1.25; }
+ .tool-mobile-intro>p { color:var(--color-muted); font-size:14px; line-height:1.65; margin-top:8px; max-width:560px; }
+ .tool-mobile-intro details { margin-top:8px; font-size:13px; color:var(--color-muted); }
+ .tool-mobile-intro summary { display:flex; justify-content:space-between; align-items:center; min-height:44px; color:var(--color-brand); font-weight:500; cursor:pointer; list-style:none; }
+ .tool-mobile-intro summary::-webkit-details-marker { display:none; }
+ .tool-mobile-intro summary>span { font-size:20px; font-weight:400; transition:transform .15s; }
+ .tool-mobile-intro details[open] summary>span { transform:rotate(45deg); }
+ .tool-mobile-intro details>div { padding:12px 16px; border:1px solid var(--color-line); background:white; border-radius:12px; line-height:1.7; }
+ .tool-mobile-intro ol { padding-left:20px; list-style:decimal; margin:8px 0; }
+ .tool-mobile-intro details a { display:inline-block; color:var(--color-brand); padding-top:10px; }
+ .planning-page .tool-page-content,.lab-workspace .tool-page-content { padding:20px 16px; }
+ .plan-mobile-views { display:flex; gap:4px; position:sticky; top:100px; z-index:20; padding:5px; margin-bottom:20px; border:1px solid var(--color-line); border-radius:13px; background:#f3f4f8; scroll-margin-top:112px; }
+ .plan-mobile-views button { flex:1; display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; border-radius:9px; font-size:14px; font-weight:500; color:var(--color-muted); }
+ .plan-mobile-views button[aria-pressed=true] { background:white; color:var(--color-brand); box-shadow:0 1px 4px #1010100a; }
+ .plan-mobile-views button>span { display:grid; place-items:center; width:23px; height:23px; border-radius:50%; background:#e9ecf8; font-size:11px; color:var(--color-brand); }
+ .planning-page[data-mobile-view=setup] .plan-results,.planning-page[data-mobile-view=timeline] .plan-settings { display:none; }
+ .plan-layout { display:block; }
+ .planning-page .tool-card { padding:20px; border-radius:16px; box-shadow:none; }
+ .plan-settings>h2 { font-size:20px; }
+ .plan-field { margin-top:24px; }
+ .plan-field>legend,.plan-field>label { font-size:14px; font-weight:500; }
+ .plan-choice { font-size:14px; min-height:48px; border-radius:11px; }
+ .planning-page .lab-input { font-size:16px; min-height:48px; }
+ .plan-owned>label { min-height:54px; font-size:13px; padding:12px; }
+ .plan-owned input { width:18px; height:18px; }
+ .plan-settings .tool-field-hint { font-size:13px; }
+ .plan-see-timeline { display:none; }
+ .plan-summary { border:1px solid #d8ddef; background:#fbfbfe; }
+ .plan-summary-top { flex-direction:column; align-items:stretch; gap:16px; }
+ .plan-summary-top h2 { font-size:21px; }
+ .plan-total { display:flex; align-items:center; justify-content:space-between; text-align:left; }
+ .plan-total strong { margin:0; font-size:26px; }
+ .plan-budget-status { font-size:13px; padding:12px; margin-top:16px; }
+ .plan-timeline { gap:12px; margin-top:16px; }
+ .plan-week-heading { display:none; }
+ .plan-week-toggle { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:48px; text-align:left; }
+ .plan-week-toggle>span:first-child { display:grid; gap:4px; }
+ .plan-week-toggle strong { font-size:16px; font-weight:600; }
+ .plan-week-toggle small { font-size:12px; color:var(--color-muted); }
+ .plan-week-toggle>span:last-child { display:flex; gap:14px; align-items:center; font-size:14px; color:var(--color-muted); }
+ .plan-week-chevron { font-size:22px; transition:transform .15s; }
+ .plan-week[data-mobile-expanded=true] .plan-week-chevron { transform:rotate(180deg); }
+ .plan-week[data-mobile-expanded=false] .plan-week-content { display:none; }
+ .plan-week-empty { padding:16px 20px; background:#f9fafb; border-style:solid; border-color:var(--color-line); }
+ .plan-week-empty .plan-week-toggle { min-height:36px; }
+ .plan-item { grid-template-columns:64px minmax(0,1fr); gap:12px; padding:18px 0; }
+ .plan-item-image { width:64px; height:80px; border-radius:10px; }
+ .plan-item-action { grid-column:2; width:100%; }
+ .plan-item-action .lab-button { width:100%; font-size:14px; min-height:46px; }
+ .plan-product-name { font-size:15px; line-height:1.5; }
+ .plan-item-price { font-size:15px; }
+ .plan-item-owned { grid-template-columns:1fr; }
+ .plan-item-copy .tool-field-hint { font-size:13px; }
+ .plan-mobile-bar { gap:16px; padding:12px 16px max(18px,env(safe-area-inset-bottom)); }
+ .plan-mobile-bar .tool-primary { min-height:48px; font-size:14px; white-space:nowrap; }
+ .lab-workspace-toolbar { margin:0 0 14px; justify-content:flex-end; }
+ .lab-workspace-toolbar>p { display:none; }
+ .lab-workspace-toolbar .lab-settings summary { padding:0; min-height:36px; }
+ .lab-workspace-layout { gap:18px; }
+ .lab-activity-settings { border-radius:16px; }
+ .lab-workspace-layout>div { margin-top:0; }
+ .lab-tools-heading { margin-bottom:12px; }
+ .lab-tools-heading h2 { font-size:20px; }
+ .lab-tools-heading p,.lab-tool-hint { display:none; }
+ .lab-tab-select { margin-bottom:18px; gap:9px; font-size:13px; }
+ .lab-workspace .lab-input { min-height:48px; font-size:16px; }
+ .lab-workspace .lab-button { font-size:14px; min-height:46px; }
+ .lab-workspace .lab-panel { border-radius:16px; padding:20px; }
+ .experience-intro { padding:20px 4px; }
+ .experience-intro>.experience-label { display:none; }
+ .experience-intro h2 { margin:0; font-size:25px; line-height:1.25; letter-spacing:-.65px; }
+ .experience-intro>p { font-size:14px; margin-top:8px; line-height:1.65; }
+ .experience-card { border-radius:16px; padding:20px; }
+ .experience-nav a { font-size:13px; min-height:48px; line-height:1.4; padding:9px 6px; }
+ .experience-count { display:none; }
+ .experience-section-heading>.experience-pill { display:none; }
+ .experience-page .lab-button { min-height:46px; font-size:14px; }
+ .experience-actions .tool-primary { min-height:48px; font-size:15px; }
+ .experience-sports button { min-height:96px; }
+ .fit-size-grid button { min-height:48px; }
+ .experience-segmented button { min-height:46px; font-size:13px; }
+ .trial-rating small { font-size:11px; }
+}
+@media(max-width:359px) {
+ .planning-page .tool-page-content,.lab-workspace .tool-page-content,.experience-container { padding-inline:12px; }
+ .planning-page .tool-card,.lab-workspace .lab-panel,.experience-card { padding:16px; }
+ .plan-owned { grid-template-columns:1fr; }
+ .experience-nav a { font-size:12px; }
+ .plan-item-category { gap:4px; }
+}
+@media(prefers-reduced-motion:reduce) { .plan-week-chevron,.tool-mobile-intro summary>span { transition:none; } }
+.plan-mobile-anchor { display:none; }
+@media(max-width:1023px) { .plan-mobile-anchor { display:block; height:1px; } }
+@media(max-width:1023px) { .lab-workspace-toolbar { display:none; } }

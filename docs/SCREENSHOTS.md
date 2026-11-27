@@ -2,6 +2,14 @@
 
 [Back to the project](../README.md) · [Feature matrix](FEATURES.md)
 
+## Mobile planning refinement
+
+Training setup and weekly results use separate mobile views. Weekly cards expand individually; the selected sport, budget and owned categories remain available when returning from a product.
+
+| Set up a gear plan | Review weekly purchases | Gear Lab |
+|:---:|:---:|:---:|
+| <img src="screenshots/mobile-plan-setup.jpg" width="280" alt="Focused mobile gear-plan setup with large controls" /> | <img src="screenshots/mobile-plan-weekly.jpg" width="280" alt="Mobile weekly summary and expandable purchase cards" /> | <img src="screenshots/mobile-lab-refined.jpg" width="280" alt="Compact mobile Gear Lab with activity editing and tool selection" /> |
+
 ## Sports companion · interactive flows
 
 These captures show the working planner, trial-session controls and fit-memory form. Calendar dates are example personal plans, not confirmed bookings. No personal fit assessment or camera image is published.
