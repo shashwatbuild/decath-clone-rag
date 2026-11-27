@@ -1,28 +1,41 @@
-# Ideas for a smarter assistant
+# What is delivered, and what comes next
 
-[Back to the project](../README.md)
+[Project](../README.md) · [Full feature matrix](FEATURES.md)
 
-The eight Gear Lab tools and photographic live AR fitting room are now implemented; see [their practical scope](GEAR_LAB.md). The table below describes further improvements, not capabilities already delivered. The order prioritises trustworthy answers and useful shopping decisions before adding more automation.
+The next improvements should make decisions more useful and evidence more dependable. This page distinguishes working features from future integrations.
 
-| Priority | Improvement | Shopper benefit | How to validate it |
+## Delivered
+
+| Area | Current implementation |
+|---|---|
+| Shopping assistant | Hybrid retrieval, cited knowledge answers, multi-part questions, bounded parent-guide context and conservative generated-answer checks. |
+| Optional semantic retrieval | Local Ollama embedding adapter, contextual index builder, rank fusion and lexical fallback. A real local model/index must be configured; fixture tests are not semantic quality results. |
+| Guided decisions | Editable briefs, hard requirements, preference ranking, comparison, Undo and ownership-aware kits. |
+| Gear Lab | Eight tools for kit scenarios, conditions, discriminating questions, owned gear, community fit, evidence, team kits and buying less. |
+| Sports companion | Saved adventure plans, personal trial/session planning, calendar export, post-session reflections and opt-in exact-item fit memories. |
+| Camera preview | Six curated photographic tops, tracked torso mesh and foreground masking; no physical-fit guarantee. |
+| Mobile and continuity | Focused setup/weekly-plan views, expandable weekly cards and chat restoration across product navigation and refresh. |
+
+## Next priorities
+
+| Priority | Improvement | Customer value | What is needed / how to validate |
 |---|---|---|---|
-| 1 | **Fresher catalogue** — authorised data refresh, validation and a “last updated” timestamp. | Fewer recommendations based on stale prices or stock. | Compare stored prices/availability with the source and track stale records. |
-| 2 | **Stronger answer checks** — connect each factual claim to its supporting passage; add adversarial and ambiguous questions. | Better-supported answers and clearer admissions of uncertainty. | Measure claim support, appropriate refusal, retrieval recall and action correctness on a larger held-out set. |
-| 3 | **Semantic retrieval experiment** — combine embeddings with existing keyword retrieval and test a learned reranker. | Potentially understand paraphrases and unfamiliar descriptions better. | Compare against the current hybrid baseline; retain only if quality improves within latency/cost limits. |
-| 4 | **Learned clarification** — compare the existing catalogue-splitting question heuristic with measured user outcomes. | Less questioning and more relevant picks. | Measure questions-to-decision and whether the final choice meets the brief. |
-| 5 | **Global kit optimisation** — replace the current greedy allocation with a solver across essential coverage, sizes and individual budgets. | A more useful complete kit for the same spend. | Check hard budgets, size/stock constraints, duplicate prevention and essential coverage. |
-| 6 | **Account-based memory** — extend existing local gear logs and import/export to optional authenticated cross-device sync. | Resume shopping across visits or devices. | Verify consent, corrections, forgetting and isolation between users. |
-| 7 | **Hindi/Hinglish coverage** — expand language understanding and test bilingual shopping conversations. | Make the assistant easier to use in the shopper’s preferred language. | Native-speaker review of retrieval, requirements and size/cart actions. |
-| 8 | **Real price alerts** — scheduled refreshes and opt-in notifications. | Learn when a watched item actually reaches its target. | Test deduplication, stale data, delivery and unsubscribe behaviour. |
+| 1 | **Authorised catalogue refresh** | Reduce decisions based on stale prices, sizes and stock. | A permitted data source, update timestamps and checks against source records. |
+| 2 | **Real trial-session integrations** | Move from a personal plan to verified sessions and availability. | Venue/partner APIs, explicit booking confirmation, cancellation handling and equipment availability. |
+| 3 | **Larger RAG evaluation** | Establish whether semantic retrieval improves useful answers. | Real-model tests on a larger held-out set; compare relevance, unsupported claims, refusals, latency and cost with the current baseline. |
+| 4 | **Stronger claim verification** | Catch unsupported interpretations that lexical overlap can miss. | An adversarial evaluation set and carefully tested entailment/verification approaches; do not equate a valid citation with a true claim. |
+| 5 | **Whole-kit optimisation** | Cover more essential needs within a real budget. | Replace greedy selection with a constrained solver; verify stock, sizes, individual budgets and shared-item rules. |
+| 6 | **Optional account-backed memory** | Continue across devices with control over saved information. | Authentication, isolated storage, consent, editing, export and deletion. |
+| 7 | **Broader language coverage** | Make shopping conversations easier in Hindi and Hinglish. | Native-speaker evaluation of retrieval, requirements and size/cart actions. |
+| 8 | **Real price notifications** | Notify customers when a genuinely refreshed price meets their target. | Scheduled data updates, opt-in delivery, deduplication and unsubscribe controls. |
 
-**Technical references:** [Sentence Transformers’ retrieve-and-rerank workflow](https://www.sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html) describes a candidate-retrieval stage followed by a cross-encoder. [Ragas faithfulness](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/) evaluates consistency with retrieved context. Neither tool guarantees an improvement on this catalogue; measure against this project’s own baseline.
+## Camera and fit research
 
-## Further camera and intelligence work
-
-| Idea | Practicality | Next implementation step |
+| Direction | Practical next step | Boundary to preserve |
 |---|---|---|
-| Better live garment alignment | Feasible, with real-device testing. | The worker, textured torso mesh and foreground mask are implemented. Next test live framing/latency across devices and add independently articulated sleeves and more reviewed assets. |
-| Photorealistic photo try-on | Feasible through a separate model service; needs cost, consent and retention design. | Evaluate a provider on licensed garment/person images before offering uploads. |
-| True 3D drape and physical sizing | Substantial research/data work. | Obtain garment meshes, material properties and calibrated measurements; never infer a fit guarantee from a webcam silhouette. |
-| Semantic reranking | Feasible experiment. | Compare embeddings/cross-encoders against the existing hybrid/RRF baseline on a larger held-out set. |
-| Trustworthy community data | Feasible production work. | Add identity/abuse controls, database storage and verified-purchase signals before using votes for recommendations. |
+| Better live alignment | Test motion/framing across real devices; improve sleeve articulation and review additional garment assets. | Device performance must be measured, not inferred from a static fixture. |
+| Photo-based try-on | Evaluate a separate model service with licensed images and an explicit cost/consent/retention design. | This is not enabled in the current application. |
+| Physical sizing and 3D drape | Obtain calibrated measurements, garment geometry and material data. | A webcam silhouette or visual overlay must not be sold as a fit guarantee. |
+| More useful fit feedback | Improve item-specific feedback and user corrections before considering broader recommendations. | Keep self-reported experience distinct from verified measurements or cross-product size predictions. |
+
+Related reading: [retrieve-and-rerank workflows](https://www.sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html), [faithfulness evaluation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/). Any additional model or evaluation framework should be measured against this project's own data and constraints.

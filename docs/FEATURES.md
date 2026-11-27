@@ -8,14 +8,14 @@ This inventory describes implemented features. “Benefit” explains the intend
 
 | Capability | What it does | Shopper benefit |
 |---|---|---|
-| Future sporting self | Compares budget-aware starting and progression kits, with explicit assumptions. | Understand a possible gear path before buying. |
-| Conditions rehearsal | Checks selected conditions against catalogue fields and relevant guides. | Identify what needs checking before an activity. |
-| Discriminating experiments | Offers the next criterion that separates eligible products; updates hard requirements. | Narrow choices with a useful question. |
-| Ownership and lifecycle logs | Records gear condition, size, use minutes, comfort and repairs with catalogue care links. | Reuse equipment and keep a care history. |
+| Compare kit stages | Compares budget-aware starting and progression kits, with explicit assumptions. | Understand a possible gear path before buying. |
+| Check conditions | Checks selected conditions against catalogue fields and relevant guides. | Identify what needs checking before an activity. |
+| Narrow choices | Offers the next criterion that separates eligible products; updates hard requirements. | Narrow choices with a useful question. |
+| My gear | Records gear condition, size, use minutes, comfort and repairs with catalogue care links. | Reuse equipment and keep a care history. |
 | Opt-in community fit | Stores pseudonymous size votes; displays groups of at least five device tokens; allows deletion. | Consult collective feedback without publishing individual reports. |
-| Evidence contracts | Shows field evidence and match/mismatch/unknown status; fingerprints remain in the analysis API. | Check the reasons behind eligibility. |
+| Why these picks | Shows field evidence and match/mismatch/unknown status; fingerprints remain in the analysis API. | Check the reasons behind eligibility. |
 | Team kit planning | Allocates essentials within individual budgets for up to six people; shares badminton shuttles once. | Avoid duplicate purchases and personal budget overruns. |
-| Buy-less advocate | Suggests reuse, inspection, maintenance, deferral and checking borrowing. | Consider alternatives to new purchases. |
+| Buy less | Suggests reuse, inspection, maintenance, deferral and checking borrowing. | Consider alternatives to new purchases. |
 | Multi-query RAG | Decomposes queries, filters sources by activity and fuses hybrid results. Technical traces remain in the API. | Read focused source evidence without technical clutter. |
 | Shared validated state | Common brief across tools; local persistence, import/export/reset and cross-tab updates. | Keep desktop/mobile interactions consistent. |
 | Live outfit preview | Six curated photographic tops, pose-driven textured torso mesh, skin/hair foreground occlusion, a worker and original-camera comparison. | See the real product texture over your tracked body without uploading camera frames. |
@@ -101,7 +101,7 @@ This inventory describes implemented features. “Benefit” explains the intend
 
 No live inventory/price sync, real payment gateway, fulfilment integration, real order-support actions, account sync, persistent server-side chat history, background price-alert service or dense-vector retrieval is implemented. Voice depends on browser support and permission. Citations validate source references, not the truth of every AI claim. Delivery and sizing are demo rules. Catalogue facts can become stale.
 
-For the evidence-scoped comparison with Decathlon’s official chat, see the [README](../README.md#how-is-this-different-from-decathlons-chatbot).
+For the evidence-scoped comparison with Decathlon’s official chat, see the [sourced comparison](COMPARISON.md).
 
 ## Sports companion and conversation memory
 

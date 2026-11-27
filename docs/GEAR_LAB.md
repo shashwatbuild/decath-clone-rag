@@ -26,7 +26,7 @@ Gear Lab turns futuristic ideas into practical, inspectable shopping tools. It u
 4. Open the evidence behind a candidate, select an available size and add it to the same store cart.
 5. Open `/try-on`, choose a supported top, wait for its real garment layer to be ready and press **Open live camera**. Press **Stop camera** to release it.
 
-Mobile uses an expandable plan, a section selector and stacked product checks. Export/import/reset sit under “Saved plan”. Export/import moves a validated brief between browsers; it is not automatic account synchronisation. Changing activity clears activity-specific answers.
+Mobile uses an expandable plan, a section selector and stacked product checks. On mobile, export/import/reset sit inside Edit activity → Saved plan options; desktop keeps them under “Saved plan”. Export/import moves a validated brief between browsers; it is not automatic account synchronisation. Changing activity clears activity-specific answers.
 
 ### Camera guidance
 
