@@ -20,6 +20,12 @@ Sports shoppers have to connect scattered specifications, sizing information, bu
 
 I built this project to bring that decision into one place: **ask, check the evidence, compare the trade-offs and make a practical plan.** RAG retrieves catalogue facts and guides; explicit application rules handle requirements, budgets, sizes and cart actions.
 
+## Watch the app in action
+
+[![Watch the real app walkthrough in 4K](docs/demo/portfolio-thumbnail.jpg)](https://d2ol7oe51mr4n9.cloudfront.net/user_3Mc7URIhdXZShhylgOyCBIz6jTx/4fbadfda-06d6-4a30-abfe-b9aa7e7ac984.mp4)
+
+**4:54 · 4K export · narrated desktop and mobile walkthrough.** Follow actual app interactions from a cited answer to planning, fit memories and simulated checkout. [Chapters, captions and publishing kit →](docs/DEMO.md)
+
 ## A look inside
 
 | Plan your purchases | Explore Gear Lab | Remember your fit |

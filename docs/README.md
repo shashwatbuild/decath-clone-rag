@@ -5,6 +5,7 @@
 | I want to… | Start here |
 |---|---|
 | See the app | [Screenshot gallery](SCREENSHOTS.md) |
+| Watch the complete customer journey | [4K portfolio walkthrough and publishing kit](DEMO.md) |
 | Understand every implemented feature | [Features and shopper benefits](FEATURES.md) |
 | Try the adventure, trial and fit-memory flows | [Sports companion](SPORTS_COMPANION.md) |
 | Explore Gear Lab or camera fitting | [Gear Lab and camera guide](GEAR_LAB.md) |
