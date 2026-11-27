@@ -125,7 +125,24 @@ flowchart LR
     B --> K[Rank + explain + adjust + build kit]
 ```
 
+**RAG upgrade:** Multi-part questions, parent-guide context, checked citations and conservative claim verification are implemented. Local Ollama embeddings can add semantic retrieval after a model and index are configured. [Setup, validation and limitations →](docs/ADVANCED_RAG.md)
+
 **Stack:** Next.js 15 · React 19 · TypeScript · Tailwind CSS 4 · BM25 + hybrid retrieval · optional Gemini / Claude. Retrieval does not require embeddings or a vector database. [Implementation details →](docs/ARCHITECTURE.md)
+
+## Sports companion
+
+| Interactive feature | What it helps you do |
+|---|---|
+| **Plan my next adventure** | Build a checklist and catalogue kit around your budget and gear you own. Save, reopen or download your plan. |
+| **Try a sport** | Plan a first session, explore external venue searches, export a calendar reminder and record what you enjoyed. |
+| **My fit memories** | Save real wearing feedback and explicitly recall a comfortable size for the exact same item. |
+| **Conversation memory** | Keep chat messages, product cards, draft input and guided shopping state when visiting products or refreshing. End chat clears the conversation. |
+
+Trials do not book venues, and fit memories do not measure or guarantee physical fit. Plans and memories are browser-local. [Feature guide and limits →](docs/SPORTS_COMPANION.md)
+
+| Adventure planner | Try a sport | Fit memories |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/adventure-companion-mobile.jpg" width="250" alt="Interactive adventure planner in an iPhone frame" /> | <img src="docs/screenshots/sport-trial-mobile.jpg" width="250" alt="First-session planner in an iPhone frame" /> | <img src="docs/screenshots/fit-memories-mobile.jpg" width="250" alt="Personal fit wardrobe in an iPhone frame" /> |
 
 ## Checks and limitations
 

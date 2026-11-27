@@ -5,6 +5,8 @@ import { StoreProvider } from "@/lib/store";
 import { Toast } from "@/components/ui";
 import PhoneFrame from "@/components/PhoneFrame";
 import { LabProvider } from "@/lib/lab/store";
+import { ExperienceProvider } from "@/lib/experiences/store";
+import { ChatMemoryProvider } from "@/lib/chat/memory";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
@@ -21,10 +23,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className={`${inter.variable} antialiased`}>
         <StoreProvider>
           <LabProvider>
+          <ExperienceProvider>
+          <ChatMemoryProvider>
           <PhoneFrame>
             <div className="app-shell">{children}</div>
             <Toast />
           </PhoneFrame>
+          </ChatMemoryProvider>
+          </ExperienceProvider>
         </LabProvider>
         </StoreProvider>
       </body>

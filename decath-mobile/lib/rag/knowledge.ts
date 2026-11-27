@@ -22,6 +22,29 @@ export type KnowledgeDoc = {
 };
 
 export const KNOWLEDGE: KnowledgeDoc[] = [
+  {
+    id: "policy-adventures",
+    kind: "policy", title: "Planning your next adventure", topic: "store",
+    suggest: ["Open the adventure planner", "Try a sport before buying"],
+    text: "Plan my next adventure lets you choose badminton, running, yoga or an easy day walk, set a gear budget and mark categories you already own. Reused categories are excluded from new purchases. The checklist and kit use the bundled catalogue; they are not live stock or a complete outdoor safety plan.\n\nSave an adventure on this device, reopen it, download a checklist or spread purchases over weeks in the training plan. A saved adventure does not book a venue, instructor or activity.",
+  },
+  {
+    id: "policy-sport-trials",
+    kind: "policy", title: "Trying a sport before buying gear", topic: "store",
+    suggest: ["Try a sport", "Plan my next adventure"],
+    text: "Try a sport helps you plan a first session with a friend or an instructor. Choose a sport, enter your city, explore external Google Maps results and decide what to borrow or bring. Confirm venue availability, fees, equipment, instruction and booking terms directly with the venue.\n\nSave a personal trial plan, download a tentative calendar reminder and record your enjoyment and notes after the real session. Saving or downloading does not make a booking or reserve equipment.",
+  },
+  {
+    id: "policy-fit-memory",
+    kind: "policy", title: "Fit memories and the camera fitting room", topic: "store",
+    suggest: ["Open my fit memories", "Open camera preview"],
+    text: "My fit memories records a catalogue item and listed size you have actually worn, whether it felt snug, right or loose, freedom of movement and optional fit notes. Save feedback only after choosing to keep it on this device. You can edit or remove individual memories.\n\nA comfortable remembered size can be selected explicitly for the exact same catalogue item on its product page. Fit memories do not automatically transfer sizes between products. The live camera fitting room is a visual preview and cannot confirm physical size or fit. No body measurements or camera images are saved in fit memories.",
+  },
+  {
+    id: "policy-chat-memory",
+    kind: "policy", title: "Keeping and ending your assistant conversation", topic: "store",
+    text: "The assistant keeps its messages, draft input, product cards and guided shopping session while you open a product or another page and return. The conversation is saved in this browser when device storage is available and can be restored after refreshing.\n\nClosing the chat keeps the conversation. End chat clears the saved conversation and returns to the storefront. Conversation history is not an account or cross-device sync, and browser data clearing removes the saved conversation.",
+  },
   // ---------------------------------------------------------------- store policies
   {
     id: "policy-returns",

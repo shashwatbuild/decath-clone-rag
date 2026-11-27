@@ -15,13 +15,14 @@ export default function MobileVersion() {
   const [time, setTime] = useState("");
   const [capture, setCapture] = useState(false);
   const [screen, setScreen] = useState("/");
+  const [previewScale, setPreviewScale] = useState(1.15);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     const capturing = query.get("capture") === "1";
     setCapture(capturing);
     const target = query.get("screen");
-    setScreen(target && ["try-on", "lab", "chat"].includes(target) ? `/${target}` : "/");
+    setScreen(target && ["try-on", "lab", "chat", "adventures", "try-sport", "fit"].includes(target) ? `/${target}` : "/");
     if (!capturing && window.innerWidth < 640) { router.replace("/"); return; }
     setShow(true);
     const tick = () => setTime(new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true }).replace(/\s?[ap]m/i, ""));
@@ -34,12 +35,18 @@ export default function MobileVersion() {
 
   return (
     <div className="full-bleed fixed inset-0 z-50 overflow-auto bg-[#eef0f4] [background:radial-gradient(1200px_600px_at_20%_10%,#e6e8f8,transparent_60%),radial-gradient(900px_500px_at_85%_90%,#dfe9f3,transparent_55%),#eef0f4]">
-      <div className={`min-h-full grid place-items-center relative ${capture ? "py-4" : "pt-12 pb-5"}`} style={{ minHeight: capture ? 900 : 940 }}>
-        {!capture && <Link href="/d" className="absolute top-5 left-6 text-[15px] font-semibold text-brand hover:underline">← Desktop version</Link>}
-        {!capture && <p className="absolute top-5 right-6 text-[13px] text-muted">Mobile version</p>}
+      {!capture && <header className="mobile-preview-toolbar">
+        <Link href="/d" className="text-[15px] font-medium text-brand hover:underline">← Desktop version</Link>
+        <div className="mobile-preview-sizing" role="group" aria-label="Phone preview size">
+          <button onClick={() => setPreviewScale(s => Math.max(1, Math.round((s - .15) * 100) / 100))} disabled={previewScale <= 1} aria-label="Make phone smaller">−</button>
+          <span aria-live="polite">{Math.round(previewScale * 100)}%</span>
+          <button onClick={() => setPreviewScale(s => Math.min(1.45, Math.round((s + .15) * 100) / 100))} disabled={previewScale >= 1.45} aria-label="Make phone larger">+</button>
+        </div>
+      </header>}
+      <div className={capture ? "min-h-full grid place-items-center py-4" : "mobile-preview-stage"} style={capture ? { minHeight: 900 } : undefined}>
 
         <div className="relative w-[414px] p-3 rounded-[62px] bg-[#121214] shadow-[0_0_0_2px_#45454a,0_0_0_5px_#1b1b1d,0_40px_90px_rgba(20,24,60,0.35),0_12px_30px_rgba(0,0,0,0.2)]"
-          style={{ height: 868, flexShrink: 0 }}>
+          style={{ height: 868, flexShrink: 0, zoom: capture ? 1 : previewScale }}>
           <div className="relative h-full flex flex-col rounded-[50px] overflow-hidden bg-white" style={{ clipPath: "inset(0 round 50px)" }}>
             <div className="relative h-[50px] shrink-0 flex items-center justify-between pl-10 pr-7 pt-1.5 bg-white" aria-hidden>
               <span className="font-semibold text-[16px] min-w-[48px]">{time}</span>

@@ -9,7 +9,7 @@
  * comparisons, add-to-cart, store FAQs (returns, delivery, pickup, coupons), items we don't sell,
  * typos and a bit of Hinglish ("kitna price hai").
  */
-import { OFF_TOPIC, knowledgeAnswer } from "./answer";
+import { OFF_TOPIC, knowledgeAnswer, type AnswerOptions } from "./answer";
 import { followUpMessage } from "./rewrite";
 import { boughtTogether, discountPct, getProduct, inr, products, similarProducts, toLite } from "@/lib/products";
 import type { ChatMessage, Product } from "@/lib/types";
@@ -300,7 +300,7 @@ function whyFor(p: Product, query: string): string | null {
 
 // ------------------------------------------------------------------ main entry
 
-export function respond(req: ChatRequest): Reply {
+export function respond(req: ChatRequest, retrieval: Pick<AnswerOptions, "semanticForQuery"> = {}): Reply {
   // "what about for beginners?" after a badminton question: keep the sport (only when no products are in play)
   const noCategory = detectCategories(tokenize(parsePrice(req.message).rest)).length === 0;
   const followed = noCategory && !req.contextIds?.length && !req.productId ? followUpMessage(req.message, req.history ?? []) : null;
@@ -336,7 +336,7 @@ export function respond(req: ChatRequest): Reply {
   const productQuestion = named.length > 0 || Boolean(ordinal) || Boolean(focus && /\b(it|this|that|its|these)\b/.test(lower));
   const isListing = Boolean(range) || Boolean(sort && sort !== "best");
   if (!productQuestion && !isListing && !RE.addCart.test(lower) && (QUESTION.test(lower) || POLICY.test(lower))) {
-    const ka = knowledgeAnswer(msg, req.history ?? [], { focusName: focus ? name(focus) : undefined });
+    const ka = knowledgeAnswer(msg, req.history ?? [], { ...retrieval, focusName: focus ? name(focus) : undefined });
     if (ka) return { text: ka.text, products: ka.products, suggestions: ka.suggestions, sources: ka.sources, trace: ka.trace, passages: ka.passages };
   }
   if (RE.thanks.test(lower)) return { text: "You're welcome! 😊 Anything else I can help you find?", suggestions: ["Show me running shoes", "What's on sale?", "Yoga mats for beginners"] };

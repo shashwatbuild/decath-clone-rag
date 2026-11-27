@@ -10,6 +10,7 @@ import { FittingRenderer, type GarmentLayer } from "@/lib/tryon/renderer";
 import type { Point } from "@/lib/tryon/geometry";
 import type { Rig } from "@/lib/tryon/mesh";
 import LabProduct from "@/components/lab/LabProduct";
+import FitRecall from "@/components/experiences/FitRecall";
 const eligible=products.filter(p=>supportsFitting(p.id));
 type Frame = {points:Point[];occlusion:{data:ArrayBuffer;width:number;height:number}|null;received:number;timestamp:number;inferenceMs:number};
 type Reply = {type:string;timestamp?:number;id?:number;phase?:string;message?:string;image?:ImageBitmap;rig?:Rig;width?:number;height?:number;points?:Point[];occlusion?:ArrayBuffer;maskWidth?:number;maskHeight?:number;inferenceMs?:number};
@@ -161,7 +162,7 @@ export default function LivePreview(){
     }catch(e){if(generation.current!==run)return;stopCamera();setError(e instanceof DOMException&&e.name==="NotAllowedError"?"Camera access was denied. Allow camera access in your browser and try again.":e instanceof Error?e.message:"The camera could not open.");}
   }
   return <main className="fitting-page"><TopBar title="Live fitting room"/>
-    <div className="fitting-heading"><div><h2>See it on you</h2><p>Choose a top, then open your camera.</p></div><Link href="/lab" className="lab-button">Back to gear lab</Link></div>
+    <div className="fitting-heading"><div><h2>See it on you</h2><p>Choose a top, then open your camera.</p></div><Link href="/fit" className="lab-button">My fit memories →</Link></div>
     {unsupported&&<p className="lab-notice mx-4 mb-4">Camera preview is not available for {getProduct(requested!)?.shortName}. Choose another top to continue.</p>}
     {error&&<div role="alert" className="lab-notice mx-4 mb-4"><p>{error}</p>{!assetReady&&<button className="lab-button mt-3" onClick={()=>{if(!workerReady.current)startup.current=null;setRetry(n=>n+1);}}>Retry preparation</button>}</div>}
     <div className="fitting-layout">
@@ -178,6 +179,7 @@ export default function LivePreview(){
         <p className="fitting-footnote">A visual preview. Check the size guide before buying.</p>
       </section>
       <aside className="fitting-sidebar"><section className="lab-panel fitting-product"><label className="lab-label">Choose your top<select className="lab-input" value={p.id} onChange={e=>{setProductId(e.target.value);setScale(1.08);setOffset(0);result.current=null;}}>{eligible.map(p=><option key={p.id} value={p.id}>{p.shortName}</option>)}</select></label><div className="hidden lg:block mt-4"><LabProduct key={p.id} product={{...toLite(p),sizes:p.sizes,inStock:p.inStock,weightKg:p.weightKg}}/><Link className="text-brand text-[13px] underline inline-block mt-3" href={`/p/${p.id}`}>Product details</Link></div><details className="lg:hidden fitting-size-options"><summary>Choose size and add to cart</summary><div className="mt-3"><LabProduct key={p.id} product={{...toLite(p),sizes:p.sizes,inStock:p.inStock,weightKg:p.weightKg}}/></div><Link className="text-brand text-[13px] underline inline-block mt-3" href={`/p/${p.id}`}>Product details</Link></details></section>
+        <section className="lab-panel"><FitRecall productId={p.id}/></section>
         <details className="lab-panel fitting-garment-panel"><summary className="font-semibold text-[14px]">View selected top</summary><div className="fitting-garment">{cutout?<img src={cutout} alt={p.shortName}/>:<img src={img(p.images[FITTING_ASSETS[p.id].image],480)} alt={p.shortName}/>}</div>{!assetReady&&<p className="text-[12px] text-muted mt-3" role="status">{error?"Preview unavailable":"Preparing your top…"}</p>}</details>
         <details className="lab-panel"><summary className="font-semibold text-[14px]">Adjust preview</summary><label className="lab-label mt-4">Width<input type="range" min=".9" max="1.3" step=".01" value={scale} onChange={e=>setScale(Number(e.target.value))}/></label><label className="lab-label mt-4">Vertical position<input type="range" min="-.12" max=".12" step=".005" value={offset} onChange={e=>setOffset(Number(e.target.value))}/></label><button className="lab-button mt-4" onClick={()=>{setScale(1.08);setOffset(0);}}>Reset adjustments</button><p className="text-[12px] text-muted mt-3">These controls adjust the preview, not your clothing size.</p></details>
         <details className="lab-panel"><summary className="font-semibold text-[14px]">How to get the best view</summary><ul className="mt-4 text-[13px] text-muted space-y-3"><li>Use even lighting and keep one person in frame.</li><li>Face forward with your shoulders and waist visible.</li><li>Move gently and stay facing forward for a clearer preview.</li><li>Closing or hiding this page stops the camera.</li></ul></details>

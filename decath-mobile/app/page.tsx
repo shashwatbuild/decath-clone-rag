@@ -77,6 +77,18 @@ export default function Home() {
 
       <div className="mx-4 mt-3"><Link href="/try-on" className="lab-button w-full bg-white">Try clothing on camera →</Link></div>
 
+      <section className="mx-4 mt-6 rounded-2xl border border-line bg-white p-5 lg:p-7" aria-labelledby="companion-heading">
+        <p className="text-[12px] text-brand">Your next chapter in sport</p>
+        <h2 id="companion-heading" className="text-[23px] font-semibold tracking-tight mt-2">Try it. Plan it. Make it yours.</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-5">
+          {[
+            {href:'/adventures',name:'Plan my next adventure',body:'Build a personal checklist and a kit around what you own.',action:'Build my plan'},
+            {href:'/try-sport',name:'Try a sport',body:'Plan a first session before committing to new gear.',action:'Find my first step'},
+            {href:'/fit',name:'My fit memories',body:'Remember the sizes and fit you actually enjoyed wearing.',action:'Open my fit wardrobe'},
+          ].map(item=><Link key={item.href} href={item.href} className="feature-card rounded-xl border border-line p-5 hover:border-brand flex flex-col"><h3 className="text-[16px] font-semibold">{item.name}</h3><p className="text-[13px] text-muted leading-relaxed mt-2 flex-1">{item.body}</p><span className="text-[13px] font-medium text-brand mt-4">{item.action} →</span></Link>)}
+        </div>
+      </section>
+
       <SectionTitle>Bestsellers</SectionTitle>
       <Rail items={top.map(toCard)} />
 

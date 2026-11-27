@@ -61,6 +61,8 @@ export function rewrite(message: string, history: Turn[], focusName?: string): R
   const notes: string[] = [];
   let query = message.trim();
   let topic = topicOf(query);
+  // An explicit store question takes precedence over an unrelated sport in chat history.
+  if (!topic && STORE.test(message)) topic = "store";
 
   // Memory: the topic of the last few things the shopper said
   if (!topic) {

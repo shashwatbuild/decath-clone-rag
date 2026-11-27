@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { sentenceCase } from "@/lib/presentation";
 import { SHOP_LINKS } from "@/lib/products";
-import { IconBack, IconBell, IconCart, IconChevronDown, IconClose, IconHeart, IconPin, IconSearch, DecathlonMark, IconLab } from "./Icons";
+import { IconBack, IconBell, IconCart, IconChevronDown, IconClose, IconHeart, IconPin, IconSearch, DecathlonMark, IconLab, IconPlan, IconCompass } from "./Icons";
 
 export function TopBar({ title, back = true, logo = false }: { title?: string; back?: boolean; logo?: boolean }) {
   const router = useRouter();
@@ -57,7 +57,7 @@ function DesktopNav() {
   const router = useRouter();
   const { cartCount, wishlist } = useStore();
   const [draft, setDraft] = useState("");
-  const icon = "relative flex flex-col items-center gap-0.5 text-[12px] text-[#444] hover:text-brand";
+  const icon = "relative flex shrink-0 flex-col items-center justify-center gap-1 text-[12px] leading-[18px] whitespace-nowrap text-[#444] hover:text-brand";
   return (
     <div className="hidden lg:block border-b border-line">
       <div className="max-w-[1280px] mx-auto px-4 h-[76px] flex items-center gap-5">
@@ -72,9 +72,10 @@ function DesktopNav() {
             aria-label="Search products" className="min-w-0 flex-1 bg-transparent outline-none text-[14px]" />
         </form>
         <nav className="ml-auto flex items-center gap-5" aria-label="Account and tools">
+          <Link href="/adventures" className={icon}><IconCompass className="w-6 h-6" /><span>Explore</span></Link>
           <Link href="/lab" className={icon}><IconLab className="w-6 h-6" /><span>Gear lab</span></Link>
-          <Link href="/plan" className={`hidden xl:flex ${icon}`}><span className="text-[15px] font-semibold">Training plan</span></Link>
-          <Link href="/chat" className={icon}><DecathlonMark className="w-6 h-5" /><span>Assistant</span></Link>
+          <Link href="/plan" className={`hidden xl:flex ${icon}`}><IconPlan className="w-6 h-6" /><span>Training plan</span></Link>
+          <Link href="/chat" className={icon}><DecathlonMark className="w-6 h-6" /><span>Assistant</span></Link>
           <Link href="/notifications" aria-label="Notifications" className={icon}><IconBell className="w-6 h-6" /><span>Alerts</span></Link>
           <Link href="/wishlist" aria-label="Wishlist" className={icon}>
             <IconHeart className="w-6 h-6" /><span>Wishlist</span>

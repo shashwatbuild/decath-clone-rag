@@ -102,3 +102,17 @@ This inventory describes implemented features. “Benefit” explains the intend
 No live inventory/price sync, real payment gateway, fulfilment integration, real order-support actions, account sync, persistent server-side chat history, background price-alert service or dense-vector retrieval is implemented. Voice depends on browser support and permission. Citations validate source references, not the truth of every AI claim. Delivery and sizing are demo rules. Catalogue facts can become stale.
 
 For the evidence-scoped comparison with Decathlon’s official chat, see the [README](../README.md#how-is-this-different-from-decathlons-chatbot).
+
+## Sports companion and conversation memory
+
+| Capability | What it does | Customer benefit |
+|---|---|---|
+| Adventure builder | Interactive sport selection, budget, ownership checklist and catalogue-based kit with explicit over-budget feedback. | Prepare for an activity using suitable gear you already own. |
+| Saved adventures | Reopen/edit plans, tick preparation tasks, download a checklist and carry owned categories into weekly planning. | Follow through on a personal plan. |
+| First-session planner | Friend/instructor format, city-based external discovery, date/time, duration and a borrowing checklist. | Explore a sport before committing to a kit. |
+| Trial journal | Save tentative plans, export an ICS reminder and record enjoyment/notes afterwards. | Decide what to try next from experience; no booking is implied. |
+| Fit wardrobe | Opt-in item/size feedback, movement comfort, optional areas and notes; edit/remove records with Undo. | Remember real wearing experience without uploading body images. |
+| Exact-item size recall | Explicitly select a previously comfortable size on the same product. | Reduce repeated size decisions without pretending different items fit identically. |
+| Persistent assistant | Retains chat, cards, draft and guided advisor state across product navigation and reload. End chat clears it. | Continue a shopping conversation without starting again. |
+
+[Implementation, privacy and service boundaries →](SPORTS_COMPANION.md)

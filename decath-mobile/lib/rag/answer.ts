@@ -15,6 +15,7 @@ import { baseTokens, tokenize } from "./index";
 import { confident, coverage, search, stem, type Hit } from "./hybrid";
 import { KNOWLEDGE } from "./knowledge";
 import { rewrite, type Turn } from "./rewrite";
+import { splitQuestions } from "./questions";
 
 export type KnowledgeAnswer = {
   text: string;
@@ -59,10 +60,40 @@ function bestSentences(text: string, want: Set<string>, max: number, fill = fals
 
 const popularity = (p: { rating: number; reviewCount: number }) => p.rating * Math.log10(p.reviewCount + 10);
 
-export function knowledgeAnswer(message: string, history: Turn[], opts: { focusName?: string } = {}): KnowledgeAnswer | null {
+export type AnswerOptions = { focusName?: string; semanticForQuery?: (query: string) => Map<string, number> | undefined };
+
+export function knowledgeAnswer(message: string, history: Turn[], opts: AnswerOptions = {}): KnowledgeAnswer | null {
+  if (OFF_TOPIC.test(message)) return null;
+  const questions = splitQuestions(message);
+  if (questions.length === 1) return singleAnswer(message, history, opts);
+  const answers = questions.map(q => singleAnswer(q, history, opts));
+  const found = answers.filter((a): a is KnowledgeAnswer => Boolean(a));
+  if (!found.length) return null;
+  const sources: Source[] = [], passages: KnowledgeAnswer["passages"] = [];
+  const sections = answers.map((answer, i) => {
+    if (!answer) return `**${questions[i]}**\n\nI couldn't find enough catalogue evidence to answer this part.`;
+    const numbers = new Map<number, number>();
+    for (const source of answer.sources) {
+      let target = sources.find(s => s.id === source.id);
+      if (!target) { target = { ...source, n: sources.length + 1 }; sources.push(target); }
+      numbers.set(source.n, target.n);
+      const passage = answer.passages.find(p => p.n === source.n);
+      if (passage) {
+        const existing = passages.find(p => p.n === target.n);
+        if (existing) { if (!existing.text.includes(passage.text)) existing.text += `\n${passage.text}`; }
+        else passages.push({ ...passage, n: target.n });
+      }
+    }
+    const bullets = answer.text.split('\n').filter(l => l.startsWith('- ')).slice(0, 3).join('\n').replace(/\[(\d+)\]/g, (_, n) => `[${numbers.get(Number(n))}]`);
+    return `**${questions[i]}**\n\n${bullets}`;
+  });
+  return { text: sections.join('\n\n'), sources, passages, products: [...new Map(found.flatMap(a => a.products).map(p => [p.id, p])).values()].slice(0, 4), suggestions: [...new Set(found.flatMap(a => a.suggestions))].slice(0, 3), trace: { ...found[0].trace, query: message, rewritten: questions.join(' | '), confident: found.length === questions.length, notes: [...found[0].trace.notes, `Answered ${found.length} of ${questions.length} explicit questions from evidence`], stages: ['Decompose explicit questions', ...found[0].trace.stages], top: found.flatMap(a => a.trace.top).slice(0, 5) } };
+}
+
+function singleAnswer(message: string, history: Turn[], opts: AnswerOptions): KnowledgeAnswer | null {
   if (OFF_TOPIC.test(message)) return null;
   const rw = rewrite(message, history, opts.focusName);
-  const { hits, trace } = search(rw.query, { k: 6, intent: rw.intent, topic: rw.topic || undefined });
+  const { hits, trace } = search(rw.query, { k: 6, intent: rw.intent, topic: rw.topic || undefined, semantic: opts.semanticForQuery?.(rw.query) });
   const ok = confident(hits, trace);
   const ragTrace: RagTrace = { query: message, rewritten: rw.query, notes: rw.notes, stages: trace.stages, top: trace.top, confident: ok };
   if (!ok) return null;
@@ -100,14 +131,17 @@ export function knowledgeAnswer(message: string, history: Turn[], opts: { focusN
     const k = KNOW.get(ref);
     const p = k ? undefined : product(ref);
     const title = k ? k.title : p ? `${p.shortName}: ${first.title}` : first.title;
-    const pool = group.map((g) => g.doc.text).join(" ");
+    // Retrieve small passages, then restore their bounded parent guide for answer construction.
+    // This preserves qualifications in neighbouring paragraphs instead of quoting an isolated fragment.
+    const pool = k ? k.text.slice(0, 6000) : group.map((g) => g.doc.text).join(" ").slice(0, 6000);
     const picked = bestSentences(pool, want, refs.length === 1 ? 5 : 2, refs.length === 1 && Boolean(k));
     if (!picked.length) return;
     sources.push({ n, id: ref, title, kind: k ? k.kind : "product", url: k ? `/guides/${ref}` : `/p/${ref}`, snippet: picked[0] });
-    passages.push({ n, title, text: group.map((g) => g.doc.text).join("\n") });
+    passages.push({ n, title, text: pool });
     for (const s of picked) lines.push(`- ${s.replace(/\.$/, "")} [${n}]`);
   });
   if (!sources.length) return null;
+  if (sources.some(s => KNOW.has(s.id))) ragTrace.stages.push("Restore bounded parent-guide context");
 
   // Related products: the categories the main source is about
   const main = KNOW.get(sources[0].id);

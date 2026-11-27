@@ -1,6 +1,10 @@
 type P = { className?: string; filled?: boolean };
 const base = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" } as const;
 
+export const IconCompass = ({ className = "w-6 h-6" }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5L16 8Z"/></svg>
+);
+
 export const IconBack = ({ className = "w-6 h-6" }: P) => (
   <svg viewBox="0 0 24 24" className={className} {...base}><path d="M15 4l-8 8 8 8" /></svg>
 );
@@ -114,4 +118,11 @@ export const DecathlonMark = ({ className = "w-6 h-6" }: P) => (
 
 export const IconLab = ({ className = "w-6 h-6" }: P) => (
   <svg viewBox="0 0 24 24" className={className} {...base}><path d="M9 3h6M10 3v6l-6 10a1.4 1.4 0 0 0 1.2 2h13.6a1.4 1.4 0 0 0 1.2-2L14 9V3M7 15h10" /></svg>
+);
+
+export const IconPlan = ({ className = "w-6 h-6" }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M7 3v4M17 3v4M3 10h18M8 15l2.5 2.5L16 13" />
+  </svg>
 );

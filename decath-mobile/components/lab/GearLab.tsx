@@ -10,16 +10,27 @@ import { PROFILE, parseLabInput } from "@/lib/lab/input";
 import { useLab } from "@/lib/lab/store";
 import type { LabInput, LabResult, OwnedGear, GearLog, ScenarioLine } from "@/lib/lab/types";
 import LabProduct from "./LabProduct";
+import ToolIntro from "@/components/ToolIntro";
 
 const TABS = [
-  ["future", "Future self", "01"], ["rehearsal", "Rehearsal", "02"], ["experiments", "Narrow your choices", "03"], ["gear", "My gear", "04"],
-  ["community", "Community", "05"], ["evidence", "Why these picks", "06"], ["team", "Team kit", "07"], ["advocate", "Buy less", "08"],
+  ["future", "Compare kit stages", "01"], ["rehearsal", "Check conditions", "02"], ["experiments", "Narrow choices", "03"], ["gear", "My gear", "04"],
+  ["community", "Community fit", "05"], ["evidence", "Why these picks", "06"], ["team", "Team kit", "07"], ["advocate", "Buy less", "08"],
 ] as const;
 type Tab = typeof TABS[number][0];
+const TAB_HINTS: Record<Tab, string> = {
+  future: "See what changes between a starter kit and your next step.",
+  rehearsal: "Check your gear against the conditions you expect.",
+  experiments: "Answer a useful question to narrow the available products.",
+  gear: "Keep track of equipment you own, its condition and care.",
+  community: "Read or share size and fit experiences with consent.",
+  evidence: "Check which preferences each product meets and what is unknown.",
+  team: "Plan individual budgets and avoid buying shared equipment twice.",
+  advocate: "Find opportunities to reuse, maintain or defer a purchase.",
+};
 const validTab = (s: string | null): Tab => TABS.some(t => t[0] === s) ? s as Tab : "future";
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 function Panel({ title, hint, children, className = "" }: { title: string; hint?: string; children: ReactNode; className?: string }) {
-  return <section className={`lab-panel ${className}`}><h2 className="text-[18px] font-semibold tracking-tight">{title}</h2>{hint && <p className="mt-1 text-[13px] leading-relaxed text-muted">{hint}</p>}<div className="mt-5">{children}</div></section>;
+  return <section className={`lab-panel ${className}`}><h2 className="text-[20px] font-semibold tracking-tight">{title}</h2>{hint && <p className="mt-2 text-[14px] leading-relaxed text-muted">{hint}</p>}<div className="mt-5">{children}</div></section>;
 }
 function Stat({ label, value }: { label: string; value: ReactNode }) { return <div className="rounded-xl bg-[#f7f8fa] p-4"><p className="text-[12px] text-muted">{label}</p><p className="mt-1 text-[21px] font-semibold tracking-tight tabular-nums">{value}</p></div>; }
 function Scenario({ title, lines, busy }: { title: string; lines: ScenarioLine[]; busy: boolean }) {
@@ -35,6 +46,7 @@ export default function GearLab() {
   const [busy, setBusy] = useState(true); const [error, setError] = useState<string | null>(null); const [retry, setRetry] = useState(0);
   const [resetting, setResetting] = useState(false);
   const [briefOpen, setBriefOpen] = useState(false);
+  const briefRef = useRef<HTMLElement>(null);
   const importRef = useRef<HTMLInputElement>(null);
   const addedFromLink = useRef<string | null>(null);
   const update = (patch: Partial<LabInput>) => setState(s => ({ ...s, ...patch }));
@@ -65,11 +77,18 @@ export default function GearLab() {
     const url = URL.createObjectURL(new Blob([JSON.stringify({ version: 1, state }, null, 2)], { type: "application/json" }));
     const a = document.createElement("a"); a.href = url; a.download = "my-gear-lab.json"; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  return <main className="min-h-[var(--app-h)] bg-[#f7f8fa] pb-12">
+  return <main className="lab-workspace min-h-[var(--app-h)] bg-[#f7f8fa] pb-12">
     <TopBar title="Gear lab" />
-    <div className="px-4 pt-5 lg:pt-3">
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-        <p className="max-w-2xl text-[14px] leading-relaxed text-muted">Plan around your goals, budget and the gear you own.</p>
+    <div className="tool-page-content">
+      <ToolIntro kind="lab" onStart={() => {
+        setBriefOpen(true);
+        requestAnimationFrame(() => {
+          briefRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+          briefRef.current?.focus({ preventScroll: true });
+        });
+      }} />
+      <div className="lab-workspace-toolbar">
+        <p className="text-[13px] text-muted">One activity brief. Every tool works from it.</p>
         <details className="lab-settings"><summary>Saved plan</summary><div className="flex flex-wrap gap-2 mt-3"><button className="lab-button" onClick={exportState} disabled={!ready}>Export</button><button className="lab-button" onClick={() => importRef.current?.click()}>Import</button><button className="lab-button" onClick={() => setResetting(!resetting)}>Reset</button></div></details>
       </div>
       <input ref={importRef} className="hidden" aria-label="Import Gear Lab JSON" type="file" accept="application/json,.json" onChange={async e => {
@@ -80,37 +99,39 @@ export default function GearLab() {
       }} />
       {resetting && <div className="lab-notice mb-4"><p>Reset this device’s brief, gear and team? Shared feedback has a separate delete control in Community.</p><button className="lab-button mt-3" onClick={() => { reset(); setResetting(false); }}>Reset device Lab</button></div>}
       {storageError && <p role="status" className="lab-notice mb-4">{storageError}</p>}
-      <div className="lg:grid lg:grid-cols-[268px_minmax(0,1fr)] gap-6 items-start">
-        <aside className="lab-panel lg:sticky lg:top-44">
-          <div className="flex items-center justify-between gap-3"><h2 className="font-semibold">Your plan</h2><button className="text-[13px] text-brand font-semibold min-h-10 lg:hidden" aria-expanded={briefOpen} onClick={() => setBriefOpen(!briefOpen)}>{briefOpen ? "Done" : "Edit plan"}</button></div><p className="mt-1 text-[12px] text-muted">{GOALS[state.goal].label === "Marathon" ? "Running" : GOALS[state.goal].label} · {inr(state.budget)} · {state.level}</p>
+      <div className="lab-workspace-layout">
+        <aside id="lab-settings" ref={briefRef} tabIndex={-1} className="lab-panel lab-activity-settings">
+          <div className="flex items-center justify-between gap-3"><h2 className="font-semibold text-[18px]">Your activity</h2><button className="text-[13px] text-brand font-semibold min-h-10 lg:hidden" aria-expanded={briefOpen} onClick={() => setBriefOpen(!briefOpen)}>{briefOpen ? "Done" : "Edit activity"}</button></div><p className="mt-2 text-[13px] text-muted">{GOALS[state.goal].label === "Marathon" ? "Running" : GOALS[state.goal].label} · {inr(state.budget)} · {state.level}</p>
           <div className={`${briefOpen ? "" : "hidden"} lg:block mt-5 space-y-4`}>
             <label className="lab-label">Activity<select className="lab-input" value={state.goal} onChange={e => update({ goal: e.target.value as Goal, answers: {}, query: `Help me choose ${e.target.value} gear` })}>{Object.entries(GOALS).map(([id, g]) => <option key={id} value={id}>{g.label === "Marathon" ? "Running" : g.label}</option>)}</select></label>
             <label className="lab-label">Budget for new gear (₹)<input className="lab-input" type="number" min="0" max="1000000" step="100" value={state.budget} onChange={e => update({ budget: Math.max(0, Math.min(1000000, Number(e.target.value) || 0)) })} /></label>
             <label className="lab-label">Experience<select className="lab-input" value={state.level} onChange={e => update({ level: e.target.value })}>{["beginner", "intermediate", "advanced"].map(v => <option key={v} value={v}>{v[0].toUpperCase() + v.slice(1)}</option>)}</select></label>
             <label className="lab-label">Prioritise<select className="lab-input" value={state.priority} onChange={e => update({ priority: e.target.value as LabInput["priority"] })}><option value="match">Best match</option><option value="price">Lowest price</option><option value="weight">Lightest</option></select></label>
             <label className="lab-label">What matters to you?<textarea className="lab-input min-h-20 resize-y" value={state.query} maxLength={500} onChange={e => update({ query: e.target.value })} /></label>
-            <p className="text-[12px] text-muted">Tell us what matters. Choose specific preferences in “Narrow your choices”.</p>
+            <p className="text-[12px] leading-relaxed text-muted">Add specific preferences with the “Narrow choices” tool.</p>
             <div className="border-t border-line pt-4"><p className="text-[12px] text-muted">Saved in this browser. Export a copy from “Saved plan”.</p></div>
           </div>
         </aside>
         <div className="min-w-0 mt-5 lg:mt-0">
-          <label className="lab-tab-select lab-label">Explore<select className="lab-input" value={tab} onChange={e => router.push(`/lab?tab=${e.target.value}`)}>{TABS.map(([id,label]) => <option key={id} value={id}>{label}</option>)}</select></label><nav aria-label="Gear lab sections" className="lab-tabs">{TABS.map(([id, label]) => <Link key={id} href={`/lab?tab=${id}`} aria-current={tab === id ? "page" : undefined} className={`lab-tab ${tab === id ? "lab-tab-active" : ""}`}>{label}</Link>)}</nav>
-          <div aria-live="polite" className="min-h-8 py-2 text-[12px] text-muted">{busy ? "Updating your plan…" : error ? "Please retry to update your plan" : ""}</div>
+          <div className="lab-tools-heading"><h2>Explore your gear</h2><p>Pick a tool. They all use your activity and budget.</p></div>
+          <label className="lab-tab-select lab-label">What would you like to do?<select className="lab-input" value={tab} onChange={e => router.push(`/lab?tab=${e.target.value}`)}>{TABS.map(([id,label]) => <option key={id} value={id}>{label}</option>)}</select></label><nav aria-label="Gear lab sections" className="lab-tabs">{TABS.map(([id, label]) => <Link key={id} href={`/lab?tab=${id}`} aria-current={tab === id ? "page" : undefined} className={`lab-tab ${tab === id ? "lab-tab-active" : ""}`}>{label}</Link>)}</nav>
+          <p className="lab-tool-hint">{TAB_HINTS[tab]}</p>
+          <div aria-live="polite" className="lab-update-status text-[12px] text-muted">{busy ? "Updating your plan…" : error ? "Please retry to update your plan" : ""}</div>
           {error && <div role="alert" className="lab-notice mb-4">{error}<button className="lab-button ml-3" onClick={() => setRetry(n => n + 1)}>Retry</button></div>}
           {!result ? <Panel title="Preparing your Lab"><p className="text-sm text-muted">Finding options for your plan…</p></Panel> : <div aria-busy={busy} className="space-y-5">
             {tab === "future" && <>
-              <Panel title="Meet your possible future" hint="Explore a planning scenario, not a prediction of your body or performance.">
+              <Panel title="Compare your starter and next-step kits" hint="Choose a scenario to see which gear changes and how much it could cost.">
                 <div className="grid sm:grid-cols-2 gap-4"><label className="lab-label">Scenario<select className="lab-input" value={state.stage} onChange={e => update({ stage: e.target.value as LabInput["stage"] })}><option value="start">Getting started</option><option value="progress">Building a routine</option><option value="challenge">A bigger challenge</option></select></label><label className="lab-label">Planning horizon (weeks)<input className="lab-input" type="number" min="1" max="52" value={state.weeks} onChange={e => update({ weeks: Math.max(1, Math.min(52, Number(e.target.value) || 1)) })} /></label></div>
                 <div className="lab-stats grid grid-cols-3 gap-2 mt-5"><Stat label="Starting gear" value={inr(result.future.currentCost)} /><Stat label="Scenario gear" value={inr(result.future.nextCost)} /><Stat label="Difference" value={`${result.future.delta >= 0 ? "+" : "−"}${inr(Math.abs(result.future.delta))}`} /></div>
-                <details className="mt-4 text-[13px] text-muted"><summary>Planning assumptions</summary><ul className="list-disc pl-5 mt-3 space-y-2">{result.future.assumptions.map(a => <li key={a}>{a}</li>)}</ul></details>
+                <details className="mt-4 text-[13px] text-muted"><summary>How to read this comparison</summary><p className="mt-3 leading-relaxed">These are gear planning scenarios. They do not predict your fitness or performance.</p><ul className="list-disc pl-5 mt-3 space-y-2">{result.future.assumptions.map(a => <li key={a}>{a}</li>)}</ul></details>
               </Panel>
               <div className="grid xl:grid-cols-2 gap-5"><Scenario title="Start with the essentials" lines={result.future.current} busy={outdated} /><Scenario title="Your chosen scenario" lines={result.future.next} busy={outdated} /></div>
             </>}
-            {tab === "rehearsal" && <Panel title="Rehearse the conditions" hint="A catalogue-based checklist. Conditions are assumptions you choose, not live weather or a safety assessment.">
+            {tab === "rehearsal" && <Panel title="Check your gear for the conditions" hint="Choose the conditions you expect to get a catalogue-based checklist. This is not a live weather forecast or safety assessment.">
               <div className="flex flex-wrap gap-3 mb-5">{([["rain", "Rain expected"], ["outdoor", "Outdoor session"], ["longSession", "Longer session"]] as const).map(([key, label]) => <label key={key} className="lab-check"><input type="checkbox" checked={state[key]} onChange={e => update({ [key]: e.target.checked })} />{label}</label>)}</div>
               <div className="space-y-3">{result.rehearsal.map(r => <div key={r.title} className="rounded-xl border border-line p-4"><span className="lab-badge">{r.status === "ready" ? "Listed evidence" : r.status === "unknown" ? "Unknown" : "Check before going"}</span><h3 className="font-semibold text-[15px] mt-3">{r.title}</h3><p className="mt-2 text-[13px] text-muted">{r.detail}</p><div className="flex gap-3 mt-3">{r.sourceIds.map((url, i) => <Link key={url} className="text-[12px] text-brand underline" href={url}>Evidence {i + 1}</Link>)}</div></div>)}</div>
             </Panel>}
-            {tab === "experiments" && <Panel title="One useful check beats ten guesses" hint="Choose what matters to you to narrow the options.">
+            {tab === "experiments" && <Panel title="Find what matters for your next purchase" hint="Answer a question below. Your choice becomes a requirement and updates the matching products.">
               {result.experiment ? <><span className="lab-badge">{result.experiment.before} options</span><h3 className="font-semibold mt-4">{result.experiment.label}</h3><div className="flex flex-wrap gap-2 mt-4">{result.experiment.options.map(o => <button className="lab-button" disabled={busy} key={o.id} onClick={() => update({ answers: { ...state.answers, [result.experiment!.id]: o.id } })}>{o.label} · {o.count} matches</button>)}</div></> : <p className="text-[14px] text-muted">{result.candidates.some(c => c.eligible) ? "No additional listed field usefully separates the current options. Try a measurement or review the evidence." : "No current match. Adjust the budget or remove a requirement to explore options."}</p>}
               {Object.keys(state.answers).length > 0 && <div className="mt-5 space-y-2">{Object.entries(state.answers).map(([key, value]) => <div key={key} className="flex justify-between items-center gap-3 rounded-xl bg-[#f7f8fa] p-3 text-[13px]"><span>{PROFILES[PROFILE[state.goal]].criteria.find(c => c.id === key)?.label}: {PROFILES[PROFILE[state.goal]].criteria.find(c => c.id === key)?.options.find(o => o.id === value)?.label}</span><button className="text-brand min-h-10" onClick={() => { const answers = { ...state.answers }; delete answers[key]; update({ answers }); }}>Remove</button></div>)}</div>}
               {state.goal === "running" && <div className="mt-6 border-t border-line pt-5"><label className="lab-label">Measure your longer foot (cm)<input type="number" min="18" max="34" step="0.1" className="lab-input max-w-48" placeholder="e.g. 26" value={state.footCm ?? ""} onChange={e => update({ footCm: e.target.value ? Math.max(18, Math.min(34, Number(e.target.value))) : null })} /></label><p className="text-[12px] text-muted mt-2">Use the product’s size chart to confirm your size.</p>{state.footCm && <p className="mt-3 text-[14px]">Starting size estimate: EU {Math.round((state.footCm + 1.5) * 1.5)}. Only choose a size actually listed on the product page.</p>}</div>}
@@ -144,7 +165,7 @@ export default function GearLab() {
 function GearInventory({ result }: { result: LabResult }) {
   const { state, setState } = useLab(); const [productId, setProductId] = useState("");
   const updateGear = (id: string, patch: Partial<OwnedGear>) => setState(s => ({ ...s, gear: s.gear.map(g => g.id === id ? { ...g, ...patch } : g) }));
-  return <Panel title="Gear that remembers its life" hint="Your own observations, stored on this device. Logs cannot establish internal damage or predict remaining useful life.">
+  return <Panel title="Keep track of the gear you own" hint="Add your equipment so other tools can suggest reuse. Record your own observations; logs do not predict remaining useful life.">
     <div className="flex flex-wrap gap-2"><select className="lab-input flex-1 min-w-0" aria-label="Owned product" value={productId} onChange={e => setProductId(e.target.value)}><option value="">Choose gear you own…</option>{products.filter(p => !state.gear.some(g => g.productId === p.id)).map(p => <option key={p.id} value={p.id}>{p.shortName}</option>)}</select><button className="lab-button lab-button-primary" disabled={!productId || state.gear.length >= 40} onClick={() => { setState(s => ({ ...s, gear: [...s.gear, { id: crypto.randomUUID(), productId, condition: "good", size: "", logs: [] }] })); setProductId(""); }}>Add owned gear</button></div>
     {!state.gear.length && <p className="lab-notice mt-5">Your inventory is empty. Add something you already own to improve scenarios, team planning and buy-less advice.</p>}
     <div className="space-y-4 mt-5">{state.gear.map(g => <GearItem key={g.id} gear={g} insight={result.lifecycle.find(l => l.gearId === g.id)} update={patch => updateGear(g.id, patch)} remove={() => setState(s => ({ ...s, gear: s.gear.filter(x => x.id !== g.id) }))} />)}</div>

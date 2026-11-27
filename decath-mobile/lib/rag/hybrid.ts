@@ -31,7 +31,7 @@ export type Hit = {
   doc: Doc;
   /** final score after reranking (higher is better) */
   score: number;
-  parts: { bm25: number; ngram: number; expanded: number; fused: number };
+  parts: { bm25: number; ngram: number; expanded: number; fused: number; semantic?: number };
 };
 
 export type Trace = {
@@ -51,6 +51,8 @@ export type SearchOptions = {
   /** "howto" prefers guides and policies; "fact" prefers specs and benefits */
   intent?: "howto" | "fact";
   expand?: boolean;
+  /** Trusted server-side dense retrieval scores, never accepted from a chat request. */
+  semantic?: Map<string, number>;
 };
 
 // ------------------------------------------------------------------ the corpus
@@ -255,6 +257,12 @@ export function search(query: string, opts: SearchOptions = {}): { hits: Hit[]; 
   fuse(ranked(bmScores), 1);
   fuse(ranked(ngScores), 0.7);
   fuse(ranked(expScores), 0.6);
+  const dense = new Map<number, number>();
+  if (opts.semantic) ix.docs.forEach((d, i) => {
+    const score = opts.semantic!.get(d.id);
+    if (score !== undefined && Number.isFinite(score) && score >= .25 && allow(d)) dense.set(i, score);
+  });
+  fuse(ranked(dense), .9);
   // Explanation questions also search the guides and policies on their own, so thousands of tiny product
   // chunks (every product has a "Size" line) can't crowd them out of the candidate pool.
   if (opts.intent === "howto" && !opts.source) {
@@ -302,13 +310,13 @@ export function search(query: string, opts: SearchOptions = {}): { hits: Hit[]; 
   const hits: Hit[] = picked.map((c) => ({
     doc: ix.docs[c.i],
     score: c.s,
-    parts: { bm25: bmScores.get(c.i) ?? 0, ngram: ngScores.get(c.i) ?? 0, expanded: expScores.get(c.i) ?? 0, fused: c.f },
+    parts: { bm25: bmScores.get(c.i) ?? 0, ngram: ngScores.get(c.i) ?? 0, expanded: expScores.get(c.i) ?? 0, fused: c.f, ...(dense.has(c.i) ? { semantic: dense.get(c.i) } : {}) },
   }));
   const trace: Trace = {
     query,
     tokens: qTokens,
     expansion,
-    stages: ["Keyword search (BM25)", "Fuzzy match (character n-grams)", expansion.length ? `Query expansion (+${expansion.length} terms)` : "Query expansion (nothing to add)", "Rank fusion", "Rerank and de-duplicate"],
+    stages: ["Keyword search (BM25)", "Fuzzy match (character n-grams)", ...(dense.size ? ["Dense semantic retrieval (local embeddings)"] : []), expansion.length ? `Query expansion (+${expansion.length} terms)` : "Query expansion (nothing to add)", "Rank fusion", "Rerank and de-duplicate"],
     top: hits.slice(0, 5).map((h) => ({ id: h.doc.id, title: h.doc.title, bm25: round(h.parts.bm25), ngram: round(h.parts.ngram), fused: round(h.parts.fused * 100), score: round(h.score) })),
   };
   return { hits, trace };
@@ -323,12 +331,13 @@ const round = (n: number) => Math.round(n * 100) / 100;
 export function confident(hits: Hit[], trace: Trace): boolean {
   const top = hits[0];
   if (!top) return false;
-  if (!(top.parts.bm25 >= 4 || top.parts.ngram >= 0.4)) return false;
+  if (!(top.parts.bm25 >= 4 || top.parts.ngram >= 0.4 || (top.parts.semantic ?? 0) >= .7)) return false;
   // Coverage: how many of the question's content words appear in the best three passages?
   const want = trace.tokens.filter((t) => t.length > 2 && !GENERIC.has(t));
   if (!want.length) return false;
   const have = new Set(hits.slice(0, 3).flatMap((h) => baseTokens(`${h.doc.title} ${h.doc.text}`).map(stem)));
-  return want.filter((t) => have.has(t)).length / want.length >= 0.5;
+  const overlap = want.filter((t) => have.has(t)).length / want.length;
+  return overlap >= 0.5 || ((top.parts.semantic ?? 0) >= .7 && overlap >= .25);
 }
 
 /**

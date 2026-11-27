@@ -23,6 +23,7 @@ import { parsePlanRequest } from "@/lib/plan";
 import { kitChip, kitOffer } from "@/lib/kitSuggest";
 import Sources from "@/components/Sources";
 import { isExplanation } from "@/lib/rag/rewrite";
+import { useChatMemory } from "@/lib/chat/memory";
 
 const SAVED_KEY = "dc.briefs";
 function loadSaved(): SavedPrefs {
@@ -38,24 +39,19 @@ function ChatInner() {
   const focusId = params.get("product");
   /** /chat?q=... asks that question straight away (deep links from banners, notifications, the README) */
   const initialQ = params.get("q");
-  const askedInitial = useRef(false);
+  const { messages, setMessages, input, setInput, busy, setBusy, source, setSource, session, setSession, pendingStart, handledLinks, request, ready: memoryReady, error: memoryError, clear: clearChat } = useChatMemory();
   const focus = focusId ? getProduct(focusId) : undefined;
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const pending = useRef<ChatMessage | null>(null);
-  const [source, setSource] = useState<"claude" | "gemini" | "offline" | "rag" | null>(null);
   const { addToCart, showToast, cart } = useStore();
   /** The guided shopping session: one source of truth for brief, comparison and Undo */
-  const [session, setSession] = useState<Session | null>(null);
   const sessionRef = useRef<Session | null>(null);
   sessionRef.current = session;
-  const pendingStart = useRef<{ msg: string; options: { id: string; label: string }[] } | null>(null);
   const [saved, setSaved] = useState<SavedPrefs>({});
   useEffect(() => { setSaved(loadSaved()); }, []);
 
   useEffect(() => {
+    if (!memoryReady || messages.length) return;
     setMessages([{
       role: "assistant",
       time: Date.now(),
@@ -66,7 +62,7 @@ function ChatInner() {
         ? ["What is it made of?", "What sizes are available?", "Is it good for beginners?", "Compare with a similar product"]
         : ["Help me explore a product 🤔📦", "Help me build a badminton kit", "I'm training for a marathon, shoes under ₹8,000", "I'm starting yoga and want pants under ₹1,000", "What's on sale?"],
     }]);
-  }, [focusId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [focusId, memoryReady, messages.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scroll only the message list. scrollIntoView would also scroll the page (and any window the chat is embedded in).
   useEffect(() => {
@@ -75,11 +71,11 @@ function ChatInner() {
   }, [messages, busy]);
 
   useEffect(() => {
-    if (initialQ && !askedInitial.current && messages.length === 1) {
-      askedInitial.current = true;
+    if (memoryReady && initialQ && !handledLinks.current.has(initialQ) && messages.length && !busy) {
+      handledLinks.current.add(initialQ);
       send(initialQ);
     }
-  }, [messages, initialQ]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [messages, initialQ, memoryReady, busy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
    * Guided shopping flow, handled on the device with the shared advisor engine (no network, so rapid
@@ -213,8 +209,8 @@ function ChatInner() {
   };
 
   async function send(text: string, opts: { productId?: string } = {}) {
-    const msg = text.trim();
-    if (!msg || busy) return;
+    const msg = text.trim().slice(0, 1000);
+    if (!msg || busy || !memoryReady) return;
     setInput("");
     const assistantMsgs = [...messages].reverse().filter((m) => m.role === "assistant");
     const lastProducts = assistantMsgs.find((m) => m.products?.length)?.products ?? [];
@@ -222,6 +218,9 @@ function ChatInner() {
     const lastFocus = assistantMsgs.find((m) => m.products?.length === 1)?.products?.[0];
     setMessages((m) => [...m, { role: "user", text: msg, time: Date.now() }]);
 
+    if (/\b(plan my next adventure|adventure planner|plan an adventure)\b/i.test(msg)) { router.push("/adventures"); return; }
+    if (/\b(try a sport|try the sport|trial session)\b/i.test(msg)) { router.push("/try-sport"); return; }
+    if (/\b(fit memor(?:y|ies)|remember my fit|fit wardrobe)\b/i.test(msg)) { router.push("/fit"); return; }
     if (/\b(try on|try-on|outfit preview|camera preview)\b/i.test(msg)) { router.push("/try-on"); return; }
 
     if (/\b(gear lab|future self|virtual expedition|rehearsal|evidence contract|buy less|team kit|gear history|fit community)\b/i.test(msg)) {
@@ -277,7 +276,9 @@ function ChatInner() {
     }
 
     setBusy(true);
-    const history = messages.map((m) => ({ role: m.role, text: m.text }));
+    const history = messages.slice(-12).map((m) => ({ role: m.role, text: m.text.slice(0, 1500) }));
+    const controller = new AbortController();
+    request.current = controller;
     // Update the reply being streamed (always the last message once it exists)
     const patch = (f: (m: ChatMessage) => ChatMessage) =>
       setMessages((ms) => [...ms.slice(0, -1), f(ms[ms.length - 1])]);
@@ -285,15 +286,16 @@ function ChatInner() {
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: msg,
           history,
           // a button on a specific product (e.g. "Add to cart" in the recommendation) scopes the request to it
-          contextIds: opts.productId ? [opts.productId] : lastProducts.map((p) => p.id),
+          contextIds: opts.productId ? [opts.productId] : focusId ? [focusId] : lastProducts.map((p) => p.id),
           listIds: opts.productId ? [opts.productId] : lastList.map((p) => p.id),
-          lastFocusId: opts.productId ?? lastFocus?.id,
-          productId: opts.productId || lastProducts.length ? undefined : focusId ?? undefined,
+          lastFocusId: opts.productId ?? focusId ?? lastFocus?.id,
+          productId: opts.productId ?? focusId ?? undefined,
         }),
       });
       if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
@@ -302,6 +304,7 @@ function ChatInner() {
       let buf = "";
       for (;;) {
         const { value, done } = await reader.read();
+        if (controller.signal.aborted) return;
         if (done) break;
         buf += dec.decode(value, { stream: true });
         const lines = buf.split("\n");
@@ -321,7 +324,6 @@ function ChatInner() {
           } else if (ev.type === "text" || ev.type === "replace") {
             if (!started) {
               started = true;
-              setBusy(false);
               const first = { ...(pending.current ?? { role: "assistant" as const, time: Date.now(), text: "" }), text: ev.type === "text" ? ev.delta : ev.text };
               setMessages((ms) => [...ms, first]);
             } else {
@@ -331,28 +333,31 @@ function ChatInner() {
         }
       }
     } catch {
+      if (controller.signal.aborted) return;
       const err = { role: "assistant" as const, time: Date.now(), text: "Sorry, something went wrong. Please try again." };
       setMessages((ms) => (started ? [...ms.slice(0, -1), err] : [...ms, err]));
     } finally {
-      setBusy(false);
+      if (request.current === controller) { request.current = null; setBusy(false); }
     }
   }
 
   return (
-    <main className="flex flex-col h-[var(--app-h)] lg:max-w-3xl lg:mx-auto lg:h-[calc(100dvh-48px)] lg:mt-6 lg:mb-0 lg:rounded-3xl lg:overflow-hidden lg:shadow-[0_12px_40px_rgba(30,40,90,0.08)] lg:border lg:border-line lg:bg-white">
+    <main className="chat-screen flex min-h-0 w-full flex-col h-[var(--app-h)] overflow-hidden bg-white">
       <header className="bg-brand text-white flex items-center gap-3 px-5 py-5 shrink-0">
         <span className="relative shrink-0">
           <DecathlonMark className="w-11 h-9 text-white" />
           <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-[#4caf50] ring-2 ring-white" />
         </span>
         <div className="min-w-0">
-          <p className="font-semibold tracking-tight text-[18px]">Decathlon Chat Assistant</p>
+          <p className="font-semibold tracking-tight text-[18px]">Decathlon chat assistant</p>
           <p className="text-[13px] opacity-90">Product advice, backed by catalogue facts</p>
         </div>
-        <button onClick={() => router.back()} className="ml-auto" aria-label="Close chat"><IconClose className="w-7 h-7" /></button>
+        <button onClick={() => { clearChat(); router.push("/"); }} className="ml-auto min-h-11 px-3 rounded-lg text-[12px] border border-white/30" aria-label="End chat and clear conversation">End chat</button>
+        <button onClick={() => router.back()} className="p-1" aria-label="Close chat"><IconClose className="w-7 h-7" /></button>
       </header>
 
-      <div className="chat-messages flex-1 overflow-y-auto px-3 py-5 space-y-5 lg:mx-0 lg:max-w-none lg:w-full lg:px-6">
+      {memoryError && <p role="status" className="lab-notice mx-3 my-2">{memoryError}</p>}
+      <div className="chat-messages min-h-0 flex-1 overflow-y-auto px-3 py-5 space-y-5 lg:mx-0 lg:max-w-none lg:w-full lg:px-6">
         {messages.map((m, i) => (
           <div key={i}>
             <Bubble m={m} onSuggest={(t) => send(t)} isLast={i === messages.length - 1}
@@ -394,7 +399,7 @@ function ChatInner() {
       <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="shrink-0 border-t border-line px-4 pt-4 pb-3 bg-white lg:mx-0 lg:max-w-none lg:w-full lg:px-6">
         <div className="flex items-center gap-3">
           <Link href="/" aria-label="Home" className="text-[#555]"><IconHome className="w-8 h-8" /></Link>
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type or speak your message"
+          <input value={input} onChange={(e) => setInput(e.target.value)} maxLength={1000} placeholder="Type or speak your message"
             className="flex-1 min-w-0 border border-[#ccc] rounded-full px-5 py-3.5 text-[16px] outline-none focus:border-brand" />
           <VoiceButton disabled={busy} onText={(t) => setInput((cur) => (cur ? cur + " " : "") + t)} />
           <button type="submit" disabled={!input.trim() || busy} aria-label="Send" className="text-brand disabled:text-[#aaa]"><IconSend className="w-8 h-8" /></button>

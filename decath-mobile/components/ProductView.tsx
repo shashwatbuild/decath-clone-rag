@@ -10,6 +10,7 @@ import { defaultTarget, useWatches } from "@/lib/watch";
 import ProductCard, { Tag } from "./ProductCard";
 import Explain from "./Explain";
 import SizeFinder from "./SizeFinder";
+import FitRecall from "./experiences/FitRecall";
 import { supportsFitting } from "@/lib/tryon/assets";
 import { ChatFab, SectionTitle, Stars, TopBar } from "./ui";
 import { IconClose, IconExchange, IconHeart, IconPlus, IconReturn, IconShare, IconShield, IconStore, IconTag, IconTruck } from "./Icons";
@@ -109,8 +110,8 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
       {p.sizes.length > 0 && (
         <section id="size" ref={sizeRef} className="px-4 pt-5 pb-5 border-b border-line scroll-mt-[120px]">
           <div className="flex items-center">
-            <h2 className="text-[19px] font-semibold">Select Size</h2>
-            <a href="https://www.decathlon.in/page/size-guide" target="_blank" rel="noreferrer" className="ml-auto text-brand font-semibold text-[15px]">View Size Chart</a>
+            <h2 className="text-[19px] font-semibold">Select size</h2>
+            <a href="https://www.decathlon.in/page/size-guide" target="_blank" rel="noreferrer" className="ml-auto text-brand font-semibold text-[15px]">View size chart</a>
           </div>
           {p.recommendedCount > 0 && (
             <p className="text-sm text-muted mt-2">{Math.round((p.recommendedCount / p.reviewCount) * 100)}% recommend this product</p>
@@ -124,6 +125,7 @@ export default function ProductView({ p, fbt, similar, breakdown, reviews, aspec
             ))}
           </div>
           {sizeError && <p className="text-red-600 text-sm mt-2">Please select a size</p>}
+          <FitRecall productId={p.id} onPick={s => { setSize(s); setSizeError(false); showToast(`Remembered size ${s} selected`); }} />
           <SizeFinder p={p} onPick={(s) => { setSize(s); setSizeError(false); showToast(`Size ${s} selected`); }} />
         </section>
       )}

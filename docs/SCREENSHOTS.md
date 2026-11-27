@@ -2,6 +2,26 @@
 
 [Back to the project](../README.md) · [Feature matrix](FEATURES.md)
 
+## Sports companion · interactive flows
+
+These captures show the working planner, trial-session controls and fit-memory form. Calendar dates are example personal plans, not confirmed bookings. No personal fit assessment or camera image is published.
+
+| Adventure planner | First-session planner | Fit memories |
+|:---:|:---:|:---:|
+| <img src="screenshots/adventure-companion-mobile.jpg" width="280" alt="Adventure planner in a complete iPhone frame" /> | <img src="screenshots/sport-trial-mobile.jpg" width="280" alt="Try a sport in a complete iPhone frame" /> | <img src="screenshots/fit-memories-mobile.jpg" width="280" alt="Fit memory form in a complete iPhone frame" /> |
+
+### Desktop adventure planner
+
+<img src="screenshots/adventure-companion-desktop.jpg" width="1000" alt="Activity selection, budget and ownership-aware adventure summary" />
+
+### Desktop trial planner
+
+<img src="screenshots/sport-trial-desktop.jpg" width="1000" alt="Interactive trial planning, borrowing checklist, calendar export and session reflection" />
+
+### Desktop fit memories
+
+<img src="screenshots/fit-memories-desktop.jpg" width="1000" alt="Product search, real catalogue sizes, fit feedback and an editable personal wardrobe" />
+
 ## Gear Lab · desktop and mobile
 
 Current Gear Lab captures use sample shopping inputs and a demo ownership log. Fitting-room screenshots show the camera-off interface and real garment layers; no personal camera image is published. The validation image uses public catalogue photography and is explicitly not a live customer result.

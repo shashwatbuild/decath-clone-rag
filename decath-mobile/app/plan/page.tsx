@@ -6,8 +6,10 @@ import { img, inr } from "@/lib/products";
 import { useStore } from "@/lib/store";
 import { GOALS, buildPlan, type Goal, type PlanLine } from "@/lib/plan";
 import { TopBar } from "@/components/ui";
+import ToolIntro from "@/components/ToolIntro";
 
 const BUDGETS = [3000, 5000, 10000];
+const sportName = (goal: Goal) => goal === "running" ? "Running" : GOALS[goal].label;
 
 export default function PlanPage() {
   const { addToCart, cart, showToast } = useStore();
@@ -16,11 +18,14 @@ export default function PlanPage() {
   const [budget, setBudget] = useState(5000);
   const [owned, setOwned] = useState<string[]>([]);
 
-  // A chat request like "10K in 8 weeks, ₹5,000 budget" arrives as /plan?goal=running&weeks=8&budget=5000.
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const g = q.get("goal");
     if (g && g in GOALS) setGoal(g as Goal);
+    if (g && Object.hasOwn(GOALS, g)) {
+      const valid = new Set(GOALS[g as Goal].needs.map(n => n.id));
+      setOwned((q.get("owned") ?? "").split(",").filter(id => valid.has(id)));
+    }
     const w = Number(q.get("weeks"));
     if (w >= 1 && w <= 12) setWeeks(w);
     const b = Number(q.get("budget"));
@@ -29,133 +34,77 @@ export default function PlanPage() {
 
   const plan = useMemo(() => buildPlan({ goal, weeks, budget, owned }), [goal, weeks, budget, owned]);
   const inCart = (line: PlanLine) => !!line.product && cart.some((c) => c.id === line.product!.id);
+  const newItems = plan.lines.filter((line) => !line.owned && line.product).length;
 
   function toggleOwned(id: string) {
     setOwned((o) => (o.includes(id) ? o.filter((x) => x !== id) : [...o, id]));
   }
 
   return (
-    <main className="pb-32 lg:pb-12 bg-[#F5F4F5] min-h-[var(--app-h)]">
+    <main className="planning-page pb-32 lg:pb-12 min-h-[var(--app-h)]">
       <TopBar title="Training plan" />
-
-      <div className="lg:grid lg:grid-cols-[360px_1fr] lg:gap-8 lg:px-4 lg:items-start lg:pt-2">
-      <section className="bg-white p-5 space-y-5 rounded-2xl border border-line mx-4 mt-4 lg:mx-0 lg:mt-0 lg:sticky lg:top-44">
-        <div>
-          <p className="text-sm text-muted mb-2">What are you training for?</p>
-          <div className="flex gap-2">
-            {(Object.keys(GOALS) as Goal[]).map((g) => (
-              <button key={g} onClick={() => { setGoal(g); setOwned([]); }}
-                className={`flex-1 h-10 rounded-full border text-sm font-medium ${goal === g ? "bg-brand text-white border-brand" : "border-line"}`}>
-                {GOALS[g].label}
-              </button>
-            ))}
-          </div>
-          <p className="text-sm text-muted mt-2">{GOALS[goal].blurb}</p>
-        </div>
-
-        <div>
-          <label htmlFor="weeks" className="text-sm text-muted">Weeks until you start</label>
-          <select id="weeks" value={weeks} onChange={(e) => setWeeks(Number(e.target.value))}
-            className="mt-1 w-full border border-line rounded-lg px-3 py-2.5 bg-white">
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => <option key={w} value={w}>{w} week{w > 1 ? "s" : ""}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <p className="text-sm text-muted mb-2">Budget for new gear</p>
-          <div className="flex gap-2">
-            {[...new Set([...BUDGETS, budget])].sort((a, b) => a - b).map((b) => (
-              <button key={b} onClick={() => setBudget(b)}
-                className={`flex-1 h-10 rounded-full border text-sm font-medium ${budget === b ? "bg-brand text-white border-brand" : "border-line"}`}>
-                {inr(b)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="text-sm text-muted mb-2">Already own?</p>
-          <div className="space-y-2">
-            {GOALS[goal].needs.map((n) => (
-              <label key={n.id} className="flex items-center gap-3 text-[15px]">
-                <input type="checkbox" checked={owned.includes(n.id)} onChange={() => toggleOwned(n.id)} className="w-4 h-4" />
-                {n.label}
-              </label>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <div>
-      <section className="px-4 pt-4 lg:px-0 lg:pt-0">
-        <div className={`rounded-xl p-4 ${plan.over ? "bg-[#fdecea] text-[#8a2a20]" : "bg-white"}`}>
-          <p className="font-semibold">Total for new gear: {inr(plan.total)}</p>
-          <p className="text-sm mt-1">
-            {plan.over
-              ? `${inr(plan.over)} over your ${inr(budget)} budget. Pick a higher budget or mark something you own.`
-              : `Within your ${inr(budget)} budget.`}
-          </p>
-        </div>
-        {plan.unavailable.length > 0 && (
-          <p className="text-sm text-muted mt-2">Not in stock right now: {plan.unavailable.map((n) => n.label).join(", ")}.</p>
-        )}
-      </section>
-
-      <section className="px-4 pt-4 space-y-4 lg:px-0">
-        {plan.weeks.map((w) => (
-          <div key={w.week} className="relative pl-6 border-l-2 border-line">
-            <span className="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-brand" />
-            <div className="flex items-baseline justify-between">
-              <p className="font-semibold">Week {w.week}</p>
-              {w.cost > 0 && <p className="text-sm text-muted">{inr(w.cost)}</p>}
+      <div className="tool-page-content">
+        <ToolIntro kind="plan" />
+        <div className="plan-layout">
+          <section id="plan-settings" tabIndex={-1} className="plan-settings tool-card" aria-labelledby="plan-settings-title">
+            <h2 id="plan-settings-title">Build your gear plan</h2>
+            <p className="tool-section-hint">Your timeline updates as you make changes.</p>
+            <fieldset className="plan-field">
+              <legend>Choose your sport</legend>
+              <div className="plan-sports">
+                {(Object.keys(GOALS) as Goal[]).map((g) => <button key={g} aria-pressed={goal === g} onClick={() => { setGoal(g); setOwned([]); }} className={`plan-choice ${goal === g ? "plan-choice-active" : ""}`}>{sportName(g)}</button>)}
+              </div>
+              <p className="tool-field-hint">{GOALS[goal].blurb}</p>
+            </fieldset>
+            <div className="plan-field">
+              <label htmlFor="weeks">Spread purchases over</label>
+              <select id="weeks" value={weeks} onChange={(e) => setWeeks(Number(e.target.value))} className="lab-input">
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => <option key={w} value={w}>{w} week{w > 1 ? "s" : ""}</option>)}
+              </select>
             </div>
-            {w.lines.length === 0 && <p className="text-sm text-muted mt-1">Nothing to buy this week.</p>}
-            <div className="space-y-2 mt-2">
-              {w.lines.map((l) => (
-                <div key={l.need.id} className="bg-white rounded-2xl border border-line p-4 flex gap-4">
-                  {l.product ? (
+            <fieldset className="plan-field">
+              <legend>Budget for new gear</legend>
+              <div className="plan-budgets">
+                {[...new Set([...BUDGETS, budget])].sort((a, b) => a - b).map((b) => <button key={b} aria-pressed={budget === b} onClick={() => setBudget(b)} className={`plan-choice ${budget === b ? "plan-choice-active" : ""}`}>{inr(b)}</button>)}
+              </div>
+            </fieldset>
+            <fieldset className="plan-field">
+              <legend>Gear you already have</legend>
+              <p className="tool-field-hint mt-0">These items will not count towards new purchases.</p>
+              <div className="plan-owned">
+                {GOALS[goal].needs.map((need) => <label key={need.id} className={owned.includes(need.id) ? "plan-owned-selected" : ""}><input type="checkbox" checked={owned.includes(need.id)} onChange={() => toggleOwned(need.id)} />{need.label}</label>)}
+              </div>
+            </fieldset>
+            <a href="#gear-timeline" className="tool-primary plan-see-timeline">See my timeline</a>
+          </section>
+
+          <div id="gear-timeline" tabIndex={-1} className="plan-results">
+            <section className="tool-card plan-summary" aria-label="Plan summary" aria-live="polite" aria-atomic="true">
+              <div className="plan-summary-top"><div><p className="tool-section-hint">Your {sportName(goal).toLowerCase()} gear timeline</p><h2>{weeks} weeks · {newItems} new {newItems === 1 ? "item" : "items"}</h2></div><div className="plan-total"><span>Total for new gear</span><strong>{inr(plan.total)}</strong></div></div>
+              <p className={`plan-budget-status ${plan.over ? "plan-budget-over" : ""}`}>{plan.over ? `${inr(plan.over)} over your ${inr(budget)} budget. Mark gear you own or adjust your budget.` : `${inr(Math.max(0, budget - plan.total))} left within your ${inr(budget)} budget.`}</p>
+              {plan.unavailable.length > 0 && <p className="tool-field-hint">Not in stock right now: {plan.unavailable.map((need) => need.label).join(", ")}.</p>}
+            </section>
+            <section className="plan-timeline" aria-label="Weekly gear purchases">
+              {plan.weeks.map((week) => <section key={week.week} className={`plan-week ${week.lines.length ? "tool-card" : "plan-week-empty"}`} aria-label={`Week ${week.week}`}>
+                <div className="plan-week-heading"><h3><span className="plan-week-dot" aria-hidden="true" />Week {week.week}</h3>{week.cost > 0 && <span>{inr(week.cost)}</span>}</div>
+                {week.lines.length === 0 ? <p className="tool-section-hint">No new purchases this week.</p> : <div className="plan-week-items">{week.lines.map((line) => <div key={line.need.id} className={`plan-item ${line.owned ? "plan-item-owned" : ""}`}>
+                  {!line.owned && <div className="plan-item-image">{line.product && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={img(l.product.images[0], 160)} alt="" className="w-16 h-16 object-contain mix-blend-multiply bg-[#F5F4F5] rounded" />
-                  ) : (
-                    <div className="w-16 h-16 bg-[#F5F4F5] rounded" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-muted">{l.need.label}{l.need.essential ? "" : " · optional"}</p>
-                    {l.owned ? (
-                      <p className="font-medium text-[#3d9a6d]">Already owned</p>
-                    ) : l.product ? (
-                      <>
-                        <Link href={`/p/${l.product.id}`} className="font-medium text-[14px] line-clamp-2 block">{l.product.shortName}</Link>
-                        <p className="text-sm font-semibold mt-0.5">{inr(l.product.price)}</p>
-                        <p className="text-xs text-muted mt-1">{l.need.why}</p>
-                        <div className="mt-2">
-                          {l.product.sizes.length > 1 ? (
-                            <Link href={`/p/${l.product.id}`} className="text-sm text-brand underline">Choose size</Link>
-                          ) : inCart(l) ? (
-                            <span className="text-sm text-[#3d9a6d]">In your cart</span>
-                          ) : (
-                            <button onClick={() => { addToCart(l.product!.id, l.product!.sizes[0] ?? null); showToast("Added to cart"); }}
-                              className="text-sm text-brand underline">Add to cart</button>
-                          )}
-                        </div>
-                      </>
-                    ) : (
-                      <p className="text-sm text-muted">No stock for this item right now.</p>
-                    )}
+                    <img src={img(line.product.images[0], 160)} alt="" />
+                  )}</div>}
+                  <div className="plan-item-copy"><p className="plan-item-category">{line.need.label}<span>{line.need.essential ? "Essential" : "Optional"}</span></p>
+                    {line.owned ? <p className="plan-owned-message">Already owned · no purchase needed</p> : line.product ? <><Link href={`/p/${line.product.id}`} className="plan-product-name">{line.product.shortName}</Link><p className="plan-item-price">{inr(line.product.price)}</p><p className="tool-field-hint">{line.need.why}</p></> : <p className="tool-field-hint">No stock for this item right now.</p>}
                   </div>
-                </div>
-              ))}
-            </div>
+                  {!line.owned && line.product && <div className="plan-item-action">{line.product.sizes.length > 1 ? <Link href={`/p/${line.product.id}`} className="lab-button">Choose size</Link> : inCart(line) ? <span className="plan-owned-message">In your cart</span> : <button onClick={() => { addToCart(line.product!.id, line.product!.sizes[0] ?? null); showToast("Added to cart"); }} className="lab-button">Add to cart</button>}</div>}
+                </div>)}</div>}
+              </section>)}
+            </section>
           </div>
-        ))}
-      </section>
-
+        </div>
       </div>
-      </div>
-
       <div className="bottom-bar lg:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-line flex items-center gap-4 px-4 py-3 z-30">
-        <div><p className="font-bold text-lg">{inr(plan.total)}</p><p className="text-xs text-muted">For {plan.lines.filter((l) => !l.owned && l.product).length} new item(s)</p></div>
-        <Link href="/cart" className="flex-1 h-[52px] rounded-full bg-brand text-white font-medium text-[17px] grid place-items-center">View cart</Link>
+        <div><p className="font-bold text-lg">{inr(plan.total)}</p><p className="text-xs text-muted">For {newItems} new {newItems === 1 ? "item" : "items"}</p></div>
+        <Link href="/cart" className="flex-1 h-[48px] rounded-xl bg-brand text-white font-medium text-[15px] grid place-items-center">View cart</Link>
       </div>
     </main>
   );
