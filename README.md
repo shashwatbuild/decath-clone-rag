@@ -10,7 +10,7 @@ A personal project combining an evidence-backed chatbot, interactive sports plan
 
 **87 products · 19 categories · 8 Gear Lab tools · 3 companion experiences**
 
-[Features](docs/FEATURES.md) · [Screenshots](docs/SCREENSHOTS.md) · [How it works](docs/ARCHITECTURE.md) · [Documentation](docs/README.md)
+[Live app](https://decath-clone-rag.vercel.app) · [Features](docs/FEATURES.md) · [Screenshots](docs/SCREENSHOTS.md) · [How it works](docs/ARCHITECTURE.md) · [Documentation](docs/README.md)
 
 </div>
 

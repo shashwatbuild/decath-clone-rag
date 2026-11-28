@@ -64,8 +64,11 @@ async function mutate(update: (records: CommunityRecord[]) => CommunityRecord[])
     await rename(temporary, path.join(dir(), "community.json"));
   } finally { await unlink(temporary).catch(() => {}); await lock.close(); await unlink(lockPath).catch(() => {}); }
 }
-export const readCommunity = async () => ({ minimum: MIN_COHORT, groups: aggregateCommunity(await readRecords()) });
+export const readCommunity = async () => process.env.COMMUNITY_SHARING === "off"
+  ? { available: false, minimum: MIN_COHORT, groups: [] }
+  : { available: true, minimum: MIN_COHORT, groups: aggregateCommunity(await readRecords()) };
 export async function contribute(value: unknown) {
+  if (process.env.COMMUNITY_SHARING === "off") throw new Error("Community sharing is not available in this demo.");
   const vote = validateContribution(value);
   if (serverUsesRedis()) return saveRedisContribution(vote);
   await mutate(records => [...records.filter(r => !(r.contributor === vote.contributor && r.productId === vote.productId && r.size === vote.size)), vote]);

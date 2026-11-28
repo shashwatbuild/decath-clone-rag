@@ -182,7 +182,7 @@ function GearItem({ gear: g, insight, update, remove }: { gear: OwnedGear; insig
   </div>;
 }
 
-type CommunityData = { minimum: number; groups: { productId: string; size: string; participants: number; small: number; right: number; large: number }[] };
+type CommunityData = { available?: boolean; minimum: number; groups: { productId: string; size: string; participants: number; small: number; right: number; large: number }[] };
 function Community() {
   const [data, setData] = useState<CommunityData | null>(null); const [productId, setProductId] = useState(products[0].id); const [size, setSize] = useState(""); const [fit, setFit] = useState("right"); const [consent, setConsent] = useState(false); const [status, setStatus] = useState(""); const [busy, setBusy] = useState(false);
   const p = getProduct(productId)!;
@@ -201,6 +201,8 @@ function Community() {
     } catch (e) { setStatus(e instanceof Error ? e.message : "Could not save feedback."); }
     finally { setBusy(false); }
   }
+  if (data?.available === false) return <Panel title="Community feedback" hint="Shared feedback is not available in this demo."><p className="text-sm text-muted">You can still remember how your own gear fits, privately on this device.</p><Link className="lab-button mt-4 inline-flex" href="/fit">Open my fit memories →</Link></Panel>;
+  if (!data) return <Panel title="Community feedback" hint="Read fit experiences shared with consent."><p role="status" className="text-sm text-muted">{status || "Loading community feedback…"}</p></Panel>;
   return <Panel title="Learn from real fit experiences" hint="Share how a size felt. Results appear after at least five devices contribute; reports are not verified purchases.">
     <div className="grid sm:grid-cols-2 gap-3"><label className="lab-label">Product<select className="lab-input" value={productId} onChange={e => { setProductId(e.target.value); setSize(""); }}>{products.filter(p => p.sizes.length > 1).map(p => <option key={p.id} value={p.id}>{p.shortName}</option>)}</select></label><label className="lab-label">Size tried<select className="lab-input" value={size} onChange={e => setSize(e.target.value)}><option value="">Choose size</option>{p.sizes.map(s => <option key={s}>{s}</option>)}</select></label></div>
     <label className="lab-label mt-4">How did it feel?<select className="lab-input" value={fit} onChange={e => setFit(e.target.value)}><option value="small">Smaller than expected</option><option value="right">As expected</option><option value="large">Larger than expected</option></select></label>

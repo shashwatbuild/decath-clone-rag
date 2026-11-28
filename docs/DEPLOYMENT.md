@@ -2,6 +2,8 @@
 
 [Back to the project](../README.md)
 
+**Live demo:** [decath-clone-rag.vercel.app](https://decath-clone-rag.vercel.app). Shared community feedback is intentionally off in this deployment; private fit memories and personal plans remain available.
+
 Desktop, mobile, chat and the API routes are one Next.js application. Deploy **`decath-mobile` as the project root**; do not deploy the repository root as a static site.
 
 | Setting | Value |
@@ -23,6 +25,7 @@ Add these as server-side Vercel environment variables. Keep credentials out of G
 | `GEMINI_MODEL=gemini-flash-latest` | A model alias verified accessible to the existing project key during deployment preparation. Provider availability and quota still apply. |
 | `UPSTASH_REDIS_REST_URL` | HTTPS endpoint for durable community-fit feedback. |
 | `UPSTASH_REDIS_REST_TOKEN` | Server-side read/write token for that database. |
+| `COMMUNITY_SHARING=off` | Deploy without a shared-feedback database. The community tab explains availability and links to private fit memories. |
 
 Vercel Marketplace integrations using `KV_REST_API_URL` and `KV_REST_API_TOKEN` are also supported. Connect a Redis database to the same Vercel project and deployment environments. [Vercel storage integrations](https://vercel.com/docs/marketplace-storage) · [Upstash REST API](https://upstash.com/docs/redis/features/restapi)
 

@@ -6,7 +6,7 @@ const jiti = createJiti(import.meta.url, { alias: { "@": fileURLToPath(new URL("
 const C = await jiti.import("@/app/api/lab/community/route.ts");
 const { products } = await jiti.import("@/lib/products.ts");
 const originalFetch = globalThis.fetch;
-const names = ["VERCEL", "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN", "KV_REST_API_URL", "KV_REST_API_TOKEN"];
+const names = ["VERCEL", "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN", "KV_REST_API_URL", "KV_REST_API_TOKEN", "COMMUNITY_SHARING"];
 const originalEnv = Object.fromEntries(names.map(n => [n, process.env[n]]));
 const p = products.find(p => p.category === "Running Shoes");
 const token = randomUUID();
@@ -17,6 +17,13 @@ async function test(label, fn) { await fn(); checks++; console.log(`PASS ${label
 try {
   for (const n of names) delete process.env[n];
   process.env.VERCEL = "1";
+  await test("Explicitly disabled sharing returns an honest unavailable state and accepts no votes", async () => {
+    process.env.COMMUNITY_SHARING = "off";
+    const response = await C.GET();
+    assert.equal(response.status, 200); assert.deepEqual(await response.json(), { available: false, minimum: 5, groups: [] });
+    assert.equal((await C.POST(request(vote))).status, 503);
+    delete process.env.COMMUNITY_SHARING;
+  });
   await test("Serverless deployment refuses ephemeral community persistence", async () => {
     assert.equal((await C.GET()).status, 503);
     assert.equal((await C.POST(request(vote))).status, 503);
