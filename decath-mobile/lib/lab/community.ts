@@ -2,11 +2,17 @@ import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile, rename, open, unlink } from "node:fs/promises";
 import path from "node:path";
 import { getProduct } from "../products";
+import { communityRedisConfigured, readRedisCommunity, saveRedisContribution, forgetRedisContributions } from "./community-redis";
 
 export type FitVote = "small" | "right" | "large";
 export type CommunityRecord = { contributor: string; productId: string; size: string; fit: FitVote; at: number };
 export const MIN_COHORT = 5;
 const dir = () => process.env.LAB_DATA_DIR || path.join(process.cwd(), ".local", "gear-lab");
+function serverUsesRedis() {
+  if (communityRedisConfigured()) return true;
+  if (process.env.VERCEL) throw new Error("Community storage is not configured for this deployment.");
+  return false;
+}
 const tokenHash = (token: unknown) => {
   if (typeof token !== "string" || !/^[a-f0-9-]{36}$/i.test(token)) throw new Error("A valid device contribution token is required.");
   return createHash("sha256").update(token).digest("hex");
@@ -34,6 +40,7 @@ export function aggregateCommunity(records: CommunityRecord[]) {
   }));
 }
 async function readRecords(): Promise<CommunityRecord[]> {
+  if (serverUsesRedis()) return readRedisCommunity();
   try { return JSON.parse(await readFile(path.join(dir(), "community.json"), "utf8")); }
   catch (e) { if ((e as NodeJS.ErrnoException).code === "ENOENT") return []; throw e; }
 }
@@ -60,9 +67,11 @@ async function mutate(update: (records: CommunityRecord[]) => CommunityRecord[])
 export const readCommunity = async () => ({ minimum: MIN_COHORT, groups: aggregateCommunity(await readRecords()) });
 export async function contribute(value: unknown) {
   const vote = validateContribution(value);
+  if (serverUsesRedis()) return saveRedisContribution(vote);
   await mutate(records => [...records.filter(r => !(r.contributor === vote.contributor && r.productId === vote.productId && r.size === vote.size)), vote]);
 }
 export async function forgetContributions(token: unknown) {
   const contributor = tokenHash(token);
+  if (serverUsesRedis()) return forgetRedisContributions(contributor);
   await mutate(records => records.filter(r => r.contributor !== contributor));
 }

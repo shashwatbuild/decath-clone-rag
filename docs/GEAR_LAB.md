@@ -68,7 +68,7 @@ Feedback is opt-in. The browser stores a random device token; the server persist
 
 This is **pseudonymous feedback**, not federated learning, differential privacy or verified-purchase data. A user can create more than one device token; a public production service needs authentication/abuse controls. Losing or clearing the token prevents identifying previous submissions for deletion.
 
-By default records live in `decath-mobile/.local/gear-lab/` and are ignored by Git. Set `LAB_DATA_DIR` to a private persistent directory when hosting. Writes use an exclusive lock and atomic file replacement, suitable for a single host with a shared persistent volume. Ephemeral deployments lose reports. Multiple independent instances need a transactional database. After a process crash, an operator may need to remove a stale `community.lock` after confirming no writer is active. Storage failures show an error; they never become fabricated reports.
+Local records live in `decath-mobile/.local/gear-lab/` and are ignored by Git. Set `LAB_DATA_DIR` for a private persistent directory on a single host; writes use an exclusive lock and atomic replacement. Vercel deployments use the hosted Redis adapter with atomic updates and refuse local-file persistence. Configure the Redis REST URL and token before accepting feedback. After a local process crash, an operator may need to remove a stale `community.lock` after confirming no writer is active. Storage failures show an error; they never become fabricated reports. [Vercel setup →](DEPLOYMENT.md)
 
 ## Validation
 

@@ -10,6 +10,7 @@
 | Try the adventure, trial and fit-memory flows | [Sports companion](SPORTS_COMPANION.md) |
 | Explore Gear Lab or camera fitting | [Gear Lab and camera guide](GEAR_LAB.md) |
 | Understand retrieval, providers and application structure | [Architecture and configuration](ARCHITECTURE.md) |
+| Deploy the desktop and mobile app | [Vercel deployment guide](DEPLOYMENT.md) |
 | Enable local semantic search | [Advanced RAG setup and limits](ADVANCED_RAG.md) |
 | Understand the Decathlon comparison | [Comparison scope and sources](COMPARISON.md) |
 | See what is delivered and what comes next | [Roadmap](ROADMAP.md) |

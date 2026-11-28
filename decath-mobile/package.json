@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "dev:turbo": "next dev --turbopack",
-    "check:lab": "node scripts/lab-check.mjs && node scripts/lab-api-check.mjs",
+    "check:lab": "node scripts/lab-check.mjs && node scripts/lab-api-check.mjs && node scripts/community-cloud-check.mjs",
     "test": "npm run check:rag && node scripts/advisor-check.mjs && npm run check:lab && npm run check:tryon && npm run check:experiences",
     "check:tryon": "node scripts/tryon-check.mjs",
     "index:rag": "node scripts/index-rag.mjs",
